@@ -187,7 +187,7 @@ public class UserService {
 			Global.cookieContainer = new HashMap<String, String>();
 		}
 		ModelService.removeAllInspector(context);
-		Global.loginStatus = Global.LoginStatus.NON_LOGINED;
+		Global.loginStatus = Global.LoginStatus.NOT_LOGINED;
 
 	}
 

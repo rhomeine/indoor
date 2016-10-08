@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bupt.indoorPosition.uti.Global;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
 import com.bupt.indooranalysis.fragment.InspectFragment;
@@ -42,8 +43,11 @@ public class MainActivity extends AppCompatActivity
     private ViewPager mPager;
     private ArrayList<Fragment> mFragmentList = new ArrayList<Fragment>();
     private FragmentPagerAdapter fragmentPagerAdapter;
+    private NavigationView navigationView;
 
     private TextView mTabInspect, mTabHistory, mTabData;
+    private ImageView userProfile;
+    private TextView userCity,userProvince,userCompany,userName;
 
     private InspectFragment inspectFragment;
     private HistoryFragment historyFragment;
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity
 
     protected void initComponent(){
 
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         //init tab
         mTabInspect = (TextView) findViewById(R.id.txt_tab_inspect);
         mTabHistory = (TextView) findViewById(R.id.txt_tab_history);
@@ -77,6 +82,8 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+
         navigationView.setNavigationItemSelectedListener(this);
 
         inspectFragment = new InspectFragment();
@@ -94,6 +101,9 @@ public class MainActivity extends AppCompatActivity
         mTabInspect.setTextColor(Color.BLACK);
         mTabHistory.setTextColor(Color.GRAY);
         mTabData.setTextColor(Color.GRAY);
+    //    mTabInspect.setBackground(null);
+        mTabHistory.setBackground(null);
+        mTabData.setBackground(null);
         Log.i("Init Component","add Fragment");
 
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -142,6 +152,42 @@ public class MainActivity extends AppCompatActivity
         });
 
        // initTabLineWidth();
+        initUserCenter();
+    }
+
+    public void initUserCenter(){
+
+        View navHeaderView = navigationView.getHeaderView(0);
+        userProfile = (ImageView) navHeaderView.findViewById(R.id.imageView);
+        userCity = (TextView) navHeaderView.findViewById(R.id.txt_user_city);
+        userProvince = (TextView) navHeaderView.findViewById(R.id.txt_user_province);
+        userCompany = (TextView) navHeaderView.findViewById(R.id.txt_user_company);
+        userName = (TextView) navHeaderView.findViewById(R.id.txt_user_name);
+
+        if(Global.loginStatus == Global.LoginStatus.NOT_LOGINED){
+            userProfile.setImageResource(R.mipmap.ic_launcher);
+            userName.setText("请登录");
+            userCity.setVisibility(View.INVISIBLE);
+            userProvince.setVisibility(View.INVISIBLE);
+            userCompany.setVisibility(View.INVISIBLE);
+        }else {
+            userProfile.setImageResource(R.drawable.ic_user_profile);
+            //TODO
+
+
+        }
+
+        userProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Global.loginStatus == Global.LoginStatus.NOT_LOGINED){
+                    Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                    startActivity(intent);
+                }else {
+                    startActivity(new Intent(MainActivity.this,UserCenterActivity.class));
+                }
+            }
+        });
 
     }
 

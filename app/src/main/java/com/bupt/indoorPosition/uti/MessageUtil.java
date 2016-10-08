@@ -61,7 +61,7 @@ public class MessageUtil {
 	}
 
 	public static boolean checkLogin(Context context) {
-		if (Global.loginStatus == LoginStatus.NON_LOGINED) {
+		if (Global.loginStatus == LoginStatus.NOT_LOGINED) {
 			Toast.makeText(context, "请先登录再进行此操作", Toast.LENGTH_LONG).show();
 			return false;
 		}
