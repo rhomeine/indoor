@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.HttpUtil;
-import com.bupt.indoorpostion.R;
+import com.bupt.indooranalysis.R;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">智能室分系统</string>
+    <string name="app_name">智能室分</string>
 
     <string name="navigation_history">巡检历史</string>
     <string name="navigation_data">训练数据</string>

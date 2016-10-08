@@ -21,7 +21,6 @@ import com.bupt.indoorPosition.bean.Neighbor;
 import com.bupt.indoorPosition.bean.Speed;
 import com.bupt.indoorPosition.bean.SpeedTestStatus;
 import com.bupt.indoorPosition.bean.UserSetting;
-import com.bupt.indoorPosition.fragment.FragmentInspection.BeaconSimpleAdapter;
 
 import android.content.Context;
 import android.database.Cursor;
