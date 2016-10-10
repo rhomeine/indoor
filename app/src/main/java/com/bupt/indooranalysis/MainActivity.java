@@ -40,10 +40,16 @@ import com.bupt.indoorPosition.location.LocationProvider;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.model.UserService;
 import com.bupt.indoorPosition.uti.Constants;
+
+
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+
 import com.bupt.indoorPosition.uti.Global;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
 import com.bupt.indooranalysis.fragment.InspectFragment;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,8 +93,20 @@ public class MainActivity extends AppCompatActivity
         initComponent();
         initUserCenter();
     }
+    protected void initFloorSelectButton(){
+        ImageView icon = new ImageView(this);
+        icon.setImageDrawable(getDrawable(R.drawable.ic_floor));
 
-    protected void initComponent() {
+        FloatingActionButton actionButton = new FloatingActionButton.Builder(this).setContentView(icon).build();
+
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+        ImageView itemIcon = new ImageView(this);
+        itemIcon.setImageDrawable(getDrawable(R.drawable.ic_round_button));
+        SubActionButton button1 = itemBuilder.setContentView(itemIcon).build();
+
+        FloatingActionMenu floatingActionMenu = new FloatingActionMenu.Builder(this).addSubActionView(button1).attachTo(actionButton).build();
+    }
+    protected void initComponent(){
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         //init tab
