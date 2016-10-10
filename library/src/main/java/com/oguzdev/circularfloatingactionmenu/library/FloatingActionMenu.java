@@ -5,6 +5,7 @@ package com.oguzdev.circularfloatingactionmenu.library;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.PixelFormat;
@@ -12,6 +13,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.SensorManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -34,7 +36,7 @@ import java.util.List;
 public class FloatingActionMenu {
 
     /** Reference to the view (usually a button) to trigger the menu to show */
-    private View mainActionView;
+    public View mainActionView;
     /** The angle (in degrees, modulus 360) which the circular menu starts from  */
     private int startAngle;
     /** The angle (in degrees, modulus 360) which the circular menu ends at  */
@@ -57,6 +59,8 @@ public class FloatingActionMenu {
     private FrameLayout overlayContainer;
 
     private OrientationEventListener orientationListener;
+
+    private String LOGTAG = "FloatingActionMenu";
 
     /**
      * Constructor that takes the parameters collected using {@link FloatingActionMenu.Builder}
@@ -365,6 +369,18 @@ public class FloatingActionMenu {
         for(int i=0; i<subActionItems.size(); i++) {
             float[] coords = new float[] {0f, 0f};
             measure.getPosTan((i) * measure.getLength() / divisor, coords, null);
+
+            int[] location = new int[2];
+            mainActionView.getLocationOnScreen(location);
+            Log.i(LOGTAG, "getLocationOnScreen:X=>"+ Integer.toString(location[0])+"Y=>"+Integer.toString(location[1]));
+
+            String left = Integer.toString(mainActionView.getLeft());
+            String right = Integer.toString(mainActionView.getRight());
+            String top = Integer.toString(mainActionView.getTop());
+            String bottom = Integer.toString(mainActionView.getBottom());
+
+            Log.i(LOGTAG,"getLocation left"+left+" right"+right+" top"+top+" bottom"+bottom);
+
             // get the x and y values of these points and set them to each of sub action items.
             subActionItems.get(i).x = (int) coords[0] - subActionItems.get(i).width / 2;
             subActionItems.get(i).y = (int) coords[1] - subActionItems.get(i).height / 2;
@@ -606,7 +622,7 @@ public class FloatingActionMenu {
             subActionItems = new ArrayList<Item>();
             // Default settings
             radius = context.getResources().getDimensionPixelSize(R.dimen.action_menu_radius);
-            startAngle = 180;
+            startAngle = 90;
             endAngle = 270;
             animationHandler = new DefaultAnimationHandler();
             animated = true;
