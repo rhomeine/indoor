@@ -5,34 +5,41 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button"></LinearLayout>
+
     <RadioGroup
         android:id="@+id/rg_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="3"
-        android:padding="15dp"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        android:layout_alignParentEnd="false"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:weightSum="3">
 
         <RadioButton
             android:id="@+id/btn_cleardata"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:button="@null"
             android:gravity="center"
             android:paddingLeft="0dp"
             android:text="清除数据"
-            android:textSize="10dp"/>
+            android:textSize="16dp" />
         <!--</LinearLayout>-->
         <!--给中间凸起按钮预留位置-->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center">
-        </LinearLayout>
+            android:gravity="center"></LinearLayout>
+
         <RadioButton
             android:id="@+id/btn_updatedata"
             android:layout_width="0dp"
@@ -43,20 +50,20 @@
             android:gravity="center"
             android:paddingLeft="0dp"
             android:text="上传数据"
-            android:textSize="10dp"/>
+            android:textSize="16dp" />
         <!-- </LinearLayout>-->
     </RadioGroup>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/rg_tab">
-    </LinearLayout>
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginBottom="10dp"
-        android:layout_above="@id/rg_tab"
+
+    <Button
+        android:id="@+id/buttonRound"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/ic_round_button"/>
+        android:background="@drawable/ic_round_botton_style"
+        android:text="？"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:textColor="@color/white" />
+
 </RelativeLayout>
