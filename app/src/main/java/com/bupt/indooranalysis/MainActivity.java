@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
             public void onPageSelected(int position) {
 
                 if(position!=0){
+                    floatingActionMenu.close(true);
                     actionButton.setVisibility(View.INVISIBLE);
                 }else actionButton.setVisibility(View.VISIBLE);
 
