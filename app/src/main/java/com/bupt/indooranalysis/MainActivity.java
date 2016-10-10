@@ -27,6 +27,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,20 +41,18 @@ import com.bupt.indoorPosition.location.LocationProvider;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.model.UserService;
 import com.bupt.indoorPosition.uti.Constants;
-
-
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-
 import com.bupt.indoorPosition.uti.Global;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
 import com.bupt.indooranalysis.fragment.InspectFragment;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -85,6 +84,11 @@ public class MainActivity extends AppCompatActivity
     private Timer keepAliveTimer;
     private InspectUpdateCallback cbInspect;
     private SettingUpdateCallback cbSetting;
+    private FloatingActionMenu floatingActionMenu;
+    private FloatingActionButton actionButton;
+    private ArrayList<SubActionButton> floorbuttons;
+
+    private ArrayList<String> floor = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,21 +96,76 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initComponent();
         initLogin();
-        initUserCenter();
+        initFloorSelectButton();
     }
+
+    //初始化楼层选择按钮
     protected void initFloorSelectButton(){
+
+        //初始化楼层
+        floor.add("F1");
+        floor.add("F2");
+        floor.add("F3");
+        floor.add("F4");
+        floor.add("F5");
+
+        floorbuttons = new ArrayList<SubActionButton>();
         ImageView icon = new ImageView(this);
         icon.setImageDrawable(getDrawable(R.drawable.ic_floor));
+        actionButton = new FloatingActionButton.Builder(this).setContentView(icon).build();
+        FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(this);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(150,150);
+        actionButton.setPosition(3,layoutParams);
 
-        FloatingActionButton actionButton = new FloatingActionButton.Builder(this).setContentView(icon).build();
+        for(int i=0;i<floor.size();i++){
+            TextView textView = new TextView(this);
+            textView.setText(floor.get(i));
+            SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+            floorbuttons.add(itemBuilder.setContentView(textView).build());
+            builder.addSubActionView(floorbuttons.get(i));
+        }
+        builder.setStartAngle(90);
+        builder.attachTo(actionButton);
+        floatingActionMenu = builder.build();
 
-        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
-        ImageView itemIcon = new ImageView(this);
-        itemIcon.setImageDrawable(getDrawable(R.drawable.ic_round_button));
-        SubActionButton button1 = itemBuilder.setContentView(itemIcon).build();
+        floorbuttons.get(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        FloatingActionMenu floatingActionMenu = new FloatingActionMenu.Builder(this).addSubActionView(button1).attachTo(actionButton).build();
+        floorbuttons.get(1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //待添加其它floor监听器
     }
+
     protected void initComponent(){
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -162,6 +221,11 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPageSelected(int position) {
+
+                if(position!=0){
+                    floatingActionMenu.close(true);
+                    actionButton.setVisibility(View.INVISIBLE);
+                }else actionButton.setVisibility(View.VISIBLE);
 
                 mTabInspect.setTextColor(Color.GRAY);
                 mTabHistory.setTextColor(Color.GRAY);
@@ -252,6 +316,7 @@ public class MainActivity extends AppCompatActivity
         }, 10000, 1000 * 60 * 3);
     }
 
+    //初始化用户相关
     public void initUserCenter() {
 
         View navHeaderView = navigationView.getHeaderView(0);
@@ -341,7 +406,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-
+            Intent mail = new Intent(Intent.ACTION_SENDTO);
+            mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
+            mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
+            mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
+            startActivity(mail);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
