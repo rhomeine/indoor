@@ -39,12 +39,13 @@ import android.content.IntentFilter;
 	    @Override
 		public void onCreate(Bundle savedInstanceState){
 			super.onCreate(savedInstanceState);
-			setContentView(R.layout.beacon_show_main);
+			setContentView(R.layout.show_main);
 	        //
 			DBManager dBManager=new DBManager(ShowBeacon.this);		
 			list=dBManager.readBeacon();
 			receiver=new MyReceiver();
 			currentBeacon=receiver.returnBeacon();
+			 Log.d("ShowBeacon47",""+currentBeacon.size());
 			  IntentFilter filter=new IntentFilter();
 			  filter.addAction("com.bupt.indoorPosition.show.MyReceiver");
 			  registerReceiver(receiver,filter);
@@ -78,7 +79,7 @@ import android.content.IntentFilter;
 				 Log.d("ShowBeacon111111111", "done"+currentBeacon.size());
 				  
 				 
-				    SimpleAdapter adapter = new SimpleAdapter(ShowBeacon.this,mData,R.layout.adapter_simple_item,
+				    SimpleAdapter adapter = new SimpleAdapter(ShowBeacon.this,mData,R.layout.simple_item,  
 					        new String[]{"title","info"},new int[]{R.id.title,R.id.info});  
 				            ListView llist=(ListView) findViewById(R.id.listView1);
 				            llist.setAdapter(adapter);

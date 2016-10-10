@@ -12,10 +12,13 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.bupt.indoorPosition.bean.Beacon;
@@ -45,7 +48,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import android.R.integer;
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Message;
 import android.os.SystemClock;
 import android.telephony.CellLocation;
 import android.telephony.TelephonyManager;
@@ -170,7 +176,8 @@ public class ModelService {
 	}
 
 	// 同理 设置对应localization
-	public static void updateBeaconForLocal(Context context, Set<Beacon> beaconSet, Beacon newBeacon) {
+	public static void updateBeaconForLocal(Context context, Set<Beacon> beaconSet, Beacon newBeacon,
+			Set<Beacon> beaconMap) {
 		// Log.d("modelService", "enter");
 		// 定位所需最新接受处beacon列表
 
@@ -181,6 +188,12 @@ public class ModelService {
 			oBeacon.setRssi(newBeacon.getRssi());
 			oBeacon.setTxPower(newBeacon.getTxPower());
 			oBeacon.setDistance(newBeacon.getDistance());
+			// 更新定位使用set
+			Beacon listBeacon = BeaconUtil.get(beaconMap, newBeacon.getMac());
+			ArrayList<Integer> list = listBeacon.getDislist();
+			list.add(newBeacon.getDistance());
+			listBeacon.setDislist(list);
+
 		} else {
 			// Log.d("modelService", "not exist");
 			String newMac = newBeacon.getMac();
@@ -190,6 +203,10 @@ public class ModelService {
 				List<Integer> list = dbManager.LocalizationXY(newMac);
 				beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
 						list.get(0).intValue(), list.get(1).intValue()));
+				ArrayList<Integer> newlist = new ArrayList<Integer>();
+				newlist.add(newBeacon.getDistance());
+				beaconMap.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
+						list.get(0).intValue(), list.get(1).intValue(), newlist));
 			}
 		}
 	}
@@ -211,7 +228,6 @@ public class ModelService {
 	 * @param neighbors
 	 * @param beaconSet
 	 * @param debug
-	 * @param prePosition
 	 * @return Beacon 当前位置对应的蓝牙设备
 	 */
 	public static Beacon recordIndoorData(Context context, IndoorRecord record, List<Neighbor> neighbors,
@@ -587,7 +603,7 @@ public class ModelService {
 	/**
 	 * 根据currentPosition,更新用于界面显示的showList
 	 * 
-	 * @param currentPostion
+	 * @param currentPosition
 	 * @param showList
 	 * @param context
 	 */
@@ -735,4 +751,357 @@ public class ModelService {
 		}
 		return message;
 	}
+
+	// 定位A算法
+	public static List<Integer> localizationFunc(Set<Beacon> beaconMap) {
+		List<Integer> XX = new ArrayList<Integer>();
+		double X[][];
+		Iterator<Beacon> it = beaconMap.iterator();
+		int length = beaconMap.size();
+		int original[][] = new int[length][3];
+		int temp = 0;
+		int dealedDistance = 0;
+		while (it.hasNext()) {
+			Beacon b = it.next();
+			// X,Y
+			original[temp][0] = b.getX();
+			original[temp][1] = b.getY();
+			// 对每个点采集的时序数据进行高斯滤波
+			if (b.getDislist().size() < 4) {
+				Iterator<Integer> iterasmall = b.getDislist().iterator();
+
+				while (iterasmall.hasNext()) {
+					dealedDistance += iterasmall.next().intValue();
+				}
+				dealedDistance = dealedDistance / b.getDislist().size();
+			} else {
+				ArrayList<Integer> arlist = b.getDislist();
+				Collections.sort(arlist);
+				int n = Double.valueOf(Math.floor(arlist.size() * 0.6)).intValue();
+				int isFirstorLast = 0;
+				for (int i = 0; i < n; i++) {
+					if (isFirstorLast == 0) {
+						arlist.remove(0);
+						isFirstorLast = 1;
+					} else {
+						arlist.remove(arlist.size() - 1);
+						isFirstorLast = 0;
+					}
+				}
+				Iterator<Integer> iterabig = arlist.iterator();
+				while (iterabig.hasNext()) {
+					dealedDistance += iterabig.next().intValue();
+				}
+				dealedDistance = dealedDistance / b.getDislist().size();
+			}
+			original[temp][2] = dealedDistance;
+			temp += 1;
+		}
+		// Log.d("genxinshujufordistance", temp + " " + length + " " +
+		// beaconMap.size());
+		// if (beaconMap.get("80:30:DC:0D:F6:0F") != null)
+		// Log.d("genxinshuju", "" + temp + " " +
+		// beaconMap.get("80:30:DC:0D:F6:0F").size());
+
+		// 要求的坐标为（A的转置乘上A）的逆乘上A的转置乘上B
+		if (temp > 1 && temp == length) {
+			double A[][] = new double[temp - 1][2];
+			double AT[][] = new double[2][temp - 1];
+			double B[][] = new double[temp - 1][1];
+			for (int i = 0; i < temp - 1; i++) {
+				A[i][0] = 2 * (original[i][0] - original[temp - 2][0]);
+				A[i][1] = 2 * (original[i][1] - original[temp - 2][1]);
+				B[i][0] = (original[i][0]) * (original[i][0]) - (original[temp - 2][0]) * (original[temp - 2][0])
+						+ (original[i][1]) * (original[i][1]) - (original[temp - 2][1]) * (original[temp - 2][1])
+						+ original[temp - 2][2] * original[temp - 2][2] - original[i][2] * original[i][2];
+				AT[0][i] = 2 * (original[i][0] - original[temp - 2][0]);
+				AT[1][i] = 2 * (original[i][1] - original[temp - 2][1]);
+				// Log.d("genxinshujudistance", " orignal: "+original[i][2]);
+
+			}
+			double X1[][] = multiMetrixAandB(AT, A);
+			double X2[][] = Mrinv(X1, 2);
+			double X3[][] = multiMetrixAandB(AT, B);
+			double X4[][] = multiMetrixAandB(X2, X3);
+			// Log.d("genxinshujuX1", "" + X1[0][0] + " " + X1[0][1] + " " +
+			// X1[1][0] + " " + X1[1][1]);
+			// Log.d("genxinshujuX2", "" + X2[0][0] + " " + X2[0][1] + " " +
+			// X2[1][0] + " " + X2[1][1]);
+			// Log.d("genxinshujuX3", "" + X3[0][0] + " " + X3[1][0] + " " +
+			// B[0][0]);
+			// Log.d("genxinshujuX4", "" + X4[0][0] + " " + X4[1][0]);
+
+			X = multiMetrixAandB(Mrinv(multiMetrixAandB(AT, A), 2), multiMetrixAandB(AT, B));
+
+			XX.add(Double.valueOf(Math.floor(X[0][0])).intValue());
+			XX.add(Double.valueOf(Math.floor(X[1][0])).intValue());
+			// Log.d("genxinshuju", "" + XX[0][0] + " " + XX[1][0] + " A: " +
+			// A[0][0] + " " + A[0][1] + " B: " + B[0][0]
+			// + " AT: " + AT[0][0] + " " + AT[1][0]);
+
+		} else {
+			XX.add(-999);
+			XX.add(-999);
+		}
+		return XX;
+
+	}
+
+	// 定位B算法
+	public static List<Integer> localizationFunc1(Set<Beacon> beaconSet) {
+		List<Integer> X1 = new ArrayList<Integer>();
+		Iterator<Beacon> ite = beaconSet.iterator();
+		int length = beaconSet.size();
+		int original[][] = new int[length][3];
+		int temp = 0;
+		while (ite.hasNext()) {
+			Beacon b = ite.next();
+			original[temp][0] = b.getX();
+			original[temp][1] = b.getY();
+			original[temp][2] = b.getDistance();
+			Log.d("genxinshujuBBBBBBB", "" + original[temp][0] + " " + original[temp][1] + " " + original[temp][2]);
+			temp += 1;
+		}
+		Log.d("genxinshujuBBBBBBBB", "" + temp + "   " + beaconSet.size());
+
+		// 要求的坐标为（A的转置乘上A）的逆乘上A的转置乘上B
+		if (temp > 1 && temp == length) {
+			double A[][] = new double[temp - 1][2];
+			double AT[][] = new double[2][temp - 1];
+			double B[][] = new double[temp - 1][1];
+			for (int i = 0; i < temp - 1; i++) {
+				A[i][0] = 2 * (original[i][0] - original[temp - 2][0]);
+				A[i][1] = 2 * (original[i][1] - original[temp - 2][1]);
+				B[i][0] = (original[i][0]) * (original[i][0]) - (original[temp - 2][0]) * (original[temp - 2][0])
+						+ (original[i][1]) * (original[i][1]) - (original[temp - 2][1]) * (original[temp - 2][1])
+						+ original[temp - 2][2] * original[temp - 2][2] - original[i][2] * original[i][2];
+				AT[0][i] = 2 * (original[i][0] - original[temp - 2][0]);
+				AT[1][i] = 2 * (original[i][1] - original[temp - 2][1]);
+
+				// Log.d("genxinshuju", ""+A[i][0]+" "+A[i][1]+" "+B[i][0]+"
+				// "+AT[0][i]+" "+AT[1][i]);
+			}
+			double X[][] = multiMetrixAandB(Mrinv(multiMetrixAandB(AT, A), 2), multiMetrixAandB(AT, B));
+			X1.add(Double.valueOf(Math.floor(X[0][0])).intValue());
+			X1.add(Double.valueOf(Math.floor(X[1][0])).intValue());
+		} else {
+			X1.add(-999);
+			X1.add(-999);
+		}
+		return X1;
+
+	}
+
+	//
+	//
+	//
+	//
+	//
+
+	// 三环定位算法
+	public static List<Integer> threePointLocalization(Set<Beacon> beaconSet) {
+		double x = -9999;
+		double y = -9999;
+		if (beaconSet.size() >= 3) {
+			Beacon a = new Beacon();
+			Beacon b = new Beacon();
+			Beacon c = new Beacon();
+
+			a = BeaconUtil.getMax(beaconSet);
+			beaconSet.remove(a);
+			b = BeaconUtil.getMax(beaconSet);
+			beaconSet.remove(b);
+			c = BeaconUtil.getMax(beaconSet);
+			int r1 = a.getDistance();
+			int x1 = a.getX();
+			int y1 = a.getY();
+			int r2 = b.getDistance();
+			int x2 = b.getX();
+			int y2 = b.getY();
+			int r3 = c.getDistance();
+			int x3 = c.getX();
+			int y3 = c.getY();
+			x = ((r1 * x2 + r2 * x1) * 1.0) / ((r1 + r2) * 1.0);
+			y = ((r1 * y2 + r2 * y1) * 1.0) / ((r1 + r2) * 1.0);
+			if (y1 == y2) {
+				if (Math.abs(x - x3) <= r3) {
+					int yy1 = y3 + Double.valueOf(Math.sqrt(r3 * r3 - (x - x3) * (x - x3))).intValue();
+					int yy2 = y3 - Double.valueOf(Math.sqrt(r3 * r3 - (x - x3) * (x - x3))).intValue();
+					if (Math.abs(yy1 - y1) <= Math.abs(yy2 - y1)) {
+						y = yy1;
+					} else {
+						y = yy2;
+					}
+				} else {
+					y = (y3 + y) / 2;
+					x = (x3 + x) / 2;
+				}
+			} else {
+				double A = -((x2 - x1) * 1.0) / ((y2 - y1) * 1.0);
+				double B = -1;
+				double C = (((x2 - x1) * 1.0) / ((y2 - y1) * 1.0)) * x + y;
+				double D = Math.abs((A * x3 + B * y3 + C) / (Math.sqrt(A * A + B * B)));
+				if (D <= r3) {
+					double aa = A * A + 1;
+					double bb = 2 * A * C - 2 * x3 - 2 * y3 * A;
+					double cc = x3 * x3 + C * C - 2 * y3 * C + y3 * y3 - r3 * r3;
+					int xxx1 = Double.valueOf((-bb + Math.sqrt(bb * bb - 4 * aa * cc)) / (2 * aa)).intValue();
+					int yyy1 = Double.valueOf(A * xxx1 + C).intValue();
+					int xxx2 = Double.valueOf((-bb - Math.sqrt(bb * bb - 4 * aa * cc)) / (2 * aa)).intValue();
+					int yyy2 = Double.valueOf(A * xxx2 + C).intValue();
+					if (Math.abs(yyy1 - y) <= Math.abs(yyy2 - y)) {
+						y = yyy1;
+						x = xxx1;
+					} else {
+						x = xxx2;
+						y = yyy2;
+					}
+				} else {
+					y = (y3 + y) / 2;
+					x = (x3 + x) / 2;
+				}
+			}
+		} else if (beaconSet.size() == 2) {
+			Iterator<Beacon> ite = beaconSet.iterator();
+			int rr1 = 0;
+			boolean isfirst = true;
+			int xx1 = 0;
+			int yy1 = 0;
+			int xx2 = 0;
+			int yy2 = 0;
+			int rr2 = 0;
+			while (ite.hasNext()) {
+				Beacon b = ite.next();
+				if (isfirst) {
+					rr1 = b.getDistance();
+					xx1 = b.getX();
+					yy1 = b.getY();
+					isfirst = false;
+				} else {
+					rr2 = b.getDistance();
+					xx2 = b.getX();
+					yy2 = b.getY();
+				}
+			}
+			x = ((rr1 * xx2 + rr2 * xx1) * 1.0) / ((rr1 + rr2) * 1.0);
+			y = ((rr1 * yy2 + rr2 * yy1) * 1.0) / ((rr1 + rr2) * 1.0);
+		} else if (beaconSet.size() == 1) {
+			int rrr = 0;
+			Iterator<Beacon> ite = beaconSet.iterator();
+			while (ite.hasNext()) {
+				Beacon b = ite.next();
+				rrr = b.getDistance();
+				x = b.getX();
+				y = b.getY();
+			}
+			double du = Math.random();
+			x = Math.cos(du * 360) * rrr + x;
+			y = Math.sin(du * 360) * rrr + y;
+
+		} else {
+
+		}
+		Log.d("ModelService1004", x + "   " + y);
+		int lx = Double.valueOf(x).intValue();
+		int ly = Double.valueOf(y).intValue();
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(lx);
+		list.add(ly);
+		return list;
+
+	}
+
+	// 矩阵求逆运算
+	public static double[][] Mrinv(double[][] a, int n) {
+		int i, j, row, col, k;
+		double max, temp;
+		int[] p = new int[n];
+		double[][] b = new double[n][n];
+		for (i = 0; i < n; i++) {
+			p[i] = i;
+			b[i][i] = 1;
+		}
+
+		for (k = 0; k < n; k++) {
+			// 找主元
+			max = 0;
+			row = col = i;
+			for (i = k; i < n; i++)
+				for (j = k; j < n; j++) {
+					temp = Math.abs(b[i][j]);
+					if (max < temp) {
+						max = temp;
+						row = i;
+						col = j;
+					}
+				}
+			// 交换行列，将主元调整到 k 行 k 列上
+			if (row != k) {
+				for (j = 0; j < n; j++) {
+					temp = a[row][j];
+					a[row][j] = a[k][j];
+					a[k][j] = temp;
+					temp = b[row][j];
+					b[row][j] = b[k][j];
+					b[k][j] = temp;
+				}
+				i = p[row];
+				p[row] = p[k];
+				p[k] = i;
+			}
+			if (col != k) {
+				for (i = 0; i < n; i++) {
+					temp = a[i][col];
+					a[i][col] = a[i][k];
+					a[i][k] = temp;
+				}
+			}
+			// 处理
+			for (j = k + 1; j < n; j++)
+				a[k][j] /= a[k][k];
+			for (j = 0; j < n; j++)
+				b[k][j] /= a[k][k];
+			a[k][k] = 1;
+
+			for (j = k + 1; j < n; j++) {
+				for (i = 0; i < k; i++)
+					a[i][j] -= a[i][k] * a[k][j];
+				for (i = k + 1; i < n; i++)
+					a[i][j] -= a[i][k] * a[k][j];
+			}
+			for (j = 0; j < n; j++) {
+				for (i = 0; i < k; i++)
+					b[i][j] -= a[i][k] * b[k][j];
+				for (i = k + 1; i < n; i++)
+					b[i][j] -= a[i][k] * b[k][j];
+			}
+			for (i = 0; i < k; i++)
+				a[i][k] = 0;
+			a[k][k] = 1;
+		}
+		// 恢复行列次序；
+		for (j = 0; j < n; j++)
+			for (i = 0; i < n; i++)
+				a[p[i]][j] = b[i][j];
+
+		return a;
+	}
+
+	// 矩阵乘法
+	public static double[][] multiMetrixAandB(double metrixA[][], double metrixB[][]) {
+		double result[][] = new double[metrixA.length][metrixB[0].length];
+		int x, i, j = 0;
+		double tmp = 0;
+		for (i = 0; i < metrixA.length; i++) {
+			for (j = 0; j < metrixB[0].length; j++) {
+				for (x = 0; x < metrixB.length; x++)
+					tmp += metrixA[i][x] * metrixB[x][j];// 矩阵AB中a_ij的值等于矩阵A的i行和矩阵B的j列的乘积之和
+
+				result[i][j] = tmp;
+				tmp = 0; // 中间变量，每次使用后都得清零
+			}
+		}
+		return result;
+	}
+
 }

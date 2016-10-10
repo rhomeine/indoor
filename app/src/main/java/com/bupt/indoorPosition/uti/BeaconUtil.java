@@ -11,16 +11,21 @@ import com.bupt.indoorPosition.bean.Beacon;
 public class BeaconUtil {
 	public static Beacon getMax(Set<Beacon> beaconSet) {
 		Beacon max = null;
-		for (Beacon b : beaconSet) {
-			// 不考虑已经失效的beacon
-			if (b == null || b.getRssi() == Beacon.INVALID_RSSI)
-				continue;
-			if (max == null) {
-				max = b;
-			}
+		synchronized (beaconSet) {
 
-			if (max.compareTo(b) < 0) {
-				max = b;
+			if (beaconSet.size() != 0) {
+				for (Beacon b : beaconSet) {
+					// 不考虑已经失效的beacon
+					if (b == null || b.getRssi() == Beacon.INVALID_RSSI)
+						continue;
+					if (max == null) {
+						max = b;
+					}
+
+					if (max.compareTo(b) < 0) {
+						max = b;
+					}
+				}
 			}
 		}
 		Log.d("Gotmax", "" + beaconSet.size());
@@ -77,6 +82,15 @@ public class BeaconUtil {
 		}
 	}
 
+	public static int calculateAccuracyForLocalization(int txPower, double rssi) {
+		if (rssi == 0) {
+			return -100; // if we cannot determine accuracy, return -1.
+		}
+		 double accurancy = Math.pow(10, (rssi + 65) / (-28));
+//		double accurancy = Math.pow(10, (rssi + 71) / (-15.5));
+		return (int) (100 * accurancy);
+	}
+
 	public static Beacon get(Set<Beacon> beaconSet, String key) {
 		Beacon beacon = null;
 		for (Beacon b : beaconSet) {
@@ -98,19 +112,16 @@ public class BeaconUtil {
 		int fanhui = 1;
 
 		while (startByte <= 5) {
-			if (((int) scanRecord[startByte + 2] & 0xff) == 0x02
-					&& ((int) scanRecord[startByte + 3] & 0xff) == 0x15) {
+			if (((int) scanRecord[startByte + 2] & 0xff) == 0x02 && ((int) scanRecord[startByte + 3] & 0xff) == 0x15) {
 				// yes! This is an iBeacon
 				fanhui = (int) scanRecord[startByte + 24]; // this one is signed
 				break;
-			} else if (((int) scanRecord[startByte] & 0xff) == 0x2d
-					&& ((int) scanRecord[startByte + 1] & 0xff) == 0x24
+			} else if (((int) scanRecord[startByte] & 0xff) == 0x2d && ((int) scanRecord[startByte + 1] & 0xff) == 0x24
 					&& ((int) scanRecord[startByte + 2] & 0xff) == 0xbf
 					&& ((int) scanRecord[startByte + 3] & 0xff) == 0x16) {
 				fanhui = 2;
 				break;
-			} else if (((int) scanRecord[startByte] & 0xff) == 0xad
-					&& ((int) scanRecord[startByte + 1] & 0xff) == 0x77
+			} else if (((int) scanRecord[startByte] & 0xff) == 0xad && ((int) scanRecord[startByte + 1] & 0xff) == 0x77
 					&& ((int) scanRecord[startByte + 2] & 0xff) == 0x00
 					&& ((int) scanRecord[startByte + 3] & 0xff) == 0xc6) {
 				fanhui = 3;

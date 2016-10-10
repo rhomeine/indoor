@@ -1,8 +1,5 @@
 package com.bupt.indooranalysis;
 
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
-import java.net.Socket;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +13,6 @@ import java.util.TimerTask;
 import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.BeaconInfo;
 import com.bupt.indoorPosition.bean.IndoorRecord;
-import com.bupt.indoorPosition.bean.InspectDisplay;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Neighbor;
 import com.bupt.indoorPosition.bean.Speed;
@@ -37,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.telephony.CellInfo;

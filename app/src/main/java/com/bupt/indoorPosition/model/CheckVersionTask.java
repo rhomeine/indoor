@@ -96,16 +96,16 @@ public class CheckVersionTask {
 				break;
 			case Constants.MSG.NOT_UPDATA:
 				// 不需要升级程序
-				Toast.makeText(context, "版本最新无需升级", 1000).show();
+				Toast.makeText(context, "版本最新无需升级", Toast.LENGTH_SHORT).show();
 				break;
 			case Constants.MSG.GET_UNDATAINFO_ERROR:
 				// 服务器超时
-				Toast.makeText(context, "获取服务器更新信息失败", 1000).show();
+				Toast.makeText(context, "获取服务器更新信息失败", Toast.LENGTH_SHORT).show();
 				// LoginMain();
 				break;
 			case Constants.MSG.DOWN_ERROR:
 				// 下载apk失败
-				Toast.makeText(context, "下载新版本失败", 1000).show();
+				Toast.makeText(context, "下载新版本失败", Toast.LENGTH_SHORT).show();
 				// LoginMain();
 				break;
 			}
@@ -120,7 +120,7 @@ public class CheckVersionTask {
 	 * 3.通过builder 创建一个对话框 4.对话框show()出来
 	 */
 	protected void showUpdataDialog(String message) {
-		AlertDialog.Builder builer = new Builder(context);
+		Builder builer = new Builder(context);
 		builer.setTitle("版本升级");
 		builer.setMessage("是否进行版本升级 \n新版本特性：\n" + message);
 		// 当点确定按钮时从服务器上下载 新的apk 然后安装

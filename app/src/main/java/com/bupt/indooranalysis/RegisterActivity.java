@@ -1,7 +1,6 @@
 package com.bupt.indooranalysis;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 import com.bupt.indoorPosition.bean.Inspector;
 import com.bupt.indoorPosition.bean.Sim;

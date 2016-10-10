@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bupt.indooranalysis.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import com.bupt.indooranalysis.R;
 
 public class Sys_Setting_Adapter extends BaseAdapter{
 	private boolean isTicked;

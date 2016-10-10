@@ -19,6 +19,7 @@ public class MyReceiver extends BroadcastReceiver {
      
     }
     public List<String> returnBeacon(){
+    	Log.d("111111111111111111111111111",""+MycurrentBeacon.size());
     	return MycurrentBeacon;
     }
 }

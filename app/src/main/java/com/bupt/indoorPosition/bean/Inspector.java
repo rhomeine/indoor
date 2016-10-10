@@ -1,16 +1,10 @@
 package com.bupt.indoorPosition.bean;
 
-import android.widget.ImageView;
-
-import com.bupt.indoorPosition.uti.Global;
-import com.bupt.indooranalysis.R;
-
 import java.sql.Timestamp;
 
 public class Inspector {
 	private String username;
 	private String phoneNumber;
-	private ImageView profile;
 	private String imsi;
 	private String imei;
 	private String province;
@@ -34,15 +28,7 @@ public class Inspector {
 		this.companyName = companyName;
 		this.registryTime = registryTime;
 		this.password = password;
-		this.profile = null;
-	}
 
-	public void setProfile(ImageView profile) {
-		this.profile = profile;
-	}
-
-	public int getProfileId() {
-			return R.drawable.ic_user_profile;
 	}
 
 	public String getUsername() {

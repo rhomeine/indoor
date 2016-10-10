@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.bupt.indooranalysis.AboutSystemActivity">
 
-
     <include layout="@layout/toolbar_backward"/>
     <RelativeLayout
         android:id="@+id/as_two_dimensional_bar"

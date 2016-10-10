@@ -1,5 +1,7 @@
 package com.bupt.indoorPosition.bean;
 
+import java.util.ArrayList;
+
 public class Beacon implements Comparable<Beacon> {
 	public static final int INVALID_RSSI = -9999;
 	// beacon的发射间隔，毫秒
@@ -16,6 +18,11 @@ public class Beacon implements Comparable<Beacon> {
 	private int distance;// cm
 	private int x;
 	private int y;
+	private ArrayList<Integer> dislist;
+
+	public Beacon() {
+
+	}
 
 	public Beacon(String m, int r, int txp, int dis) {
 		mac = m;
@@ -31,6 +38,16 @@ public class Beacon implements Comparable<Beacon> {
 		distance = dis;
 		this.x = x;
 		this.y = y;
+	}
+
+	public Beacon(String m, int r, int txp, int dis, int x, int y, ArrayList<Integer> dislist) {
+		mac = m;
+		rssi = r;
+		txPower = txp;
+		distance = dis;
+		this.x = x;
+		this.y = y;
+		this.dislist = dislist;
 	}
 
 	@Override
@@ -109,6 +126,14 @@ public class Beacon implements Comparable<Beacon> {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+
+	public ArrayList<Integer> getDislist() {
+		return dislist;
+	}
+
+	public void setDislist(ArrayList<Integer> dislist) {
+		this.dislist = dislist;
 	}
 
 }

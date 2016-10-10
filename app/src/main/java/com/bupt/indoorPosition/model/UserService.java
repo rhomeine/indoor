@@ -15,7 +15,6 @@ import com.bupt.indoorPosition.uti.Global;
 import com.bupt.indoorPosition.uti.HttpUtil;
 import com.bupt.indoorPosition.uti.JsonUtil;
 import com.bupt.indoorPosition.uti.MessageUtil;
-
 import com.bupt.indooranalysis.R;
 
 public class UserService {
@@ -187,7 +186,7 @@ public class UserService {
 			Global.cookieContainer = new HashMap<String, String>();
 		}
 		ModelService.removeAllInspector(context);
-		Global.loginStatus = Global.LoginStatus.NOT_LOGINED;
+		Global.loginStatus = Global.LoginStatus.NOT_LOGINED	;
 
 	}
 
