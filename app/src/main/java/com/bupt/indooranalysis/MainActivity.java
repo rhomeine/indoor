@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initComponent();
-        initUserCenter();
 
         initFloorSelectButton();
     }
@@ -408,7 +407,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
             Intent mail = new Intent(Intent.ACTION_SENDTO);
-            mail.setData(Uri.parse("mailto:luomingtibo@gmail.com"));
+            mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
             mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
             mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
             startActivity(mail);
