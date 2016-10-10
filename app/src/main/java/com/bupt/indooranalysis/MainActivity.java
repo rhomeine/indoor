@@ -41,14 +41,11 @@ import com.bupt.indoorPosition.location.LocationProvider;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.model.UserService;
 import com.bupt.indoorPosition.uti.Constants;
-
-
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-
 import com.bupt.indoorPosition.uti.Global;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
 import com.bupt.indooranalysis.fragment.InspectFragment;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 

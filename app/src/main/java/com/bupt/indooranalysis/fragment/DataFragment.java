@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.bupt.indooranalysis.R;
 
@@ -28,6 +30,8 @@ public class DataFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private TextView textView;
+    private Button button;
     private OnFragmentInteractionListener mListener;
 
     public DataFragment() {
@@ -65,7 +69,17 @@ public class DataFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_data, container, false);
+        View view = inflater.inflate(R.layout.fragment_data, container, false);
+
+        button = (Button) view.findViewById(R.id.buttonRound);
+        textView = (TextView) view.findViewById(R.id.dataTextView1);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textView.setText("data");
+            }
+        });
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -97,7 +111,7 @@ public class DataFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
