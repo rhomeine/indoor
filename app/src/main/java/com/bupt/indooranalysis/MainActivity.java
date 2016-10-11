@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
         floorbuttons = new ArrayList<SubActionButton>();
         ImageView icon = new ImageView(this);
-        icon.setImageDrawable(getDrawable(R.drawable.ic_floor));
+        icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_floor));
         actionButton = new FloatingActionButton.Builder(this).setContentView(icon).build();
         FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(this);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(150,150);
@@ -202,6 +203,7 @@ public class MainActivity extends AppCompatActivity
 
 
         fragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), mFragmentList);
+        mPager.setOffscreenPageLimit(2);
         mPager.setAdapter(fragmentPagerAdapter);
         mPager.setCurrentItem(0);
         mTabInspect.setTextColor(Color.BLACK);
@@ -239,15 +241,15 @@ public class MainActivity extends AppCompatActivity
                 switch (position) {
                     case 0:
                         mTabInspect.setTextColor(Color.BLACK);
-                        mTabInspect.setBackground(getDrawable(R.drawable.shape_rect_button));
+                        mTabInspect.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     case 1:
                         mTabHistory.setTextColor(Color.BLACK);
-                        mTabHistory.setBackground(getDrawable(R.drawable.shape_rect_button));
+                        mTabHistory.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     case 2:
                         mTabData.setTextColor(Color.BLACK);
-                        mTabData.setBackground(getDrawable(R.drawable.shape_rect_button));
+                        mTabData.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     default:
                         break;
