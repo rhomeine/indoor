@@ -148,9 +148,10 @@ public class IndoorLocationActivity extends Activity {
 			public void run() {
 				// TODO Auto-generated method stub
 
-				List<Integer> list1 = ModelService.localizationFunc(beaconSet);
+				List<Integer> list1 = ModelService.localizationFunc(beaconMap);
 				List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
 				List<Integer> list3 = ModelService.threePointLocalization(beaconSet);
+				List<Integer> list4 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealed(beaconMap));
 				Message msg = new Message();
 				Bundle b = new Bundle();
 				msg.what = 0x01;

@@ -95,8 +95,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initComponent();
-        initUserCenter();
-
+        initLogin();
         initFloorSelectButton();
     }
 
@@ -109,6 +108,7 @@ public class MainActivity extends AppCompatActivity
         floor.add("F3");
         floor.add("F4");
         floor.add("F5");
+
 
         floorbuttons = new ArrayList<SubActionButton>();
         ImageView icon = new ImageView(this);
@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
             public void onPageSelected(int position) {
 
                 if(position!=0){
+                    floatingActionMenu.close(true);
                     actionButton.setVisibility(View.INVISIBLE);
                 }else actionButton.setVisibility(View.VISIBLE);
 
@@ -406,7 +407,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-
+            Intent mail = new Intent(Intent.ACTION_SENDTO);
+            mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
+            mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
+            mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
+            startActivity(mail);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

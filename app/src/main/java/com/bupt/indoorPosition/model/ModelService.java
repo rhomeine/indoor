@@ -898,6 +898,50 @@ public class ModelService {
 	//
 	//
 
+	//三环提前预处理数据
+	public static Set<Beacon> threeLocalizationPredealed(Set<Beacon> beaconMap) {
+		List<Integer> XX = new ArrayList<Integer>();
+		double X[][];
+		Iterator<Beacon> it = beaconMap.iterator();
+		int length = beaconMap.size();
+		int dealedDistance = 0;
+		while (it.hasNext()) {
+			Beacon b = it.next();
+			// 对每个点采集的时序数据进行高斯滤波
+			if (b.getDislist().size() < 4) {
+				Iterator<Integer> iterasmall = b.getDislist().iterator();
+
+				while (iterasmall.hasNext()) {
+					dealedDistance += iterasmall.next().intValue();
+				}
+				dealedDistance = dealedDistance / b.getDislist().size();
+				b.setDistance(dealedDistance);
+			} else {
+				ArrayList<Integer> arlist = b.getDislist();
+				Collections.sort(arlist);
+				int n = Double.valueOf(Math.floor(arlist.size() * 0.6)).intValue();
+				int isFirstorLast = 0;
+				for (int i = 0; i < n; i++) {
+					if (isFirstorLast == 0) {
+						arlist.remove(0);
+						isFirstorLast = 1;
+					} else {
+						arlist.remove(arlist.size() - 1);
+						isFirstorLast = 0;
+					}
+				}
+				Iterator<Integer> iterabig = arlist.iterator();
+				while (iterabig.hasNext()) {
+					dealedDistance += iterabig.next().intValue();
+				}
+				dealedDistance = dealedDistance / b.getDislist().size();
+				b.setDistance(dealedDistance);
+			}
+		}
+		return beaconMap;
+	}
+
+
 	// 三环定位算法
 	public static List<Integer> threePointLocalization(Set<Beacon> beaconSet) {
 		double x = -9999;
