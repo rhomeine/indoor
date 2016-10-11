@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/loginPassWord"
             android:layout_alignParentLeft="true"
-            android:layout_marginBottom="67dp"
+            android:layout_marginBottom="45dp"
             android:layout_marginLeft="38dp"
             android:text="@string/userName"
             android:textSize="20sp" />
