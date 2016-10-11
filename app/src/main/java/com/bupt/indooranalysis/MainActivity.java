@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton actionButton;
     private ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
+    private int REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -335,8 +336,10 @@ public class MainActivity extends AppCompatActivity
         } else {
             userProfile.setImageResource(R.drawable.ic_user_profile);
             //TODO
-
-
+            userName.setText("罗明");
+            userCity.setVisibility(View.VISIBLE);
+            userProvince.setVisibility(View.VISIBLE);
+            userCompany.setVisibility(View.VISIBLE);
         }
 
         userProfile.setOnClickListener(new View.OnClickListener() {
@@ -344,13 +347,21 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent,REQUEST_CODE,null);
                 } else {
                     startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
                 }
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE){
+            initUserCenter();
+        }
     }
 
     @Override

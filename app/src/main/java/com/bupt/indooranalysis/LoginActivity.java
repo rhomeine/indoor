@@ -120,6 +120,9 @@ public class LoginActivity extends BaseAppCompatActivity {
 			Log.d("receive_mess", message);
 			if (message.equals("Ok")) {
 				Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+				Intent intent1 = new Intent();
+				intent1.putExtra("login","successful");
+				LoginActivity.this.setResult(100,intent);
 				LoginActivity.this.finish();
 				// startActivity(new Intent(LoginActivity.this,
 				// HomeActivity.class));
