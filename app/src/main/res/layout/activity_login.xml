@@ -15,24 +15,21 @@
             android:id="@+id/loginName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/loginPassWord"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="67dp"
+            android:layout_marginTop="30dp"
             android:layout_marginLeft="38dp"
             android:text="@string/userName"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/loginUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/loginName"
-            android:layout_alignBottom="@+id/loginName"
-            android:layout_marginLeft="14dp"
-            android:layout_toRightOf="@+id/loginName"
+            android:layout_alignBaseline="@id/loginName"
+            android:layout_alignBottom="@id/loginName"
+            android:layout_marginLeft="12dp"
+            android:layout_toRightOf="@id/loginName"
             android:ems="10"
-            android:hint="@string/userNameHint"
-            android:padding="8dip" >
+            android:hint="@string/userNameHint">
             <requestFocus />
         </EditText>
 
@@ -41,9 +38,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/loginName"
-            android:layout_marginTop="100dp"
+            android:layout_below="@+id/loginName"
+            android:layout_marginTop="30dp"
             android:text="@string/passWord"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/loginPassWord"
@@ -65,7 +63,7 @@
             android:layout_alignLeft="@+id/loginName"
             android:layout_alignRight="@+id/loginPassWord"
             android:layout_below="@+id/loginPassWord"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="50dp"
             android:text="@string/login" />
 
     </RelativeLayout>

@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionMenu floatingActionMenu;
     private FloatingActionButton actionButton;
     private ArrayList<SubActionButton> floorbuttons;
-
     private ArrayList<String> floor = new ArrayList<>();
 
     @Override
