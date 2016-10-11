@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity
         floor.add("F4");
         floor.add("F5");
 
+
         floorbuttons = new ArrayList<SubActionButton>();
         ImageView icon = new ImageView(this);
         icon.setImageDrawable(getDrawable(R.drawable.ic_floor));
