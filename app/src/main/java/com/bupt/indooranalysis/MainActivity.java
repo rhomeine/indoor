@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         inspectFragment = new InspectFragment();
+        cbInspect = (InspectUpdateCallback)inspectFragment;
         historyFragment = new HistoryFragment();
         dataFragment = new DataFragment();
 
@@ -571,15 +572,15 @@ public class MainActivity extends AppCompatActivity
             // Log.i("Home_activity HomeHandler", "receive msg.what " +
             // msg.what);
             // Log.i("Home_activity HomeHandler", "" + (msg.what & 0xf0));
-            // Log.i("Home_activity HomeHandler", "" + (msg.what & 0x0f));
+             Log.i("HomeHandler", "" + (msg.what & 0x0f));
             if ((msg.what & 0xf0) == ((int) 0xf0)) {
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);
                 }
             } else if ((msg.what & 0x0f) == ((int) 0x0f)) {
                 // Log.i("Home_activity HomeHandler", "0x0f");
-                if (cbSetting != null) {
-                    cbSetting.handleUpdateMessage(msg);
+                if (cbInspect != null) {
+                    cbInspect.handleUpdateMessage(msg);
                 }
             } else if ((msg.what & 0xf00) == ((int) 0xf00)) {
                 switch (msg.what) {

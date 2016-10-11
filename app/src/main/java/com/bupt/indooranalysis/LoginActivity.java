@@ -46,7 +46,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 		loginUserName = (EditText) findViewById(R.id.loginUserName);
 		loginPassWord = (EditText) findViewById(R.id.loginPassWord);
 		btnlogin = (Button) findViewById(R.id.btnlogin);
-		textShow = (TextView) findViewById(R.id.textView7);
+		textShow = (TextView) findViewById(R.id.showLoginStatus);
 		// 删除已有的文字
 		loginUserName.setOnClickListener(new OnClickListener() {
 			@Override

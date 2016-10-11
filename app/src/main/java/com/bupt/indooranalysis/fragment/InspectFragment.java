@@ -22,13 +22,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bupt.indoorPosition.bean.InspectedBeacon;
+import com.bupt.indoorPosition.bean.Sim;
+import com.bupt.indoorPosition.callback.FragmentServiceCallback;
 import com.bupt.indoorPosition.callback.InspectUpdateCallback;
 import com.bupt.indoorPosition.dao.DBManager;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.MessageUtil;
+import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
+import com.bupt.indooranalysis.ScanService;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
@@ -70,6 +74,7 @@ public class InspectFragment extends Fragment implements
     private List<Map<String, Object>> listData = null;
     private Bundle savedState;
     private boolean isDeleting = false;
+    private boolean isUpdating = false;
 
     private Button button;
     private TextView textView;
@@ -136,6 +141,29 @@ public class InspectFragment extends Fragment implements
             @Override
             public void onClick(View v) {
                 textView.setText("click!");
+                final Intent intent = new Intent(mcontext, ScanService.class);
+                intent.setAction("com.bupt.indooranalysis.ScanService");
+                if (!MessageUtil.checkLogin(mcontext)) {
+                    return;
+                }
+                //更新数据
+                updateBeacon();
+
+                //此处设置开始巡检的启动状况
+//                if (startScanning == false) {
+//                    startScanning = true;
+////                btnStart.setText(R.string.btnStarting);
+////                btnimage.setImageResource(images[0]);
+//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                            intent, true);
+//                } else {
+//                    startScanning = false;
+////                    btnStart.setText(R.string.btnStartContent);
+//                    // bAdapter.disable();
+////                btnimage.setImageResource(images[1]);
+//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                            intent, false);
+//                }
             }
         });
         return view;
@@ -196,6 +224,19 @@ public class InspectFragment extends Fragment implements
             setData(list);
 //            ((SimpleAdapter) listView.getAdapter()).notifyDataSetChanged();
 
+        }else if (msg.what == Constants.MSG.UPDATE) {
+            Log.i("Inspect227", "msg.what "
+                    + msg.what);
+            textView.setText("更新完毕");
+            Bundle b = msg.getData();
+            boolean status = b.getBoolean("status");
+            if (status) {
+                Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
+            } else {
+                Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
+            }
+            isUpdating = false;
         }
 
     }
@@ -263,32 +304,65 @@ public class InspectFragment extends Fragment implements
 
         }
     }
-    private class StartListener implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
 
-            final Intent intent = new Intent();
-            intent.setAction("com.bupt.indoorpostion.ScanService");
-            if (!MessageUtil.checkLogin(mcontext)) {
-                return;
+
+    private void updateBeacon() {
+
+        Log.d("update", "开始更新");
+        if (!MessageUtil.checkLogin(activity.getApplicationContext())) {
+            return;
+        }
+        if (isUpdating)
+            return;
+        isUpdating = true;
+        Toast.makeText(mcontext,"正在更新",Toast.LENGTH_SHORT);
+//        changeListItemName(1, "正在更新...");
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Sim sim = ModelService.getPhoneInfo(activity.telephonyManager);
+                boolean status = ModelService.updateDb(activity, sim);
+                //新增定位模块更新
+                boolean statusForLoacalization = ModelService.updateLocalization(activity);
+                //
+
+                Message msg = new Message();
+                msg.what = Constants.MSG.UPDATE;
+                Bundle b = new Bundle();
+                b.putBoolean("status", status&&statusForLoacalization);
+                msg.setData(b);
+                msg.what = Constants.MSG.UPDATE;
+                activity.handler.sendMessage(msg);
             }
-            //此处设置开始巡检的启动状况
+        }).start();
+    }
+//    private class StartListener implements View.OnClickListener {
+//        @Override
+//        public void onClick(View arg0) {
+//
+//            final Intent intent = new Intent();
+//            intent.setAction("com.bupt.indooranalysis.ScanService");
+//            if (!MessageUtil.checkLogin(mcontext)) {
+//                return;
+//            }
+//            //此处设置开始巡检的启动状况
 //            if (startScanning == false) {
 //                startScanning = true;
-//                btnStart.setText(R.string.btnStarting);
-//                btnimage.setImageResource(images[0]);
-//                ((FragmentServiceCallback) parent).startOrStopActivityService(
+////                btnStart.setText(R.string.btnStarting);
+////                btnimage.setImageResource(images[0]);
+//                ((FragmentServiceCallback) activity).startOrStopActivityService(
 //                        intent, true);
 //            } else {
 //                startScanning = false;
 //                btnStart.setText(R.string.btnStartContent);
 //                // bAdapter.disable();
-//                btnimage.setImageResource(images[1]);
-//                ((FragmentServiceCallback) parent).startOrStopActivityService(
+////                btnimage.setImageResource(images[1]);
+//                ((FragmentServiceCallback) activity).startOrStopActivityService(
 //                        intent, false);
 //            }
-        }
-    }
+//        }
+//    }
 //    @Override
 //    public void onActivityCreated(Bundle savedInstanceState) {
 //        super.onActivityCreated(savedInstanceState);
