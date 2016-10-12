@@ -232,9 +232,11 @@ public class InspectFragment extends Fragment implements
             boolean status = b.getBoolean("status");
             if (status) {
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
+            }
+            if(b.getBoolean("statusForLoacalization")){
+                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             }
             isUpdating = false;
         }
@@ -331,6 +333,7 @@ public class InspectFragment extends Fragment implements
                 msg.what = Constants.MSG.UPDATE;
                 Bundle b = new Bundle();
                 b.putBoolean("status", status&&statusForLoacalization);
+                b.putBoolean("statusForLoacalization",statusForLoacalization);
                 msg.setData(b);
                 msg.what = Constants.MSG.UPDATE;
                 activity.handler.sendMessage(msg);
