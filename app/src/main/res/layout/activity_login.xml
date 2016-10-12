@@ -43,15 +43,6 @@
             android:text="@string/passWord"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/showLoginStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnlogin"
-            android:layout_marginTop="30dp"
-            android:text=""
-            android:textSize="18sp" />
-
         <EditText
             android:id="@+id/loginPassWord"
             android:layout_width="wrap_content"
@@ -75,6 +66,16 @@
             android:layout_marginTop="50dp"
             android:text="@string/login" />
 
+
+        <TextView
+            android:id="@+id/showLoginStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnlogin"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:text=""
+            android:textSize="18sp" />
     </RelativeLayout>
 
 
