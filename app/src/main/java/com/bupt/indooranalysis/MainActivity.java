@@ -348,6 +348,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateNavUser(){
+
+        Log.i("MainActivity","updateNavUser "+Global.loginStatus.toString());
         if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
             userProfile.setImageResource(R.mipmap.ic_launcher);
             userName.setText("请登录");
@@ -505,7 +507,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (Global.loginStatus == Global.LoginStatus.LOGINED) {
                     System.out.println("logined");
-                    initUserCenter();
+  //                  initUserCenter();
                     Message msg = new Message();
                     msg.what = Constants.MSG.HAS_LOGINED;
                     handler.sendMessage(msg);
@@ -592,6 +594,9 @@ public class MainActivity extends AppCompatActivity
             // msg.what);
             // Log.i("Home_activity HomeHandler", "" + (msg.what & 0xf0));
              Log.i("HomeHandler", "" + (msg.what & 0x0f));
+            if(msg.what == Constants.MSG.HAS_LOGINED){
+                updateNavUser();
+            }
             if ((msg.what & 0xf0) == ((int) 0xf0)) {
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);
