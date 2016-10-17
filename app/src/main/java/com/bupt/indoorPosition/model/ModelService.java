@@ -1096,6 +1096,7 @@ public class ModelService {
     //三环提前预处理A++
 
     public static Set<Beacon> threeLocalizationPredealedAA(Set<Beacon> beaconMap) {
+        Log.d("ModelService1111", "" + beaconMap.size());
         List<Integer> XX = new ArrayList<Integer>();
         double X[][];
         Iterator<Beacon> it = beaconMap.iterator();
@@ -1103,6 +1104,7 @@ public class ModelService {
         Set<Beacon> newBeaconMap = new HashSet<Beacon>();
         while (it.hasNext()) {
             Beacon b = it.next();
+            Log.d("ModelService", "" + b.getDislist().size());
             // 对每个点采集的时序数据进行高斯滤波
             if (b.getDislist().size() < 5) {
 //                Iterator<Integer> iterasmall = b.getDislist().iterator();
@@ -1113,7 +1115,11 @@ public class ModelService {
 //                dealedDistance = dealedDistance / b.getDislist().size();
 //                b.setDistance(dealedDistance);
             } else {
-                ArrayList<Integer> arlist = b.getDislist();
+                ArrayList<Integer> arlist = new ArrayList<Integer>();
+                for (int i = 0; i < b.getDislist().size(); i++) {
+                    int a = b.getDislist().get(i);
+                    arlist.add(a);
+                }
                 Collections.sort(arlist);
                 int n = Double.valueOf(Math.floor(arlist.size() * 0.6)).intValue();
                 int isFirstorLast = 0;
@@ -1136,7 +1142,7 @@ public class ModelService {
                         b.getX(), b.getY(), b.getDislist()));
             }
         }
-        Log.d("ModelService1272",""+newBeaconMap.size());
+        Log.d("ModelService2222", "" + newBeaconMap.size());
         return newBeaconMap;
     }
 
@@ -1188,7 +1194,7 @@ public class ModelService {
 
     public static List<Integer> sixPointMassCenter(Set<Beacon> beaconSet) {
         List<Integer> list = new ArrayList<Integer>();
-        Log.d("ModelService1272",""+beaconSet.size());
+        Log.d("ModelService3333", "" + beaconSet.size());
         if (beaconSet.size() >= 3) {
             Beacon a = new Beacon();
             Beacon b = new Beacon();
@@ -1265,13 +1271,13 @@ public class ModelService {
 
             list.add(X);
             list.add(Y);
-            Log.d("ModelService1272",""+beaconSet.size());
+            Log.d("ModelService4444", "" + beaconSet.size());
             return list;
 
         } else if (list.size() == 0) {
             list.add(0);
             list.add(0);
-            Log.d("ModelService0000",""+beaconSet.size());
+            Log.d("ModelService0000", "" + beaconSet.size());
         }
         return list;
 

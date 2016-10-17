@@ -1,5 +1,6 @@
 package com.bupt.indooranalysis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -169,15 +170,11 @@ public class IndoorLocationActivity extends Activity {
                                             b.getX(), b.getY(), b.getDislist()));
                                 }
                             }
-                            Set<Beacon> newbeaconMap11 = ModelService.threeLocalizationPredealedAA(newbeaconMap1);
-                            Set<Beacon> newbeaconMap22 = ModelService.threeLocalizationPredealedAA(newbeaconMap2);
-                            Set<Beacon> bbbbb = ModelService.threeLocalizationPredealedAA(newbeaconMap3);
-                            List<Integer> list1 = ModelService.localizationFuncAA(newbeaconMap1);
+                            List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
                             List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
-                            List<Integer> list3 = ModelService.threePointLocalization(newbeaconMap2);
-
-                            Log.d("ModelService1272", "" + bbbbb.size());
-                            List<Integer> list4 = ModelService.sixPointMassCenter(bbbbb);
+                            List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
+                                    (newbeaconMap2));
+                            List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
                             String X = EtxPX.getText().toString();
                             String Y = EtxPY.getText().toString();
                             int dataX = 0;

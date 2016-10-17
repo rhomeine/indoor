@@ -472,7 +472,7 @@ public class InspectFragment extends Fragment implements
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
             }
             if(b.getBoolean("statusForLoacalization")){
-                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
+//                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             }
             isUpdating = false;
         }
