@@ -1,7 +1,10 @@
 package com.bupt.indooranalysis;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -10,6 +13,7 @@ import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.uti.BeaconUtil;
+import com.bupt.indoorPosition.uti.Constants;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -31,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,8 +67,15 @@ public class IndoorLocationActivity extends Activity {
     private ImageView myLocation;
     private Button startButton;
     private Button stopButton;
+    private boolean isCalposition;
+    private Button uploadButton;
     private TextView textView;
     private TextView textView1;
+    private EditText EtxPX;
+    private EditText EtxPY;
+    private int calPositionInsertTimes;
+    //测试使用计数器
+    private Map<String, Integer> ScanBlueToothTimesInPeriod = new HashMap<String, Integer>();
 
     private ObjectAnimator animX;
     private ObjectAnimator animY;
@@ -82,13 +94,17 @@ public class IndoorLocationActivity extends Activity {
         setContentView(R.layout.indoor_localization);
 
         handler = new MAHandler();
+        isCalposition = false;
 
         indoorMap = (ImageView) findViewById(R.id.map);
         myLocation = (ImageView) findViewById(R.id.myLocation);
         startButton = (Button) findViewById(R.id.start_buuton);
         stopButton = (Button) findViewById(R.id.stop_button);
+        uploadButton = (Button) findViewById(R.id.upload_button);
         textView = (TextView) findViewById(R.id.showdetails);
         textView1 = (TextView) findViewById(R.id.TextView01);
+        EtxPX = (EditText) findViewById(R.id.ETVPositionX);
+        EtxPY = (EditText) findViewById(R.id.ETVPositionY);
         width = getDeviceWidth(this);
         height = getDeviceHeight(this);
         density = getResources().getDisplayMetrics().density;
@@ -102,7 +118,7 @@ public class IndoorLocationActivity extends Activity {
         animX.setDuration(2000);
         animX.setRepeatCount(Animation.INFINITE);
         /*
-		动画报错
+        动画报错
 		 */
 //		animX.setRepeatMode(Animation.REVERSE);
         animY = ObjectAnimator.ofFloat(myLocation, "scaleY", 0.6f, 1f, 0.6f);
@@ -116,19 +132,108 @@ public class IndoorLocationActivity extends Activity {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
 
-                myImageView_width = width;
-                myImageView_height = myImageView_width / myBitMap_width * myBitMap_height;
-                LayoutParams params = indoorMap.getLayoutParams();
-                params.width = (int) myImageView_width;
-                params.height = (int) myImageView_height;
-                indoorMap.setLayoutParams(params);
-                textView.setText(myImageView_width + " " + myImageView_height + " " + density + " " + indoorMap.getWidth() + " "
-                        + indoorMap.getHeight());
-                myLocation.setX((float) (indoorMap.getX() + myImageView_width * Math.random() - d * density / 2));
-                myLocation.setY((float) (indoorMap.getY() + myImageView_height * Math.random() - d * density / 2));
+                if (!isCalposition) {
+                    myImageView_width = width;
+                    myImageView_height = myImageView_width / myBitMap_width * myBitMap_height;
+                    LayoutParams params = indoorMap.getLayoutParams();
+                    params.width = (int) myImageView_width;
+                    params.height = (int) myImageView_height;
+                    indoorMap.setLayoutParams(params);
+                    textView.setText(myImageView_width + " " + myImageView_height + " " + density + " " + indoorMap.getWidth() + " "
+                            + indoorMap.getHeight());
+                    myLocation.setX((float) (indoorMap.getX() + myImageView_width * Math.random() - d * density / 2));
+                    myLocation.setY((float) (indoorMap.getY() + myImageView_height * Math.random() - d * density / 2));
 
-                animX.start();
-                animY.start();
+                    animX.start();
+                    animY.start();
+                    isCalposition = true;
+                    startButton.setText("已经开始");
+                    LocalizationTimer.schedule(new TimerTask() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+
+                            Set<Beacon> newbeaconMap1 = new HashSet<Beacon>();
+                            Set<Beacon> newbeaconMap2 = new HashSet<Beacon>();
+                            Set<Beacon> newbeaconMap3 = new HashSet<Beacon>();
+                            synchronized (beaconMap) {
+                                Iterator<Beacon> ite = beaconMap.iterator();
+                                while (ite.hasNext()) {
+                                    Beacon b = ite.next();
+                                    newbeaconMap1.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                            b.getX(), b.getY(), b.getDislist()));
+                                    newbeaconMap2.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                            b.getX(), b.getY(), b.getDislist()));
+                                    newbeaconMap3.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                            b.getX(), b.getY(), b.getDislist()));
+                                }
+                            }
+                            Set<Beacon> newbeaconMap11 = ModelService.threeLocalizationPredealedAA(newbeaconMap1);
+                            Set<Beacon> newbeaconMap22 = ModelService.threeLocalizationPredealedAA(newbeaconMap2);
+                            Set<Beacon> bbbbb = ModelService.threeLocalizationPredealedAA(newbeaconMap3);
+                            List<Integer> list1 = ModelService.localizationFuncAA(newbeaconMap1);
+                            List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
+                            List<Integer> list3 = ModelService.threePointLocalization(newbeaconMap2);
+
+                            Log.d("ModelService1272", "" + bbbbb.size());
+                            List<Integer> list4 = ModelService.sixPointMassCenter(bbbbb);
+                            String X = EtxPX.getText().toString();
+                            String Y = EtxPY.getText().toString();
+                            int dataX = 0;
+                            int dataY = 0;
+                            if (X != null && !"".equals(X)) {
+                                for (int i = 0; i < X.length(); i++) {
+                                    if (X.charAt(i) >= 48 && X.charAt(i) <= 57) {//匹配数字
+                                        dataX = Integer.parseInt(X);
+                                    }
+                                }
+                            }
+                            if (Y != null && !"".equals(Y)) {
+                                for (int i = 0; i < Y.length(); i++) {
+                                    if (Y.charAt(i) >= 48 && Y.charAt(i) <= 57) {//匹配数字
+                                        dataY = Integer.parseInt(Y);
+                                    }
+                                }
+                            }
+                            boolean isinsert = ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition(list2
+                                    .get(0), list2.get(1), list1
+                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
+                            if (isinsert) {
+                                calPositionInsertTimes += 1;
+                            }
+                            Message msg = new Message();
+                            Bundle b = new Bundle();
+                            msg.what = 0x01;
+                            b.putInt("list1x", list1.get(0));
+                            b.putInt("list1y", list1.get(1));
+                            b.putInt("list2x", list2.get(0));
+                            b.putInt("list2y", list2.get(1));
+                            b.putInt("list3x", list3.get(0));
+                            b.putInt("list3y", list3.get(1));
+                            msg.setData(b);
+                            handler.sendMessage(msg);
+                            //测试使用计数器
+                            Iterator<Map.Entry<String, Integer>> it = ScanBlueToothTimesInPeriod.entrySet().iterator();
+                            while (it.hasNext()) {
+                                Map.Entry<String, Integer> entry = it.next();
+                                Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
+                            }
+                            ScanBlueToothTimesInPeriod.clear();
+                            synchronized (beaconSet) {
+                                beaconSet.clear();
+                            }
+                            synchronized (beaconMap) {
+                                beaconMap.clear();
+                            }
+                            localizationCount += 1;
+                            if (localizationCount % 5 == 0) {
+                                bleRestart();
+                            }
+                        }
+                    }, 3000, 5000);
+                }
+
             }
         });
         stopButton.setOnClickListener(new OnClickListener() {
@@ -138,42 +243,35 @@ public class IndoorLocationActivity extends Activity {
                 // TODO Auto-generated method stub
                 animX.end();
                 animY.end();
+                isCalposition = false;
+                startButton.setText("可以开始");
+                LocalizationTimer.cancel();
+                LocalizationTimer = new Timer();
+                Toast.makeText(IndoorLocationActivity.this, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
+            }
+        });
+        uploadButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadButton.setText("正在上传");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean isUploadCal = ModelService.uploadCalPosition(IndoorLocationActivity.this);
+                        Message msg = new Message();
+                        msg.what = Constants.MSG.UPLOADCAL;
+                        Bundle b = new Bundle();
+                        b.putBoolean("isUploadCal", isUploadCal);
+                        msg.setData(b);
+                        handler.sendMessage(msg);
+                    }
+                }).start();
+
             }
         });
 
         LocalizationTimer = new Timer();
-        LocalizationTimer.schedule(new TimerTask() {
 
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
-
-                List<Integer> list1 = ModelService.localizationFunc(beaconMap);
-                List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
-                List<Integer> list3 = ModelService.threePointLocalization(beaconSet);
-                List<Integer> list4 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealed(beaconMap));
-                ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition(list2.get(0), list2.get(1), list1.get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1)));
-                Message msg = new Message();
-                Bundle b = new Bundle();
-                msg.what = 0x01;
-                b.putInt("list1x", list1.get(0));
-                b.putInt("list1y", list1.get(1));
-                b.putInt("list2x", list2.get(0));
-                b.putInt("list2y", list2.get(1));
-                b.putInt("list3x", list3.get(0));
-                b.putInt("list3y", list3.get(1));
-                msg.setData(b);
-                handler.sendMessage(msg);
-                synchronized (beaconSet) {
-                    beaconSet.clear();
-                }
-                beaconMap.clear();
-                localizationCount += 1;
-                if (localizationCount % 5 == 0) {
-                    bleRestart();
-                }
-            }
-        }, 3000, 5000);
 
         // 尝试去定时获取蓝牙设备
         // GetBluetoothDeviceTimer = new Timer();
@@ -338,7 +436,7 @@ public class IndoorLocationActivity extends Activity {
                     txPower = -60;
                 }
                 int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
-                if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
+                if (device.getAddress().equals("80:30:DC:0D:B1:55")) {
                     // String newMac = device.getAddress();
                     // DBManager dbManager = new
                     // DBManager(IndoorLocationActivity.this);
@@ -348,7 +446,7 @@ public class IndoorLocationActivity extends Activity {
                     // "txPower:" + txPower);
                 }
                 ModelService.updateBeaconForLocal(IndoorLocationActivity.this, beaconSet,
-                        new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap);
+                        new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap, ScanBlueToothTimesInPeriod);
 
             }
         }
@@ -364,6 +462,15 @@ public class IndoorLocationActivity extends Activity {
             if (msg.what == 0x01) {
                 Bundle b = msg.getData();
 
+            } else if (msg.what == Constants.MSG.UPLOADCAL) {
+                Bundle b = msg.getData();
+                boolean isUploadCal = b.getBoolean("isUploadCal");
+                if (isUploadCal) {
+                    Toast.makeText(IndoorLocationActivity.this, "上传定位数据成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(IndoorLocationActivity.this, "上传定位数据失败", Toast.LENGTH_SHORT).show();
+                }
+                uploadButton.setText("可以上传");
             }
         }
     }

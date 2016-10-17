@@ -12,6 +12,7 @@ public class Constants {
 		public static final int NOT_UPDATA = 0x6f;
 		public static final int GET_UNDATAINFO_ERROR = 0x4f;
 		public static final int DOWN_ERROR = 0x5f;
+		public static final int UPLOADCAL = 0xf3;
 
 	}
 

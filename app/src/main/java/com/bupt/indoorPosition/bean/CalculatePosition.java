@@ -13,9 +13,15 @@ public class CalculatePosition {
     private int threeY;
     private int dealedThreeX;
     private int dealedThreeY;
+    private int realPositionX;
+    private int realPositionY;
+
+    public CalculatePosition() {
+
+    }
 
     public CalculatePosition(int maxLikehoodX, int maxLikehoodY, int dealedMLX, int dealedMLY, int threeX, int threeY, int dealedThreeX,
-                             int dealedThreeY) {
+                             int dealedThreeY, int realPositionX, int realPositionY) {
         this.maxLikehoodX = maxLikehoodX;
         this.maxLikehoodY = maxLikehoodY;
         this.dealedMLX = dealedMLX;
@@ -24,6 +30,8 @@ public class CalculatePosition {
         this.threeY = threeY;
         this.dealedThreeX = dealedThreeX;
         this.dealedThreeY = dealedThreeY;
+        this.realPositionX = realPositionX;
+        this.realPositionY = realPositionY;
     }
 
     public int getMaxLikehoodX() {
@@ -74,6 +82,14 @@ public class CalculatePosition {
         this.threeY = threeY;
     }
 
+    public int getDealedThreeY() {
+        return dealedThreeY;
+    }
+
+    public void setDealedThreeY(int dealedThreeY) {
+        this.dealedThreeY = dealedThreeY;
+    }
+
     public int getDealedThreeX() {
         return dealedThreeX;
     }
@@ -82,11 +98,19 @@ public class CalculatePosition {
         this.dealedThreeX = dealedThreeX;
     }
 
-    public int getDealedThreeY() {
-        return dealedThreeY;
+    public int getRealPositionX() {
+        return realPositionX;
     }
 
-    public void setDealedThreeY(int dealedThreeY) {
-        this.dealedThreeY = dealedThreeY;
+    public void setRealPositionX(int realPositionX) {
+        this.realPositionX = realPositionX;
+    }
+
+    public int getRealPositionY() {
+        return realPositionY;
+    }
+
+    public void setRealPositionY(int realPositionY) {
+        this.realPositionY = realPositionY;
     }
 }

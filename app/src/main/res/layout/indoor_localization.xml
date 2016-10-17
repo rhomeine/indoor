@@ -47,4 +47,27 @@
         android:layout_gravity="top|center"
         android:text="TextView" />
 
+    <EditText
+        android:layout_width="116dp"
+        android:layout_height="44dp"
+        android:inputType="text"
+        android:text=""
+        android:layout_gravity="right|center"
+        android:id="@+id/ETVPositionX"/>
+    <EditText
+        android:layout_width="116dp"
+        android:layout_height="44dp"
+        android:inputType="text"
+        android:text=""
+        android:layout_below="@+id/ETVPositionX"
+        android:layout_marginTop="330dp"
+        android:layout_marginLeft="270dp"
+        android:id="@+id/ETVPositionY"/>
+
+    <Button
+        android:text="UPLOAD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_button"/>
+
 </FrameLayout>

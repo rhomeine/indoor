@@ -69,9 +69,9 @@ public class DBManager {
     private static final String SELECT_ALL_LOCALIZATION = "select _id from " + DBHelper.tableLocalization;
 
     private static final String INSERT_CALPOSITION = "insert into " + DBHelper.tableCalPosition + " (maxLikehoodX,maxLikehoodY,dealedMLX " +
-            ",dealedMLY ,threeX ,threeY ,dealedThreeX ,dealedThreeY ) " + "values (?,?,?,?,?,?,?,?);";
+            ",dealedMLY ,threeX ,threeY ,dealedThreeX ,dealedThreeY ,realPositionX,realPositionY) " + "values (?,?,?,?,?,?,?,?,?,?);";
     private static final String SELECT_ALL_CALPOSITION = "select maxLikehoodX,maxLikehoodY,dealedMLX,dealedMLY ,threeX ,threeY ," +
-            "dealedThreeX ,dealedThreeY from " + DBHelper.tableCalPosition;
+            "dealedThreeX ,dealedThreeY ,realPositionX,realPositionY from " + DBHelper.tableCalPosition;
     private static final String DELETE_ALL_CALPOSITION = "delete from " + DBHelper.tableCalPosition;
 
     /* beacon */
@@ -338,7 +338,8 @@ public class DBManager {
     public void insertCalPosition(CalculatePosition calculatePosition) {
         db.execSQL(INSERT_CALPOSITION, new Object[]{calculatePosition.getMaxLikehoodX(), calculatePosition.getMaxLikehoodY(),
                 calculatePosition.getDealedMLX(), calculatePosition.getDealedMLY(), calculatePosition.getThreeX(), calculatePosition
-                .getThreeY(), calculatePosition.getDealedThreeX(), calculatePosition.getDealedThreeY()});
+                .getThreeY(), calculatePosition.getDealedThreeX(), calculatePosition.getDealedThreeY(), calculatePosition
+                .getRealPositionX(), calculatePosition.getRealPositionY()});
     }
 
     //选出所有位置信息准备上传
@@ -354,8 +355,11 @@ public class DBManager {
             int threeY = c.getInt(c.getColumnIndex("threeY"));
             int dealedThreeX = c.getInt(c.getColumnIndex("dealedThreeX"));
             int dealedThreeY = c.getInt(c.getColumnIndex("dealedThreeY"));
+            int realPositionX = c.getInt(c.getColumnIndex("realPositionX"));
+            int realPositionY = c.getInt(c.getColumnIndex("realPositionY"));
 
-            list.add(new CalculatePosition(maxLikehoodX, maxLikehoodY, dealedMLX, dealedMLY, threeX, threeY, dealedThreeX, dealedThreeY));
+            list.add(new CalculatePosition(maxLikehoodX, maxLikehoodY, dealedMLX, dealedMLY, threeX, threeY, dealedThreeX, dealedThreeY,
+                    realPositionX, realPositionY));
         }
         c.close();
         return list;

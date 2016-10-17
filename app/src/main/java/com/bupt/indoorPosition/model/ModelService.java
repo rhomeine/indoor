@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -176,34 +177,48 @@ public class ModelService {
 
     // 同理 设置对应localization
     public static void updateBeaconForLocal(Context context, Set<Beacon> beaconSet, Beacon newBeacon,
-                                            Set<Beacon> beaconMap) {
+                                            Set<Beacon> beaconMap, Map<String, Integer> map) {
         // Log.d("modelService", "enter");
         // 定位所需最新接受处beacon列表
 
         if (beaconSet.contains(newBeacon)) {
             // mac 地址存在，只需要更新
+            if (map.get(newBeacon.getMac()) != null) {
+                if (true) {//map.get(newBeacon.getMac()).intValue() < newBeacon.getRssi()) {
+                    map.put(newBeacon.getMac(), map.get(newBeacon.getMac()).intValue() + 1);
+                }
+            }
             // Log.d("modelService", "exist");
-            Beacon oBeacon = BeaconUtil.get(beaconSet, newBeacon.getMac());
-            oBeacon.setRssi(newBeacon.getRssi());
-            oBeacon.setTxPower(newBeacon.getTxPower());
-            oBeacon.setDistance(newBeacon.getDistance());
+            synchronized (beaconSet) {
+                Beacon oBeacon = BeaconUtil.get(beaconSet, newBeacon.getMac());
+                oBeacon.setRssi(newBeacon.getRssi());
+                oBeacon.setTxPower(newBeacon.getTxPower());
+                oBeacon.setDistance(newBeacon.getDistance());
+            }
             // 更新定位使用set
-            Beacon listBeacon = BeaconUtil.get(beaconMap, newBeacon.getMac());
-            ArrayList<Integer> list = listBeacon.getDislist();
-            list.add(newBeacon.getDistance());
-            listBeacon.setDislist(list);
+            synchronized (beaconMap) {
+                Beacon listBeacon = BeaconUtil.get(beaconMap, newBeacon.getMac());
+                //此处可能为空 待观察
+                if (listBeacon != null) {
+                    ArrayList<Integer> list = listBeacon.getDislist();
+                    list.add(newBeacon.getDistance());
+                    listBeacon.setDislist(list);
+                }
+            }
 
         } else {
             // Log.d("modelService", "not exist");
             String newMac = newBeacon.getMac();
             DBManager dbManager = new DBManager(context);
             if (dbManager.isContainLocalization(newMac)) {
+                map.put(newBeacon.getMac(), 1);
                 // 合法mac
                 List<Integer> list = dbManager.LocalizationXY(newMac);
-                beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
-                        list.get(0).intValue(), list.get(1).intValue()));
                 ArrayList<Integer> newlist = new ArrayList<Integer>();
                 newlist.add(newBeacon.getDistance());
+                beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
+                        list.get(0).intValue(), list.get(1).intValue(), newlist));
+
                 beaconMap.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
                         list.get(0).intValue(), list.get(1).intValue(), newlist));
             }
@@ -426,35 +441,35 @@ public class ModelService {
         return false;
     }
 
-//    public static boolean uploadCalPosition(Context context) {
-//        DBManager dbManager = new DBManager(context);
-//        List<CalculatePosition> calculatePositions = dbManager.selectAllCalPosition();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        String json = null;
-//        try {
-//            json = objectMapper.writeValueAsString(calculatePositions);
-//        } catch (JsonGenerationException e) {
-//            e.printStackTrace();
-//        } catch (JsonMappingException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        if (json == null)
-//            return false;
-//        String url = context.getString(R.string.uploadCalPositionUrl);
-//        Map<String, String> params = new HashMap<String, String>();
-//        params.put("calculatePositions", json);
-//        Map<String, Object> result = HttpUtil.post(url, params);
-//        if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
-//            return false;
-//        }
-//        if (result != null && ((Integer) (result.get("status"))) == 1) {
-//            dbManager.deleteAllCalposition();
-//            return true;
-//        }
-//        return false;
-//    }
+    public static boolean uploadCalPosition(Context context) {
+        DBManager dbManager = new DBManager(context);
+        List<CalculatePosition> calculatePositions = dbManager.selectAllCalPosition();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(calculatePositions);
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (json == null)
+            return false;
+        String url = context.getString(R.string.uploadCalPositionUrl);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("calculatePositions", json);
+        Map<String, Object> result = HttpUtil.post(url, params);
+        if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
+            return false;
+        }
+        if (result != null && ((Integer) (result.get("status"))) == 1) {
+            dbManager.deleteAllCalposition();
+            return true;
+        }
+        return false;
+    }
 
     public static int UploadTest(IndoorRecord cellState) {
         int sendBufferSize = 8192;
@@ -794,7 +809,145 @@ public class ModelService {
         return message;
     }
 
-    // 定位A算法
+    // 定位A+算法
+
+    public static List<Integer> localizationFuncAA(Set<Beacon> beaconMap) {
+        List<Integer> XX = new ArrayList<Integer>();
+        List<Integer> list = new ArrayList<Integer>();
+        int original[][] = new int[3][3];
+        if (beaconMap.size() >= 3) {
+            Beacon a = new Beacon();
+            Beacon b = new Beacon();
+            Beacon c = new Beacon();
+
+            a = BeaconUtil.getMax(beaconMap);
+            beaconMap.remove(a);
+            b = BeaconUtil.getMax(beaconMap);
+            beaconMap.remove(b);
+            c = BeaconUtil.getMax(beaconMap);
+            int ra = a.getDistance();
+            int xa = a.getX();
+            int ya = a.getY();
+            int rb = b.getDistance();
+            int xb = b.getX();
+            int yb = b.getY();
+            int rc = c.getDistance();
+            int xc = c.getX();
+            int yc = c.getY();
+            original[0][0] = xa;
+            original[0][1] = ya;
+            original[0][2] = ra;
+            original[1][0] = xb;
+            original[1][1] = yb;
+            original[1][2] = rb;
+            original[2][0] = xc;
+            original[2][1] = yc;
+            original[2][2] = rc;
+            int temp = 3;
+            int length = 3;
+
+            double X[][];
+//        Iterator<Beacon> it = beaconMap.iterator();
+//        int length = 0;
+//        int temp = 0;
+//        int dealedDistance = 0;
+//        while (it.hasNext()) {
+//            Beacon bb = it.next();
+//            if (bb.getDislist().size() > 5)
+//                length += 1;
+//        }
+//        int original[][] = new int[length][3];
+//        while (it.hasNext()) {
+//            Beacon b = it.next();
+//            if (b.getDislist().size() > 5) {
+//                // X,Y
+//                original[temp][0] = b.getX();
+//                original[temp][1] = b.getY();
+//                // 对每个点采集的时序数据进行高斯滤波
+////                if (b.getDislist().size() < 4) {
+////                    Iterator<Integer> iterasmall = b.getDislist().iterator();
+////
+////                    while (iterasmall.hasNext()) {
+////                        dealedDistance += iterasmall.next().intValue();
+////                    }
+////                    dealedDistance = dealedDistance / b.getDislist().size();
+////                } else {
+//                    ArrayList<Integer> arlist = b.getDislist();
+//                    Collections.sort(arlist);
+//                    int n = Double.valueOf(Math.floor(arlist.size() * 0.6)).intValue();
+//                    int isFirstorLast = 0;
+//                    for (int i = 0; i < n; i++) {
+//                        if (isFirstorLast == 0) {
+//                            arlist.remove(0);
+//                            isFirstorLast = 1;
+//                        } else {
+//                            arlist.remove(arlist.size() - 1);
+//                            isFirstorLast = 0;
+//                        }
+//                    }
+//                    Iterator<Integer> iterabig = arlist.iterator();
+//                    while (iterabig.hasNext()) {
+//                        dealedDistance += iterabig.next().intValue();
+//                    }
+//                    dealedDistance = dealedDistance / b.getDislist().size();
+////                }
+//                original[temp][2] = dealedDistance;
+//                temp += 1;
+//            }
+//        }
+            // Log.d("genxinshujufordistance", temp + " " + length + " " +
+            // beaconMap.size());
+            // if (beaconMap.get("80:30:DC:0D:F6:0F") != null)
+            // Log.d("genxinshuju", "" + temp + " " +
+            // beaconMap.get("80:30:DC:0D:F6:0F").size());
+
+            // 要求的坐标为（A的转置乘上A）的逆乘上A的转置乘上B
+            if (temp == 3 && temp == length) {
+                double A[][] = new double[temp - 1][2];
+                double AT[][] = new double[2][temp - 1];
+                double B[][] = new double[temp - 1][1];
+                for (int i = 0; i < temp - 1; i++) {
+                    A[i][0] = 2 * (original[i][0] - original[temp - 2][0]);
+                    A[i][1] = 2 * (original[i][1] - original[temp - 2][1]);
+                    B[i][0] = (original[i][0]) * (original[i][0]) - (original[temp - 2][0]) * (original[temp - 2][0])
+                            + (original[i][1]) * (original[i][1]) - (original[temp - 2][1]) * (original[temp - 2][1])
+                            + original[temp - 2][2] * original[temp - 2][2] - original[i][2] * original[i][2];
+                    AT[0][i] = 2 * (original[i][0] - original[temp - 2][0]);
+                    AT[1][i] = 2 * (original[i][1] - original[temp - 2][1]);
+                    // Log.d("genxinshujudistance", " orignal: "+original[i][2]);
+
+                }
+                double X1[][] = multiMetrixAandB(AT, A);
+                double X2[][] = Mrinv(X1, 2);
+                double X3[][] = multiMetrixAandB(AT, B);
+                double X4[][] = multiMetrixAandB(X2, X3);
+                // Log.d("genxinshujuX1", "" + X1[0][0] + " " + X1[0][1] + " " +
+                // X1[1][0] + " " + X1[1][1]);
+                // Log.d("genxinshujuX2", "" + X2[0][0] + " " + X2[0][1] + " " +
+                // X2[1][0] + " " + X2[1][1]);
+                // Log.d("genxinshujuX3", "" + X3[0][0] + " " + X3[1][0] + " " +
+                // B[0][0]);
+                // Log.d("genxinshujuX4", "" + X4[0][0] + " " + X4[1][0]);
+
+                X = multiMetrixAandB(Mrinv(multiMetrixAandB(AT, A), 2), multiMetrixAandB(AT, B));
+
+                XX.add(Double.valueOf(Math.floor(X[0][0])).intValue());
+                XX.add(Double.valueOf(Math.floor(X[1][0])).intValue());
+                // Log.d("genxinshuju", "" + XX[0][0] + " " + XX[1][0] + " A: " +
+                // A[0][0] + " " + A[0][1] + " B: " + B[0][0]
+                // + " AT: " + AT[0][0] + " " + AT[1][0]);
+
+            }
+            return XX;
+        } else {
+            XX.add(-999);
+            XX.add(-999);
+        }
+        return XX;
+
+    }
+
+    //定位A算法
     public static List<Integer> localizationFunc(Set<Beacon> beaconMap) {
         List<Integer> XX = new ArrayList<Integer>();
         double X[][];
@@ -940,6 +1093,53 @@ public class ModelService {
     //
     //
 
+    //三环提前预处理A++
+
+    public static Set<Beacon> threeLocalizationPredealedAA(Set<Beacon> beaconMap) {
+        List<Integer> XX = new ArrayList<Integer>();
+        double X[][];
+        Iterator<Beacon> it = beaconMap.iterator();
+        int dealedDistance = 0;
+        Set<Beacon> newBeaconMap = new HashSet<Beacon>();
+        while (it.hasNext()) {
+            Beacon b = it.next();
+            // 对每个点采集的时序数据进行高斯滤波
+            if (b.getDislist().size() < 5) {
+//                Iterator<Integer> iterasmall = b.getDislist().iterator();
+//
+//                while (iterasmall.hasNext()) {
+//                    dealedDistance += iterasmall.next().intValue();
+//                }
+//                dealedDistance = dealedDistance / b.getDislist().size();
+//                b.setDistance(dealedDistance);
+            } else {
+                ArrayList<Integer> arlist = b.getDislist();
+                Collections.sort(arlist);
+                int n = Double.valueOf(Math.floor(arlist.size() * 0.6)).intValue();
+                int isFirstorLast = 0;
+                for (int i = 0; i < n; i++) {
+                    if (isFirstorLast == 0) {
+                        arlist.remove(0);
+                        isFirstorLast = 1;
+                    } else {
+                        arlist.remove(arlist.size() - 1);
+                        isFirstorLast = 0;
+                    }
+                }
+                Iterator<Integer> iterabig = arlist.iterator();
+                while (iterabig.hasNext()) {
+                    dealedDistance += iterabig.next().intValue();
+                }
+                dealedDistance = dealedDistance / b.getDislist().size();
+                b.setDistance(dealedDistance);
+                newBeaconMap.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                        b.getX(), b.getY(), b.getDislist()));
+            }
+        }
+        Log.d("ModelService1272",""+newBeaconMap.size());
+        return newBeaconMap;
+    }
+
     //三环提前预处理数据
     public static Set<Beacon> threeLocalizationPredealed(Set<Beacon> beaconMap) {
         List<Integer> XX = new ArrayList<Integer>();
@@ -983,6 +1183,99 @@ public class ModelService {
         return beaconMap;
     }
 
+
+    //六点质心算法
+
+    public static List<Integer> sixPointMassCenter(Set<Beacon> beaconSet) {
+        List<Integer> list = new ArrayList<Integer>();
+        Log.d("ModelService1272",""+beaconSet.size());
+        if (beaconSet.size() >= 3) {
+            Beacon a = new Beacon();
+            Beacon b = new Beacon();
+            Beacon c = new Beacon();
+
+            a = BeaconUtil.getMax(beaconSet);
+            beaconSet.remove(a);
+            b = BeaconUtil.getMax(beaconSet);
+            beaconSet.remove(b);
+            c = BeaconUtil.getMax(beaconSet);
+            int ra = a.getDistance();
+            int xa = a.getX();
+            int ya = a.getY();
+            int rb = b.getDistance();
+            int xb = b.getX();
+            int yb = b.getY();
+            int rc = c.getDistance();
+            int xc = c.getX();
+            int yc = c.getY();
+
+            int x[] = new int[4];
+            int y[] = new int[4];
+
+            x[0] = xa - Double.valueOf(Math.abs((xb - xa) * ra) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            x[1] = xa + Double.valueOf(Math.abs((xb - xa) * ra) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            x[2] = xb - Double.valueOf(Math.abs((xb - xa) * rb) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            x[3] = xb + Double.valueOf(Math.abs((xb - xa) * rb) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            y[0] = ya - Double.valueOf(Math.abs((yb - ya) * ra) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            y[1] = ya + Double.valueOf(Math.abs((yb - ya) * ra) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            y[2] = yb - Double.valueOf(Math.abs((yb - ya) * rb) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+            y[3] = yb + Double.valueOf(Math.abs((yb - ya) * rb) / Math.sqrt(((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya)))).intValue();
+
+            Arrays.sort(x);
+            Arrays.sort(y);
+            int X1 = x[1];
+            int X2 = x[2];
+            int Y1 = y[1];
+            int Y2 = y[2];
+
+            x[0] = xa - Double.valueOf(Math.abs((xc - xa) * ra) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            x[1] = xa + Double.valueOf(Math.abs((xc - xa) * ra) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            x[2] = xc - Double.valueOf(Math.abs((xc - xa) * rc) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            x[3] = xc + Double.valueOf(Math.abs((xc - xa) * rc) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            y[0] = ya - Double.valueOf(Math.abs((yc - ya) * ra) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            y[1] = ya + Double.valueOf(Math.abs((yc - ya) * ra) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            y[2] = yc - Double.valueOf(Math.abs((yc - ya) * rc) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+            y[3] = yc + Double.valueOf(Math.abs((yc - ya) * rc) / Math.sqrt(((xc - xa) * (xc - xa) + (yc - ya) * (yc - ya)))).intValue();
+
+            Arrays.sort(x);
+            Arrays.sort(y);
+            int X3 = x[1];
+            int X4 = x[2];
+            int Y3 = y[1];
+            int Y4 = y[2];
+
+            x[0] = xb - Double.valueOf(Math.abs((xc - xb) * rb) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            x[1] = xb + Double.valueOf(Math.abs((xc - xb) * rb) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            x[2] = xc - Double.valueOf(Math.abs((xc - xb) * rc) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            x[3] = xc + Double.valueOf(Math.abs((xc - xb) * rc) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            y[0] = yb - Double.valueOf(Math.abs((yc - yb) * rb) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            y[1] = yb + Double.valueOf(Math.abs((yc - yb) * rb) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            y[2] = yc - Double.valueOf(Math.abs((yc - yb) * rc) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+            y[3] = yc + Double.valueOf(Math.abs((yc - yb) * rc) / Math.sqrt(((xc - xb) * (xc - xb) + (yc - yb) * (yc - yb)))).intValue();
+
+            Arrays.sort(x);
+            Arrays.sort(y);
+            int X5 = x[1];
+            int X6 = x[2];
+            int Y5 = y[1];
+            int Y6 = y[2];
+
+            int X = (X1 + X2 + X3 + X4 + X5 + X6) / 6;
+            int Y = (Y1 + Y2 + Y3 + Y4 + Y5 + Y6) / 6;
+
+            list.add(X);
+            list.add(Y);
+            Log.d("ModelService1272",""+beaconSet.size());
+            return list;
+
+        } else if (list.size() == 0) {
+            list.add(0);
+            list.add(0);
+            Log.d("ModelService0000",""+beaconSet.size());
+        }
+        return list;
+
+    }
 
     // 三环定位算法
     public static List<Integer> threePointLocalization(Set<Beacon> beaconSet) {
@@ -1087,7 +1380,6 @@ public class ModelService {
         } else {
 
         }
-        Log.d("ModelService1004", x + "   " + y);
         int lx = Double.valueOf(x).intValue();
         int ly = Double.valueOf(y).intValue();
         List<Integer> list = new ArrayList<Integer>();

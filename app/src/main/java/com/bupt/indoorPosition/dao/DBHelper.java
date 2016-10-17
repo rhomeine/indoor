@@ -61,7 +61,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "buildingNumber int,description VARCHAR(64),x int,y int,floor int );");
         db.execSQL("CREATE TABLE IF NOT EXISTS " + tableCalPosition
                 + "(_id VARCHAR(32) PRIMARY KEY, maxLikehoodX int,maxLikehoodY int,dealedMLX int,dealedMLY int,threeX int,threeY int," +
-                "dealedThreeX int,dealedThreeY int );");
+                "dealedThreeX int,dealedThreeY int,realPositionX int,realPositionY int );");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS "
                 + tableIndoorRecord

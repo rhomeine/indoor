@@ -35,7 +35,7 @@ public class BeaconUtil {
 	/**
 	 * 扫描beaconSet,返回失效的Beacon数目
 	 * 
-	 * @param beaconSe
+	 * @param beaconSet
 	 * @return
 	 */
 	public static int scanLostBeacon(Set<Beacon> beaconSet) {
