@@ -1,29 +1,34 @@
 package com.bupt.indooranalysis.fragment;
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Sim;
-import com.bupt.indoorPosition.callback.FragmentServiceCallback;
 import com.bupt.indoorPosition.callback.InspectUpdateCallback;
 import com.bupt.indoorPosition.dao.DBManager;
 import com.bupt.indoorPosition.model.ModelService;
@@ -33,14 +38,20 @@ import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
 import com.bupt.indooranalysis.ScanService;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
+import com.sails.engine.MapViewPosition;
+import com.sails.engine.SAILS;
+import com.sails.engine.SAILSMapView;
+import com.sails.engine.core.model.BoundingBox;
+import com.sails.engine.core.model.GeoPoint;
+import com.sails.engine.overlay.ListOverlay;
+import com.sails.engine.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -81,6 +92,59 @@ public class InspectFragment extends Fragment implements
 
     private OnFragmentInteractionListener mListener;
 
+
+    static SAILS mSails;
+    static SAILSMapView mSailsMapView;
+    ImageView zoomin;
+    ImageView zoomout;
+    ImageView lockcenter;
+    EditText editText1;
+    EditText editText2;
+    Button locationButton;
+    Button clearButton;
+    Button saveButton;
+    TextView locationTextView;
+    Vibrator mVibrator;
+    Spinner floorList;
+    ArrayAdapter<String> adapter;
+    byte zoomSav = 0;
+
+    GeoPoint geoPointCenter;
+    // picture
+    // GeoPoint geoPointLocationLB = new GeoPoint(39.96289053181642,
+    // 116.35293102867222);
+    // GeoPoint geoPointLocationRT = new GeoPoint(39.963035980045404,
+    // 116.35312079496002);
+    // drawable
+    GeoPoint geoPointLocationLB = new GeoPoint(39.96289894781549, 116.35293035811996);
+    GeoPoint geoPointLocationRT = new GeoPoint(39.96304388207584, 116.35312012440777);
+    BoundingBox boundingBox;
+    MapViewPosition mapViewPositionBase;
+    int tempX = 0;
+    int tempY = 0;
+    ListOverlay listOverlay = new ListOverlay();
+
+    int flag = 0;
+
+    private Set<Beacon> beaconSet;
+    private BluetoothAdapter bAdapter;
+
+    private Timer findLostBeaconTimer;
+    private Handler handler;
+
+    // 重启BLE扫描计时
+    private int scanCount = 0;
+    private int localizationCount = 0;
+    // 蓝牙没有反应计时
+    private int bleNoReactCount = 0;
+    private long timeZero;
+    private int count = 0;
+    private Timer LocalizationTimer;
+    private Timer GetBluetoothDeviceTimer;
+    private Set<Beacon> beaconMap;
+
+
+
     public InspectFragment() {
         // Required empty public constructor
     }
@@ -117,6 +181,7 @@ public class InspectFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_inspect, container, false);
         btnUpload = (Button) view.findViewById(R.id.btn_updatedata);
         btnClear = (Button) view.findViewById(R.id.btn_cleardata);
@@ -166,8 +231,179 @@ public class InspectFragment extends Fragment implements
 //                }
             }
         });
+
+        handler = new MAHandler();
+
+        zoomin = (ImageView) view.findViewById(R.id.zoomin);
+        zoomout = (ImageView)  view.findViewById(R.id.zoomout);
+        lockcenter = (ImageView) view. findViewById(R.id.lockcenter);
+        locationButton = (Button)  view.findViewById(R.id.locationButton);
+        clearButton = (Button)  view.findViewById(R.id.clearButton);
+        saveButton = (Button)  view.findViewById(R.id.saveButton);
+        editText1 = (EditText)  view.findViewById(R.id.editText1);
+        editText2 = (EditText)  view.findViewById(R.id.editText2);
+        editText1.setVisibility(view.GONE);
+        editText2.setVisibility(view.GONE);
+        locationTextView = (TextView) view. findViewById(R.id.locationText);
+        floorList = (Spinner) view. findViewById(R.id.spinner);
+
+
+        zoomin.setOnClickListener(controlListener);
+        zoomout.setOnClickListener(controlListener);
+        lockcenter.setOnClickListener(controlListener);
+        locationButton.setOnClickListener(controlListener);
+        clearButton.setOnClickListener(controlListener);
+
+        // new a SAILS engine.
+        mSails = new SAILS(mcontext);
+        // set location mode.
+        mSails.setMode(SAILS.BLE_GFP_IMU);
+        // set floor number sort rule from descending to ascending.
+        mSails.setReverseFloorList(true);
+        // create location change call back.
+
+        // new and insert a SAILS MapView from layout resource.
+        mSailsMapView = new SAILSMapView(mcontext);
+        ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
+        // configure SAILS map after map preparation finish.
+        mSailsMapView.post(new Runnable() {
+            @Override
+            public void run() {
+                // please change token and building id to your own building
+                // project in cloud.
+                mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", "57eb81cf08920f6b4b00053a", // keyanlou
+                        // 57e381af08920f6b4b0004a0 meetingroom
+                        new SAILS.OnFinishCallback() {
+                            @Override
+                            public void onSuccess(String response) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mapViewInitial();
+                                    }
+                                });
+
+                            }
+
+                            @Override
+                            public void onFailed(String response) {
+                                Toast t = Toast.makeText(mcontext,
+                                        "Load cloud project fail, please check network connection.",
+                                        Toast.LENGTH_SHORT);
+                                t.show();
+                            }
+                        });
+            }
+        });
+
+
         return view;
     }
+
+    void mapViewInitial() {
+        // establish a connection of SAILS engine into SAILS MapView.
+        mSailsMapView.setSAILSEngine(mSails);
+
+        // set location pointer icon.
+        mSailsMapView.setLocationMarker(R.drawable.circle, R.drawable.arrow, null, 35);
+
+        // set location marker visible.
+        mSailsMapView.setLocatorMarkerVisible(true);
+
+        // load first floor map in package.
+        mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
+
+        // Auto Adjust suitable map zoom level and position to best view
+        // position.
+        mSailsMapView.autoSetMapZoomAndView();
+
+        // design some action in floor change call back.
+        mSailsMapView.setOnFloorChangedListener(new SAILSMapView.OnFloorChangedListener() {
+            @Override
+            public void onFloorChangedBefore(String floorName) {
+                // get current map view zoom level.
+                zoomSav = mSailsMapView.getMapViewPosition().getZoomLevel();
+            }
+
+            @Override
+            public void onFloorChangedAfter(final String floorName) {
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        // check is locating engine is start and current brows
+                        // map is in the locating floor or not.
+                        if (mSails.isLocationEngineStarted() && mSailsMapView.isInLocationFloor()) {
+                            // change map view zoom level with animation.
+                            mSailsMapView.setAnimationToZoom(zoomSav);
+                        }
+                    }
+                };
+                new Handler().postDelayed(r, 1000);
+
+                int position = 0;
+                for (String mS : mSails.getFloorNameList()) {
+                    if (mS.equals(floorName))
+                        break;
+                    position++;
+                }
+                floorList.setSelection(position);
+            }
+        });
+
+        adapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, mSails.getFloorDescList());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        floorList.setAdapter(adapter);
+        floorList.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    View.OnClickListener controlListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v == zoomin) {
+                // set map zoomin function.
+                mSailsMapView.zoomIn();
+
+            } else if (v == zoomout) {
+                // set map zoomout function.
+                mSailsMapView.zoomOut();
+            } else if (v == lockcenter) {
+                //tempX = Integer.valueOf(editText1.getText().toString());
+                //tempY = Integer.valueOf(editText2.getText().toString());
+                geoPointLocationRT = mSailsMapView.getProjection().fromPixels(tempX, tempY);
+                Marker marker = new Marker(geoPointLocationRT,
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_cir)));
+                listOverlay.getOverlayItems().clear();
+                listOverlay.getOverlayItems().add(marker);
+                mSailsMapView.getOverlays().clear();
+                mSailsMapView.getOverlays().add(listOverlay);
+                mSailsMapView.redraw();
+                // locationTextView.setText(geoPointLocationRT.latitude + " " + geoPointLocationRT.longitude);
+            } else if (v == locationButton) {
+                // drawPosition(flag * 50, flag * 50);
+                heatMap();
+                flag++;
+            } else if (v == clearButton) {
+                mSailsMapView.autoSetMapZoomAndView();
+                mSailsMapView.getOverlays().clear();
+                mSailsMapView.redraw();
+                flag = 0;
+            } else if (v == saveButton) {
+
+            }
+        }
+    };
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -308,6 +544,69 @@ public class InspectFragment extends Fragment implements
     }
 
 
+    // 显示当前定位信息
+    private class MAHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0x01) {
+                Bundle b = msg.getData();
+                // locationTextView.setText(b.getInt("list3x") + " " + b.getInt("list3y"));
+                //drawPosition(b.getInt("list3x"), b.getInt("list3y"));
+            }
+        }
+    }
+
+    public void drawPosition(int x, int y) {
+
+        GeoPoint geoPointNow = new GeoPoint(
+                geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) / 1680 * y,
+                geoPointLocationLB.longitude
+                        - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
+        Marker marker = new Marker(geoPointNow,
+                Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_cir)));
+        listOverlay.getOverlayItems().clear();
+        listOverlay.getOverlayItems().add(marker);
+        mSailsMapView.getOverlays().clear();
+        mSailsMapView.getOverlays().add(listOverlay);
+        mSailsMapView.redraw();
+
+    }
+
+    public void heatMap() {
+        int sum = 1000;
+        GeoPoint geoPoint[] = new GeoPoint[sum];
+        Marker marker[] = new Marker[sum];
+        for (int i = 0; i < sum; i++) {
+            geoPoint[i] = new GeoPoint(
+                    geoPointLocationLB.latitude
+                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * Math.random(),
+                    geoPointLocationLB.longitude
+                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * Math.random());
+            if (i < 800) {
+                marker[i] = new Marker(geoPoint[i],
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.green_c)));
+            } else if (i < 950) {
+                marker[i] = new Marker(geoPoint[i],
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.yellow_c)));
+            } else {
+                marker[i] = new Marker(geoPoint[i],
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_c)));
+            }
+
+        }
+
+        listOverlay.getOverlayItems().clear();
+        for (int i = 0; i < sum; i++) {
+            listOverlay.getOverlayItems().add(marker[i]);
+        }
+        mSailsMapView.getOverlays().clear();
+        mSailsMapView.getOverlays().add(listOverlay);
+        mSailsMapView.redraw();
+    }
+
+
     private void updateBeacon() {
 
         Log.d("update", "开始更新");
@@ -438,6 +737,23 @@ public class InspectFragment extends Fragment implements
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mSailsMapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSailsMapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+    }
 
 
     @Override

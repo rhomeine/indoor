@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // initTabLineWidth();
         initUserCenter();
         // 初始化广播接收器
         IntentFilter intentFilter = new IntentFilter(
@@ -328,28 +329,7 @@ public class MainActivity extends AppCompatActivity
         userProvince = (TextView) navHeaderView.findViewById(R.id.txt_user_province);
         userCompany = (TextView) navHeaderView.findViewById(R.id.txt_user_company);
         userName = (TextView) navHeaderView.findViewById(R.id.txt_user_name);
-        updateNavUser();
 
-        userProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateNavUser();
-                if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivityForResult(intent,REQUEST_CODE);
-                } else {
-                    startActivityForResult(new Intent(MainActivity.this, UserCenterActivity.class),REQUEST_CODE);
-                }
-
-                Log.i("MainActivity","user profile clicked: "+Global.loginStatus.toString());
-            }
-        });
-
-    }
-
-    public void updateNavUser(){
-
-        Log.i("MainActivity","updateNavUser "+Global.loginStatus.toString());
         if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
             userProfile.setImageResource(R.mipmap.ic_launcher);
             userName.setText("请登录");
@@ -364,27 +344,27 @@ public class MainActivity extends AppCompatActivity
             userProvince.setVisibility(View.VISIBLE);
             userCompany.setVisibility(View.VISIBLE);
         }
-    }
 
+        userProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivityForResult(intent,REQUEST_CODE,null);
+                } else {
+                    startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
+                }
+            }
+        });
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == REQUEST_CODE){
-            String type = data.getStringExtra("TYPE");
-            if(type != null){
-                switch (type){
-                    case "LOGIN": break;
-                    case "LOGOUT":
-                        Toast.makeText(this,"已注销",Toast.LENGTH_SHORT).show();
-                        break;
-                    default:break;
-                }
-            }
-            updateNavUser();
-            Log.i("onActivityResult","requestCode == REQUEST_CODE :"+type);
+        if(requestCode == REQUEST_CODE){
+            initUserCenter();
         }
-        Log.i("onActivityResult","requestCode != REQUEST_CODE");
     }
 
     @Override
@@ -507,7 +487,6 @@ public class MainActivity extends AppCompatActivity
 
                 if (Global.loginStatus == Global.LoginStatus.LOGINED) {
                     System.out.println("logined");
-  //                  initUserCenter();
                     Message msg = new Message();
                     msg.what = Constants.MSG.HAS_LOGINED;
                     handler.sendMessage(msg);
@@ -594,9 +573,6 @@ public class MainActivity extends AppCompatActivity
             // msg.what);
             // Log.i("Home_activity HomeHandler", "" + (msg.what & 0xf0));
              Log.i("HomeHandler", "" + (msg.what & 0x0f));
-            if(msg.what == Constants.MSG.HAS_LOGINED){
-                updateNavUser();
-            }
             if ((msg.what & 0xf0) == ((int) 0xf0)) {
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);

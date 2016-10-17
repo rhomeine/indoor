@@ -8,9 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bupt.indooranalysis.R;
+import com.sails.engine.SAILS;
+import com.sails.engine.SAILSMapView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +37,9 @@ public class DataFragment extends Fragment {
     private TextView textView;
     private Button button;
     private OnFragmentInteractionListener mListener;
+
+    private Context mcontext = null;
+
 
     public DataFragment() {
         // Required empty public constructor
@@ -71,6 +78,7 @@ public class DataFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_data, container, false);
 
+        mcontext = getContext();
         button = (Button) view.findViewById(R.id.buttonRound);
         textView = (TextView) view.findViewById(R.id.dataTextView1);
         button.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +87,7 @@ public class DataFragment extends Fragment {
                 textView.setText("data");
             }
         });
+
         return view;
     }
 

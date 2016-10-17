@@ -4,7 +4,12 @@
     android:shape="oval"
     android:useLevel="false">
  
-    <solid android:color="@color/Red"/>
+   <!--  <solid android:color="@color/Red2"/> -->
+      <gradient
+        android:endColor="#00ff0000"
+        android:gradientRadius="20"
+        android:startColor="#96ff0000"
+        android:type="radial" />
     <size android:width="20dp"
           android:height="20dp"/>
 </shape>
