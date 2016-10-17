@@ -193,12 +193,12 @@ public class IndoorLocationActivity extends Activity {
                                     }
                                 }
                             }
-                            boolean isinsert = ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition(list2
-                                    .get(0), list2.get(1), list1
-                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
-                            if (isinsert) {
-                                calPositionInsertTimes += 1;
-                            }
+//                            boolean isinsert = ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition(list2
+//                                    .get(0), list2.get(1), list1
+//                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
+//                            if (isinsert) {
+//                                calPositionInsertTimes += 1;
+//                            }
                             Message msg = new Message();
                             Bundle b = new Bundle();
                             msg.what = 0x01;
@@ -208,6 +208,9 @@ public class IndoorLocationActivity extends Activity {
                             b.putInt("list2y", list2.get(1));
                             b.putInt("list3x", list3.get(0));
                             b.putInt("list3y", list3.get(1));
+                            b.putInt("list4x", list4.get(0));
+                            b.putInt("list4y", list4.get(1));
+
                             msg.setData(b);
                             handler.sendMessage(msg);
                             //测试使用计数器
@@ -244,7 +247,7 @@ public class IndoorLocationActivity extends Activity {
                 startButton.setText("可以开始");
                 LocalizationTimer.cancel();
                 LocalizationTimer = new Timer();
-                Toast.makeText(IndoorLocationActivity.this, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(IndoorLocationActivity.this, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
             }
         });
         uploadButton.setOnClickListener(new OnClickListener() {

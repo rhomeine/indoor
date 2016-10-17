@@ -3,9 +3,12 @@ package com.bupt.indooranalysis.fragment;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +35,7 @@ import com.bupt.indoorPosition.bean.Sim;
 import com.bupt.indoorPosition.callback.InspectUpdateCallback;
 import com.bupt.indoorPosition.dao.DBManager;
 import com.bupt.indoorPosition.model.ModelService;
+import com.bupt.indoorPosition.uti.BeaconUtil;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.MessageUtil;
 import com.bupt.indooranalysis.IndoorLocationActivity;
@@ -48,10 +52,13 @@ import com.sails.engine.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -142,7 +149,10 @@ public class InspectFragment extends Fragment implements
     private Timer LocalizationTimer;
     private Timer GetBluetoothDeviceTimer;
     private Set<Beacon> beaconMap;
-
+    //测试使用计数器
+    private Map<String, Integer> ScanBlueToothTimesInPeriod = new HashMap<String, Integer>();
+    //定位boolean
+    private int isCalposition;
 
 
     public InspectFragment() {
@@ -183,6 +193,7 @@ public class InspectFragment extends Fragment implements
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_inspect, container, false);
+        isCalposition = 0;
         btnUpload = (Button) view.findViewById(R.id.btn_updatedata);
         btnClear = (Button) view.findViewById(R.id.btn_cleardata);
         btnClear.setOnClickListener(new ClearListener());
@@ -200,21 +211,35 @@ public class InspectFragment extends Fragment implements
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         mcontext = getContext();
-        activity = (MainActivity )getActivity();
+        activity = (MainActivity) getActivity();
+        LocalizationTimer = new Timer();
+        initComponent();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textView.setText("click!");
-                final Intent intent = new Intent(mcontext, ScanService.class);
-                intent.setAction("com.bupt.indooranalysis.ScanService");
-                if (!MessageUtil.checkLogin(mcontext)) {
-                    return;
-                }
-                //更新数据
-                updateBeacon();
+                switch (isCalposition) {
+                    case 0:
+                        button.setText("!");
+                        isCalposition = 1;
+                        final Intent intent = new Intent(mcontext, ScanService.class);
+                        intent.setAction("com.bupt.indooranalysis.ScanService");
+                        if (!MessageUtil.checkLogin(mcontext)) {
+                            return;
+                        }
+                        //更新数据
+                        updateBeacon();
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        LocalizationTimer.cancel();
+                        LocalizationTimer = new Timer();
+                        break;
+                    default:
+                        break;
 
-                //此处设置开始巡检的启动状况
+                    //此处设置开始巡检的启动状况
 //                if (startScanning == false) {
 //                    startScanning = true;
 ////                btnStart.setText(R.string.btnStarting);
@@ -229,23 +254,24 @@ public class InspectFragment extends Fragment implements
 //                    ((FragmentServiceCallback) activity).startOrStopActivityService(
 //                            intent, false);
 //                }
+                }
             }
         });
 
         handler = new MAHandler();
 
         zoomin = (ImageView) view.findViewById(R.id.zoomin);
-        zoomout = (ImageView)  view.findViewById(R.id.zoomout);
-        lockcenter = (ImageView) view. findViewById(R.id.lockcenter);
-        locationButton = (Button)  view.findViewById(R.id.locationButton);
-        clearButton = (Button)  view.findViewById(R.id.clearButton);
-        saveButton = (Button)  view.findViewById(R.id.saveButton);
-        editText1 = (EditText)  view.findViewById(R.id.editText1);
-        editText2 = (EditText)  view.findViewById(R.id.editText2);
+        zoomout = (ImageView) view.findViewById(R.id.zoomout);
+        lockcenter = (ImageView) view.findViewById(R.id.lockcenter);
+        locationButton = (Button) view.findViewById(R.id.locationButton);
+        clearButton = (Button) view.findViewById(R.id.clearButton);
+        saveButton = (Button) view.findViewById(R.id.saveButton);
+        editText1 = (EditText) view.findViewById(R.id.editText1);
+        editText2 = (EditText) view.findViewById(R.id.editText2);
         editText1.setVisibility(view.GONE);
         editText2.setVisibility(view.GONE);
-        locationTextView = (TextView) view. findViewById(R.id.locationText);
-        floorList = (Spinner) view. findViewById(R.id.spinner);
+        locationTextView = (TextView) view.findViewById(R.id.locationText);
+        floorList = (Spinner) view.findViewById(R.id.spinner);
 
 
         zoomin.setOnClickListener(controlListener);
@@ -411,6 +437,7 @@ public class InspectFragment extends Fragment implements
             mListener.onFragmentInteraction(uri);
         }
     }
+
     private List<Map<String, Object>> getData() {
         // Log.i("FragmentInspection", "getData size " + showList.size());
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -423,6 +450,7 @@ public class InspectFragment extends Fragment implements
         listData = list;
         return list;
     }
+
     private void setData(List<InspectedBeacon> ibList) {
         listData.clear();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -437,6 +465,7 @@ public class InspectFragment extends Fragment implements
             listData.add(_map);
         }
     }
+
     @Override
     public void handleUpdateMessage(Message msg) {
         if (msg.what == Constants.MSG.UPLOAD) {
@@ -460,28 +489,36 @@ public class InspectFragment extends Fragment implements
             setData(list);
 //            ((SimpleAdapter) listView.getAdapter()).notifyDataSetChanged();
 
-        }else if (msg.what == Constants.MSG.UPDATE) {
+        } else if (msg.what == Constants.MSG.UPDATE) {
             Log.i("Inspect227", "msg.what "
                     + msg.what);
             textView.setText("更新完毕");
             Bundle b = msg.getData();
             boolean status = b.getBoolean("status");
-            if (status) {
+//            if (status) {
+//                Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
+//            } else {
+//                Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
+//            }
+            if (b.getBoolean("statusForLoacalization")) {
+                setTimerTasks();
+                isCalposition = 2;
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
-            }
-            if(b.getBoolean("statusForLoacalization")){
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
+            }else{
+                Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
+                button.setText(">");
+                isCalposition = 0;
+
             }
             isUpdating = false;
         }
 
     }
 
-    class ClearListener implements  View.OnClickListener{
+    class ClearListener implements View.OnClickListener {
         @Override
-        public void onClick(View arg0){
+        public void onClick(View arg0) {
             if (isDeleting)
                 return;
             new AlertDialog.Builder(activity).setTitle("删除确认")
@@ -510,6 +547,7 @@ public class InspectFragment extends Fragment implements
 
         }
     }
+
     class UploadListener implements View.OnClickListener {
         @Override
         public void onClick(View arg0) {
@@ -552,8 +590,8 @@ public class InspectFragment extends Fragment implements
             super.handleMessage(msg);
             if (msg.what == 0x01) {
                 Bundle b = msg.getData();
-                // locationTextView.setText(b.getInt("list3x") + " " + b.getInt("list3y"));
-                //drawPosition(b.getInt("list3x"), b.getInt("list3y"));
+                 locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
+                drawPosition(b.getInt("list4x"), b.getInt("list4y"));
             }
         }
     }
@@ -616,7 +654,7 @@ public class InspectFragment extends Fragment implements
         if (isUpdating)
             return;
         isUpdating = true;
-        Toast.makeText(mcontext,"正在更新",Toast.LENGTH_SHORT);
+        Toast.makeText(mcontext, "正在更新", Toast.LENGTH_SHORT);
 //        changeListItemName(1, "正在更新...");
 
         new Thread(new Runnable() {
@@ -631,8 +669,8 @@ public class InspectFragment extends Fragment implements
                 Message msg = new Message();
                 msg.what = Constants.MSG.UPDATE;
                 Bundle b = new Bundle();
-                b.putBoolean("status", status&&statusForLoacalization);
-                b.putBoolean("statusForLoacalization",statusForLoacalization);
+                b.putBoolean("status", status && statusForLoacalization);
+                b.putBoolean("statusForLoacalization", statusForLoacalization);
                 msg.setData(b);
                 msg.what = Constants.MSG.UPDATE;
                 activity.handler.sendMessage(msg);
@@ -751,7 +789,14 @@ public class InspectFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
-
+        if (bAdapter != null)
+            bAdapter.stopLeScan(mLeScanCallback);
+        if (findLostBeaconTimer != null)
+            findLostBeaconTimer.cancel();
+        if (LocalizationTimer != null)
+            LocalizationTimer.cancel();
+        if (GetBluetoothDeviceTimer != null)
+            GetBluetoothDeviceTimer.cancel();
         super.onDestroy();
     }
 
@@ -849,4 +894,218 @@ public class InspectFragment extends Fragment implements
 //            return textsize;
 //        }
 //    }
+
+    private void initComponent() {
+        beaconSet = new HashSet<Beacon>();
+        beaconMap = new HashSet<Beacon>();
+        // 打开蓝牙
+        if (!activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(mcontext, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            // finish();
+        }
+        Log.d("bluetooth", "ok");
+        final BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
+        bAdapter = bluetoothManager.getAdapter();
+        bAdapter.enable();
+
+        timeZero = System.currentTimeMillis();
+        if (bAdapter != null) {
+            if (!bAdapter.isEnabled())
+                bAdapter.enable();
+            Log.d("bluetooth", "start scaning");
+            bAdapter.startLeScan(mLeScanCallback);
+            // startTime = new Timestamp(System.currentTimeMillis());
+            //
+            // positionTimer = new Timer();
+            // positionTimer.schedule(new TimerTask() {
+            //
+            // @Override
+            // public void run() {
+            //
+            // }
+            // }, 3000, 1000);
+            findLostBeaconTimer = new Timer();
+            findLostBeaconTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    synchronized (beaconSet) {
+                        int invalidBeacon = BeaconUtil.scanLostBeacon(beaconSet);
+                        Beacon max = BeaconUtil.getMax(beaconSet);
+                        // Log.i("traindataactivity", max == null ? "无" :
+                        // max.getMac());
+                        // Bundle b = new Bundle();
+                        // b.putString("beacon", max == null ? "无" :
+                        // max.getMac());
+                        // Message msg = new Message();
+                        // msg.setData(b);
+                        // msg.what = 0x01;
+                        // handler.sendMessage(msg);
+
+                        // 每20* Beacon.TRANSMIT_PERIOD的时间重启一次BLE
+                        int restartThreshold = 20;
+                        int noReactThreashold = 1;
+                        int total = beaconSet.size();
+                        if (bleNoReactCount == noReactThreashold - 1) {
+                            /**
+                             * 蓝牙在noReactThreashold*TRANSMIT_PERIOD时间内没有触发任何回调，
+                             * 针对小米等机型，可能通过重启一次蓝牙来缓解这种问题。
+                             * 对于华为等机型，蓝牙回调非常频繁，在有Beacon的范围内,
+                             * noReactThreashold可能永远保持为零
+                             */
+                            bleRestart();
+                            Log.i("ScansService", "蓝牙未响应重启");
+                        } else {
+                            if (total == 0 || invalidBeacon == total || scanCount == restartThreshold - 1) {
+                                /**
+                                 * 蓝牙有响应,但可能没有潜在位置的Beacon可能没有被更新。
+                                 * 没有检测到蓝牙，或者蓝牙全部失效，或者时间达到restartThreshold
+                                 * *TRANSMIT_PERIOD ， 重启一次蓝牙
+                                 */
+                                bleRestart();
+                                Log.i("ScansService", "beacon失效或周期性重启");
+
+                            }
+                        }
+                        bleNoReactCount = (bleNoReactCount + 1) % noReactThreashold;
+                        scanCount = (scanCount + 1) % restartThreshold;
+                    }
+                }
+            }, 3000, Beacon.TRANSMIT_PERIOD);
+        }
+    }
+
+    /**
+     * 对于小米手机，每个Beacon可能只会被扫描一次，此时需要重启扫描
+     */
+    private void bleRestart() {
+        bAdapter.stopLeScan(mLeScanCallback);
+        bAdapter.startLeScan(mLeScanCallback);
+    }
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+
+        @Override
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            // Log.d("callback", device.getAddress() + "\n" + rssi);
+            // int sec = (int) ((System.currentTimeMillis() - timeZero) / 1000);
+            // Log.e("onLeScan", "第" + sec + "s ,发现" + device.getAddress() +
+            // "\n有"
+            // + beaconSet.size() + "个");
+            if (device.getAddress() != null && rssi <= 0) {
+                // if(device.getAddress().equals("98:7B:F3:72:23:C5")){
+                // System.out.println(123456789);
+                // }
+                bleNoReactCount = 0;
+                int txPower = BeaconUtil.getBeaconTxPower(scanRecord);
+                if (device.getAddress().equals("98:7B:F3:72:23:C5")) {
+                    System.out.println(123456789 + " txPower " + txPower);
+                }
+                // 针对某些没有设置txpower的蓝牙芯片，设置默认的参考发射功率
+                if (txPower > 0) {
+                    txPower = -60;
+                }
+                int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
+                if (device.getAddress().equals("80:30:DC:0D:B1:55")) {
+                    // String newMac = device.getAddress();
+                    // DBManager dbManager = new
+                    // DBManager(IndoorLocationActivity.this);
+                    // if (dbManager.isContainLocalization(newMac)) {
+                    // Log.d("genxinshujufordistance",
+                    // "" + dis + " " + device.getAddress() + " " + rssi + " " +
+                    // "txPower:" + txPower);
+                }
+                ModelService.updateBeaconForLocal(mcontext, beaconSet,
+                        new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap, ScanBlueToothTimesInPeriod);
+
+            }
+        }
+    };
+
+    private void setTimerTasks() {
+        LocalizationTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+
+                Set<Beacon> newbeaconMap1 = new HashSet<Beacon>();
+                Set<Beacon> newbeaconMap2 = new HashSet<Beacon>();
+                Set<Beacon> newbeaconMap3 = new HashSet<Beacon>();
+                synchronized (beaconMap) {
+                    Iterator<Beacon> ite = beaconMap.iterator();
+                    while (ite.hasNext()) {
+                        Beacon b = ite.next();
+                        newbeaconMap1.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                b.getX(), b.getY(), b.getDislist()));
+                        newbeaconMap2.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                b.getX(), b.getY(), b.getDislist()));
+                        newbeaconMap3.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                b.getX(), b.getY(), b.getDislist()));
+                    }
+                }
+                List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
+                List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
+                List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
+                        (newbeaconMap2));
+                List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
+                //输入定位坐标
+//                String X = EtxPX.getText().toString();
+//                String Y = EtxPY.getText().toString();
+//                int dataX = 0;
+//                int dataY = 0;
+//                if (X != null && !"".equals(X)) {
+//                    for (int i = 0; i < X.length(); i++) {
+//                        if (X.charAt(i) >= 48 && X.charAt(i) <= 57) {//匹配数字
+//                            dataX = Integer.parseInt(X);
+//                        }
+//                    }
+//                }
+//                if (Y != null && !"".equals(Y)) {
+//                    for (int i = 0; i < Y.length(); i++) {
+//                        if (Y.charAt(i) >= 48 && Y.charAt(i) <= 57) {//匹配数字
+//                            dataY = Integer.parseInt(Y);
+//                        }
+//                    }
+//                }
+//                            boolean isinsert = ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition
+// (list2
+//                                    .get(0), list2.get(1), list1
+//                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
+//                            if (isinsert) {
+//                                calPositionInsertTimes += 1;
+//                            }
+                Message msg = new Message();
+                Bundle b = new Bundle();
+                msg.what = 0x01;
+                b.putInt("list1x", list1.get(0));
+                b.putInt("list1y", list1.get(1));
+                b.putInt("list2x", list2.get(0));
+                b.putInt("list2y", list2.get(1));
+                b.putInt("list3x", list3.get(0));
+                b.putInt("list3y", list3.get(1));
+                b.putInt("list4x", list4.get(0));
+                b.putInt("list4y", list4.get(1));
+
+                msg.setData(b);
+                handler.sendMessage(msg);
+                //测试使用计数器
+                Iterator<Map.Entry<String, Integer>> it = ScanBlueToothTimesInPeriod.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, Integer> entry = it.next();
+                    Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
+                }
+                ScanBlueToothTimesInPeriod.clear();
+                synchronized (beaconSet) {
+                    beaconSet.clear();
+                }
+                synchronized (beaconMap) {
+                    beaconMap.clear();
+                }
+                localizationCount += 1;
+                if (localizationCount % 5 == 0) {
+                    bleRestart();
+                }
+            }
+        }, 3000, 5000);
+    }
 }
