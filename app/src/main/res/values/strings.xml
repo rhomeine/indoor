@@ -72,6 +72,7 @@
     <string name="testmap">地图测试</string>
     <string name="title_activity_settings">系统设置</string>
 
+    <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

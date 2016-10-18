@@ -11,6 +11,26 @@ public class InspectedBeacon implements Serializable {
 	private int count;
 	private int floor;
 
+	//测试中,待修改
+	private String date;
+	private String duration;
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+
+	public String getDuration() {
+		return duration;
+	}
+
 	public String getBuildingName() {
 		return buildingName;
 	}
