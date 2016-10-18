@@ -42,6 +42,9 @@ import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
 import com.bupt.indooranalysis.ScanService;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.sails.engine.MapViewPosition;
 import com.sails.engine.SAILS;
 import com.sails.engine.SAILSMapView;
@@ -74,6 +77,7 @@ public class InspectFragment extends Fragment implements
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private String LOG_TAG = "InspectFragment";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -154,6 +158,11 @@ public class InspectFragment extends Fragment implements
     //定位boolean
     private int isCalposition;
 
+    private FloatingActionMenu floatingActionMenu;
+    private FloatingActionButton actionButton;
+    private ArrayList<SubActionButton> floorbuttons;
+    private ArrayList<String> floor = new ArrayList<>();
+
 
     public InspectFragment() {
         // Required empty public constructor
@@ -184,7 +193,81 @@ public class InspectFragment extends Fragment implements
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+    }
 
+    //初始化楼层选择按钮
+    protected void initFloorSelectButton(){
+
+        //初始化楼层
+        floor.add("F4");
+        floor.add("F5");
+        floor.add("F6");
+        floor.add("F7");
+        floor.add("F8");
+
+
+        floorbuttons = new ArrayList<SubActionButton>();
+        ImageView icon = new ImageView(getContext());
+        icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_floor));
+        actionButton = new FloatingActionButton.Builder(getActivity()).setContentView(icon).build();
+        FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(getActivity());
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(150,150);
+        actionButton.setPosition(3,layoutParams);
+
+        for(int i=0;i<floor.size();i++){
+            TextView textView = new TextView(getContext());
+            textView.setText(floor.get(i));
+            SubActionButton.Builder itemBuilder = new SubActionButton.Builder(getActivity());
+            floorbuttons.add(itemBuilder.setContentView(textView).build());
+            builder.addSubActionView(floorbuttons.get(i));
+        }
+        builder.setStartAngle(90);
+        builder.attachTo(actionButton);
+        floatingActionMenu = builder.build();
+        Log.i(LOG_TAG,"initFloorSelectButton");
+
+        //待添加其它floor监听器
+        floorbuttons.get(0).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        floorbuttons.get(4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void setFloorSelectButtonVisible(boolean isVisible){
+                if(!isVisible){
+                    floatingActionMenu.close(true);
+                    actionButton.setVisibility(View.INVISIBLE);
+                }else actionButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -199,7 +282,7 @@ public class InspectFragment extends Fragment implements
         btnClear.setOnClickListener(new ClearListener());
         btnUpload.setOnClickListener(new UploadListener());
 
-        spinner = (Spinner) view.findViewById(R.id.spinner);
+        spinner = (Spinner) view.findViewById(R.id.spinner1);
         button = (Button) view.findViewById(R.id.buttonRound);
         textView = (TextView) view.findViewById(R.id.inspectTextView1);
         locationList = new ArrayList<String>();
@@ -311,6 +394,7 @@ public class InspectFragment extends Fragment implements
 
                             }
 
+                            //没有网络链接时程序崩溃,待解决
                             @Override
                             public void onFailed(String response) {
                                 Toast t = Toast.makeText(mcontext,
@@ -321,6 +405,9 @@ public class InspectFragment extends Fragment implements
                         });
             }
         });
+
+        initFloorSelectButton();
+        Log.i(LOG_TAG,"onCreateView");
 
 
         return view;

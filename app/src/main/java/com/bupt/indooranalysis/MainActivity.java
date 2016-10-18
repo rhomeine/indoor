@@ -85,10 +85,6 @@ public class MainActivity extends AppCompatActivity
     private Timer keepAliveTimer;
     private InspectUpdateCallback cbInspect;
     private SettingUpdateCallback cbSetting;
-    private FloatingActionMenu floatingActionMenu;
-    private FloatingActionButton actionButton;
-    private ArrayList<SubActionButton> floorbuttons;
-    private ArrayList<String> floor = new ArrayList<>();
     private int REQUEST_CODE = 100;
 
     @Override
@@ -97,76 +93,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initComponent();
         initLogin();
-        initFloorSelectButton();
+    //    initFloorSelectButton();
     }
 
-    //初始化楼层选择按钮
-    protected void initFloorSelectButton(){
-
-        //初始化楼层
-        floor.add("F1");
-        floor.add("F2");
-        floor.add("F3");
-        floor.add("F4");
-        floor.add("F5");
-
-
-        floorbuttons = new ArrayList<SubActionButton>();
-        ImageView icon = new ImageView(this);
-        icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_floor));
-        actionButton = new FloatingActionButton.Builder(this).setContentView(icon).build();
-        FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(this);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(150,150);
-        actionButton.setPosition(3,layoutParams);
-
-        for(int i=0;i<floor.size();i++){
-            TextView textView = new TextView(this);
-            textView.setText(floor.get(i));
-            SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
-            floorbuttons.add(itemBuilder.setContentView(textView).build());
-            builder.addSubActionView(floorbuttons.get(i));
-        }
-        builder.setStartAngle(90);
-        builder.attachTo(actionButton);
-        floatingActionMenu = builder.build();
-
-        floorbuttons.get(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(3).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(4).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        //待添加其它floor监听器
-    }
 
     protected void initComponent(){
 
@@ -226,10 +155,14 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onPageSelected(int position) {
 
-                if(position!=0){
-                    floatingActionMenu.close(true);
-                    actionButton.setVisibility(View.INVISIBLE);
-                }else actionButton.setVisibility(View.VISIBLE);
+
+                if(inspectFragment == null){
+                    //todo
+                }else {
+                    if(position!=0){
+                        inspectFragment.setFloorSelectButtonVisible(false);
+                    }else inspectFragment.setFloorSelectButtonVisible(true);
+                }
 
                 mTabInspect.setTextColor(Color.GRAY);
                 mTabHistory.setTextColor(Color.GRAY);
