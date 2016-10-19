@@ -82,6 +82,7 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
+        //填入测试内容,待修改
         InspectedBeacon beacon = new InspectedBeacon();
         beacon.setBuildingName("北邮科技大厦");
         beacon.setDate("2016-05-23 14:55");
@@ -93,6 +94,8 @@ public class HistoryFragment extends Fragment {
         inspectedBeacons.add(beacon);
         inspectedBeacons.add(beacon);
         inspectedBeacons.add(beacon);
+
+
         recyclerView = (RecyclerView) view.findViewById(R.id.base_swipe_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());

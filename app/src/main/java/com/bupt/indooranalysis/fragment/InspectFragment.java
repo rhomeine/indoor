@@ -5,13 +5,16 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
@@ -38,6 +41,7 @@ import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.uti.BeaconUtil;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.MessageUtil;
+import com.bupt.indooranalysis.AccelerometerService;
 import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
@@ -163,6 +167,7 @@ public class InspectFragment extends Fragment implements
     private ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
 
+    private AccelerometerService accelerometerService;
 
     public InspectFragment() {
         // Required empty public constructor
@@ -193,7 +198,31 @@ public class InspectFragment extends Fragment implements
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
+        Intent intent = new Intent(getActivity(), AccelerometerService.class);
+        getActivity().bindService(intent,conn,Context.BIND_AUTO_CREATE);
     }
+
+    private ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(LOG_TAG,"onServiceConnected");
+            accelerometerService = ((AccelerometerService.MyBinder)service).getService();
+            accelerometerService.setOnAccelerometerChangeListener(new AccelerometerService.OnAccelerometerChangeListener() {
+                @Override
+                public void onAccelerationChange(float delta) {
+                    //处理加速度传感器传回的加速度差值
+                    Log.i(LOG_TAG,"Delta callback");
+                }
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(LOG_TAG,"onServiceDisconnected");
+        }
+    };
 
     //初始化楼层选择按钮
     protected void initFloorSelectButton(){
@@ -876,6 +905,8 @@ public class InspectFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
+
+        getActivity().unbindService(conn);
         if (bAdapter != null)
             bAdapter.stopLeScan(mLeScanCallback);
         if (findLostBeaconTimer != null)
