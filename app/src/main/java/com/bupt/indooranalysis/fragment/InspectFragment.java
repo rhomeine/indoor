@@ -99,7 +99,7 @@ public class InspectFragment extends Fragment implements
     private boolean isUpdating = false;
 
     private Button button;
-    private TextView textView;
+    private TextView floorNumTV;
 
     private OnFragmentInteractionListener mListener;
 
@@ -109,9 +109,9 @@ public class InspectFragment extends Fragment implements
     ImageView zoomin;
     ImageView zoomout;
     ImageView lockcenter;
+    ImageView recovermapImageView;
     EditText editText1;
     EditText editText2;
-    Button locationButton;
     Button clearButton;
     Button saveButton;
     TextView locationTextView;
@@ -196,25 +196,21 @@ public class InspectFragment extends Fragment implements
     }
 
     //初始化楼层选择按钮
-    protected void initFloorSelectButton(){
-
+    protected void initFloorSelectButton() {
         //初始化楼层
-        floor.add("F4");
-        floor.add("F5");
-        floor.add("F6");
-        floor.add("F7");
-        floor.add("F8");
-
-
+        for (String s : mSails.getFloorDescList()) {
+            floor.add(s);
+        }
         floorbuttons = new ArrayList<SubActionButton>();
         ImageView icon = new ImageView(getContext());
         icon.setImageDrawable(getResources().getDrawable(R.drawable.ic_floor));
         actionButton = new FloatingActionButton.Builder(getActivity()).setContentView(icon).build();
         FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(getActivity());
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(150,150);
-        actionButton.setPosition(3,layoutParams);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
+        actionButton.setPosition(3, layoutParams);
 
-        for(int i=0;i<floor.size();i++){
+
+        for (int i = 0; i < floor.size(); i++) {
             TextView textView = new TextView(getContext());
             textView.setText(floor.get(i));
             SubActionButton.Builder itemBuilder = new SubActionButton.Builder(getActivity());
@@ -224,50 +220,33 @@ public class InspectFragment extends Fragment implements
         builder.setStartAngle(90);
         builder.attachTo(actionButton);
         floatingActionMenu = builder.build();
-        Log.i(LOG_TAG,"initFloorSelectButton");
+        Log.i(LOG_TAG, "initFloorSelectButton");
 
         //待添加其它floor监听器
-        floorbuttons.get(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
 
-        floorbuttons.get(1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
+        for (int i = 0; i < floor.size(); i++) {
+            final int finalI = i;
+            floorbuttons.get(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
+                        mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(finalI));
+                        Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+                    }
+                    floatingActionMenu.close(true);
+                }
+            });
+        }
 
-        floorbuttons.get(2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(3).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        floorbuttons.get(4).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(),"select floor",Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
-    public void setFloorSelectButtonVisible(boolean isVisible){
-                if(!isVisible){
-                    floatingActionMenu.close(true);
-                    actionButton.setVisibility(View.INVISIBLE);
-                }else actionButton.setVisibility(View.VISIBLE);
+    public void setFloorSelectButtonVisible(boolean isVisible) {
+        if (!isVisible) {
+            floatingActionMenu.close(true);
+            actionButton.setVisibility(View.INVISIBLE);
+        } else actionButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -284,7 +263,7 @@ public class InspectFragment extends Fragment implements
 
         spinner = (Spinner) view.findViewById(R.id.spinner1);
         button = (Button) view.findViewById(R.id.buttonRound);
-        textView = (TextView) view.findViewById(R.id.inspectTextView1);
+        floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
         locationList.add("北邮科技大厦");
         locationList.add("郑州大厦");
@@ -346,23 +325,28 @@ public class InspectFragment extends Fragment implements
         zoomin = (ImageView) view.findViewById(R.id.zoomin);
         zoomout = (ImageView) view.findViewById(R.id.zoomout);
         lockcenter = (ImageView) view.findViewById(R.id.lockcenter);
-        locationButton = (Button) view.findViewById(R.id.locationButton);
+        recovermapImageView=(ImageView)view.findViewById(R.id.recovermap);
         clearButton = (Button) view.findViewById(R.id.clearButton);
         saveButton = (Button) view.findViewById(R.id.saveButton);
+        zoomin.setVisibility(View.GONE);
+        zoomout.setVisibility(View.GONE);
+        lockcenter.setVisibility(View.GONE);
+        clearButton.setVisibility(View.GONE);
+        saveButton.setVisibility(View.GONE);
+
         editText1 = (EditText) view.findViewById(R.id.editText1);
         editText2 = (EditText) view.findViewById(R.id.editText2);
-        editText1.setVisibility(view.GONE);
-        editText2.setVisibility(view.GONE);
+        editText1.setVisibility(View.GONE);
+        editText2.setVisibility(View.GONE);
         locationTextView = (TextView) view.findViewById(R.id.locationText);
         floorList = (Spinner) view.findViewById(R.id.spinner);
-
+        floorList.setVisibility(View.GONE);
 
         zoomin.setOnClickListener(controlListener);
         zoomout.setOnClickListener(controlListener);
         lockcenter.setOnClickListener(controlListener);
-        locationButton.setOnClickListener(controlListener);
         clearButton.setOnClickListener(controlListener);
-
+        recovermapImageView.setOnClickListener(controlListener);
         // new a SAILS engine.
         mSails = new SAILS(mcontext);
         // set location mode.
@@ -389,6 +373,7 @@ public class InspectFragment extends Fragment implements
                                     @Override
                                     public void run() {
                                         mapViewInitial();
+                                        initFloorSelectButton();
                                     }
                                 });
 
@@ -406,9 +391,7 @@ public class InspectFragment extends Fragment implements
             }
         });
 
-        initFloorSelectButton();
-        Log.i(LOG_TAG,"onCreateView");
-
+        Log.i(LOG_TAG, "onCreateView");
 
         return view;
     }
@@ -425,6 +408,8 @@ public class InspectFragment extends Fragment implements
 
         // load first floor map in package.
         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
+        //设置显示楼层
+        floorNumTV.setText(mSails.getFloorDescList().get(0));
 
         // Auto Adjust suitable map zoom level and position to best view
         // position.
@@ -459,7 +444,8 @@ public class InspectFragment extends Fragment implements
                         break;
                     position++;
                 }
-                floorList.setSelection(position);
+                //  floorList.setSelection(position);
+                floorNumTV.setText(mSails.getFloorDescList().get(position));
             }
         });
 
@@ -502,10 +488,6 @@ public class InspectFragment extends Fragment implements
                 mSailsMapView.getOverlays().add(listOverlay);
                 mSailsMapView.redraw();
                 // locationTextView.setText(geoPointLocationRT.latitude + " " + geoPointLocationRT.longitude);
-            } else if (v == locationButton) {
-                // drawPosition(flag * 50, flag * 50);
-                heatMap();
-                flag++;
             } else if (v == clearButton) {
                 mSailsMapView.autoSetMapZoomAndView();
                 mSailsMapView.getOverlays().clear();
@@ -513,6 +495,11 @@ public class InspectFragment extends Fragment implements
                 flag = 0;
             } else if (v == saveButton) {
 
+            }
+            else if(v==recovermapImageView){
+                mSailsMapView.autoSetMapZoomAndView();
+                mSailsMapView.setAnimatingToRotationAngle(0);
+                mSailsMapView.redraw();
             }
         }
     };
@@ -579,7 +566,6 @@ public class InspectFragment extends Fragment implements
         } else if (msg.what == Constants.MSG.UPDATE) {
             Log.i("Inspect227", "msg.what "
                     + msg.what);
-            textView.setText("更新完毕");
             Bundle b = msg.getData();
             boolean status = b.getBoolean("status");
 //            if (status) {
@@ -592,7 +578,7 @@ public class InspectFragment extends Fragment implements
                 isCalposition = 2;
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
-            }else{
+            } else {
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
                 button.setText(">");
                 isCalposition = 0;
@@ -669,6 +655,12 @@ public class InspectFragment extends Fragment implements
     }
 
 
+    private int dp2px(int value) {
+        float v = getContext().getResources().getDisplayMetrics().density;
+        return (int) (v * value + 0.5f);
+    }
+
+
     // 显示当前定位信息
     private class MAHandler extends Handler {
 
@@ -677,7 +669,7 @@ public class InspectFragment extends Fragment implements
             super.handleMessage(msg);
             if (msg.what == 0x01) {
                 Bundle b = msg.getData();
-                 locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
+                locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
                 drawPosition(b.getInt("list4x"), b.getInt("list4y"));
             }
         }
@@ -698,39 +690,6 @@ public class InspectFragment extends Fragment implements
         mSailsMapView.redraw();
 
     }
-
-    public void heatMap() {
-        int sum = 1000;
-        GeoPoint geoPoint[] = new GeoPoint[sum];
-        Marker marker[] = new Marker[sum];
-        for (int i = 0; i < sum; i++) {
-            geoPoint[i] = new GeoPoint(
-                    geoPointLocationLB.latitude
-                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * Math.random(),
-                    geoPointLocationLB.longitude
-                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * Math.random());
-            if (i < 800) {
-                marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.green_c)));
-            } else if (i < 950) {
-                marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.yellow_c)));
-            } else {
-                marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_c)));
-            }
-
-        }
-
-        listOverlay.getOverlayItems().clear();
-        for (int i = 0; i < sum; i++) {
-            listOverlay.getOverlayItems().add(marker[i]);
-        }
-        mSailsMapView.getOverlays().clear();
-        mSailsMapView.getOverlays().add(listOverlay);
-        mSailsMapView.redraw();
-    }
-
 
     private void updateBeacon() {
 

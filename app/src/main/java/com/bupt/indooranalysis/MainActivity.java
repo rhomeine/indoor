@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initComponent();
         initLogin();
-    //    initFloorSelectButton();
+        //    initFloorSelectButton();
     }
 
 
@@ -505,7 +505,7 @@ public class MainActivity extends AppCompatActivity
             // Log.i("Home_activity HomeHandler", "receive msg.what " +
             // msg.what);
             // Log.i("Home_activity HomeHandler", "" + (msg.what & 0xf0));
-             Log.i("HomeHandler", "" + (msg.what & 0x0f));
+            Log.i("HomeHandler", "" + (msg.what & 0x0f));
             if ((msg.what & 0xf0) == ((int) 0xf0)) {
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);

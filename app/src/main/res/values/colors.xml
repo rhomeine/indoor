@@ -11,7 +11,7 @@
     <color name="red">#FF0000</color>
     <color name="darkgray">#938192</color>
     <color name="lightgreen">#7cd12e</color>
-    <color name="black">#ff000000</color>
+    <color name="black">#000000</color>
     <color name="cyan">#ff00ffff</color>
     <color name="gray">#ff888888</color>
     <color name="Green">#ff4AD953</color>

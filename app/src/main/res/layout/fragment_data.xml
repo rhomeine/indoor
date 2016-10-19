@@ -5,23 +5,27 @@
     tools:context="com.bupt.indooranalysis.fragment.DataFragment">
 
     <FrameLayout
-        android:id="@+id/SAILSHeartMap"
+        android:id="@+id/SAILSMap_FragmentMap"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_centerHorizontal="true" />
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/dataTextView1"
-        android:layout_width="wrap_content"
+
+    <Spinner
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_blank_fragment"
-        android:layout_gravity="center_horizontal"
-        android:layout_centerVertical="false"
-        android:layout_centerHorizontal="true" />
-
-
-
+        android:id="@+id/spinner_datafragment"
+        android:layout_centerHorizontal="true"></Spinner>
 
     <include layout="@layout/bottom_menu_round" />
+
+    <Button
+        android:text="Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/heatmap_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp" />
 
 </RelativeLayout>
