@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +36,7 @@ public class HistoryFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
+    private SwipeRefreshLayout swipeRefreshLayout;
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
@@ -103,6 +105,17 @@ public class HistoryFragment extends Fragment {
 
         cardViewAdapter = new CardViewAdapter(getContext(),inspectedBeacons);
         recyclerView.setAdapter(cardViewAdapter);
+
+        //设置下拉刷新
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return view;
     }
 

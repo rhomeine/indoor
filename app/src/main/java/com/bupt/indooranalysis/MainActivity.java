@@ -262,7 +262,25 @@ public class MainActivity extends AppCompatActivity
         userProvince = (TextView) navHeaderView.findViewById(R.id.txt_user_province);
         userCompany = (TextView) navHeaderView.findViewById(R.id.txt_user_company);
         userName = (TextView) navHeaderView.findViewById(R.id.txt_user_name);
+        initUserProfile();
 
+        userProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                initUserProfile();
+                if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivityForResult(intent,REQUEST_CODE,null);
+                } else {
+                    startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
+                }
+            }
+        });
+
+    }
+
+    public void initUserProfile(){
         if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
             userProfile.setImageResource(R.mipmap.ic_launcher);
             userName.setText("请登录");
@@ -277,19 +295,6 @@ public class MainActivity extends AppCompatActivity
             userProvince.setVisibility(View.VISIBLE);
             userCompany.setVisibility(View.VISIBLE);
         }
-
-        userProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivityForResult(intent,REQUEST_CODE,null);
-                } else {
-                    startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
-                }
-            }
-        });
-
     }
 
     @Override
