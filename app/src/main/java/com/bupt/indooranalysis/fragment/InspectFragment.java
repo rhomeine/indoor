@@ -161,12 +161,12 @@ public class InspectFragment extends Fragment implements
     //定位boolean
     private int isCalposition;
 
-    private FloatingActionMenu floatingActionMenu;
-    private FloatingActionButton actionButton;
-    private ArrayList<SubActionButton> floorbuttons;
+    public FloatingActionMenu floatingActionMenu;
+    public FloatingActionButton actionButton;
+    public ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
 
-    private  FloatingActionButton recoverButton;
+    public   FloatingActionButton recoverButton;
 
     private AccelerometerService accelerometerService;
 
@@ -273,13 +273,15 @@ public class InspectFragment extends Fragment implements
     }
 
     public void setFloorSelectButtonVisible(boolean isVisible) {
-        if (!isVisible) {
-            floatingActionMenu.close(true);
-            actionButton.setVisibility(View.GONE);
-            recoverButton.setVisibility(View.GONE);
-        } else {
-            actionButton.setVisibility(View.VISIBLE);
-            recoverButton.setVisibility(View.VISIBLE);
+        if((floatingActionMenu!=null)&&(actionButton!=null)&&(recoverButton!=null)){
+            if (!isVisible) {
+                floatingActionMenu.close(true);
+                actionButton.setVisibility(View.GONE);
+                recoverButton.setVisibility(View.GONE);
+            } else {
+                actionButton.setVisibility(View.VISIBLE);
+                recoverButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 

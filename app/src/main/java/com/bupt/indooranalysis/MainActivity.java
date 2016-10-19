@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         InspectFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         DataFragment.OnFragmentInteractionListener,
-        FragmentServiceCallback {
+        FragmentServiceCallback,DrawerLayout.DrawerListener{
 
     private ViewPager mPager;
     private ArrayList<Fragment> mFragmentList = new ArrayList<Fragment>();
@@ -96,6 +97,34 @@ public class MainActivity extends AppCompatActivity
         //    initFloorSelectButton();
     }
 
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        if(inspectFragment!=null){
+            if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
+                inspectFragment.setFloorSelectButtonVisible(false);
+            }
+        }
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        if(inspectFragment!=null){
+            if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
+                if(mPager.getCurrentItem() == 0){
+                    inspectFragment.setFloorSelectButtonVisible(true);
+                }
+            }
+        }
+    }
 
     protected void initComponent(){
 
@@ -453,6 +482,7 @@ public class MainActivity extends AppCompatActivity
         // 保存cookie
         ModelService.saveCookie(this);
     }
+
 
     public class HomeActivityReceiver extends BroadcastReceiver {
 
