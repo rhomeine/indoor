@@ -35,6 +35,7 @@
             android:textSize="18sp" />
 
 
+
         <ImageView
             android:id="@+id/zoomin"
             android:layout_width="57dp"
