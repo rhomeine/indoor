@@ -62,14 +62,6 @@
             android:layout_marginBottom="70dp"
             android:src="@drawable/center1" />
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            app:srcCompat="@drawable/ic_location"
-            android:id="@+id/recovermap"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="70dp" />
-
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="fill_parent"
