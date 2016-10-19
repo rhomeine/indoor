@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indooranalysis.R;
@@ -19,6 +20,16 @@ import java.util.List;
 public class CardViewAdapter
         extends RecyclerView.Adapter<CardViewAdapter.ViewHolder>
 {
+
+    public interface OnItemClickListener{
+        void onItemClick(View view, int position);
+    }
+
+    private OnItemClickListener onItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
 
     private List<InspectedBeacon> inspectedBeaconList;
 
@@ -39,13 +50,22 @@ public class CardViewAdapter
     }
 
     @Override
-    public void onBindViewHolder( ViewHolder viewHolder, int i )
+    public void onBindViewHolder(final ViewHolder viewHolder, int i )
     {
         // 给ViewHolder设置元素
         InspectedBeacon beacon = inspectedBeaconList.get(i);
         viewHolder.mDate.setText(beacon.getDate());
         viewHolder.mLocation.setText(beacon.getBuildingName());
         viewHolder.mDuration.setText(beacon.getDuration());
+        if(onItemClickListener!=null){
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = viewHolder.getLayoutPosition();
+                    onItemClickListener.onItemClick(viewHolder.itemView,pos);
+                }
+            });
+        }
     }
 
     @Override

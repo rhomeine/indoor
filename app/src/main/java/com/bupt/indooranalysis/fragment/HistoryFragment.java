@@ -104,6 +104,12 @@ public class HistoryFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
 
         cardViewAdapter = new CardViewAdapter(getContext(),inspectedBeacons);
+        cardViewAdapter.setOnItemClickListener(new CardViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(getContext(),"点击了一个记录",Toast.LENGTH_SHORT).show();
+            }
+        });
         recyclerView.setAdapter(cardViewAdapter);
 
         //设置下拉刷新

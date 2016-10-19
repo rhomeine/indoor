@@ -25,4 +25,6 @@
     <color name="bground">#ffD4FFFE</color>
     <color name="ltergray">#FFEdEdEd</color>
     <color name="mylocation">#1FFFFF</color>
+    <color name="item_normal">#ffffff</color>
+    <color name="item_pressed">#ffcccccc</color>
 </resources>

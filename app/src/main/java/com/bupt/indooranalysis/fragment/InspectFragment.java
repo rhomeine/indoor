@@ -272,10 +272,12 @@ public class InspectFragment extends Fragment implements
     }
 
     public void setFloorSelectButtonVisible(boolean isVisible) {
-        if (!isVisible) {
-            floatingActionMenu.close(true);
-            actionButton.setVisibility(View.INVISIBLE);
-        } else actionButton.setVisibility(View.VISIBLE);
+        if((floatingActionMenu!=null)&&(actionButton!=null)){
+            if ((!isVisible)) {
+                floatingActionMenu.close(true);
+                actionButton.setVisibility(View.INVISIBLE);
+            } else actionButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
