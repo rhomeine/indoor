@@ -113,7 +113,6 @@ public class InspectFragment extends Fragment implements
     ImageView zoomin;
     ImageView zoomout;
     ImageView lockcenter;
-    ImageView recovermapImageView;
     EditText editText1;
     EditText editText2;
     Button clearButton;
@@ -166,6 +165,8 @@ public class InspectFragment extends Fragment implements
     private FloatingActionButton actionButton;
     private ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
+
+    private  FloatingActionButton recoverButton;
 
     private AccelerometerService accelerometerService;
 
@@ -274,8 +275,12 @@ public class InspectFragment extends Fragment implements
     public void setFloorSelectButtonVisible(boolean isVisible) {
         if (!isVisible) {
             floatingActionMenu.close(true);
-            actionButton.setVisibility(View.INVISIBLE);
-        } else actionButton.setVisibility(View.VISIBLE);
+            actionButton.setVisibility(View.GONE);
+            recoverButton.setVisibility(View.GONE);
+        } else {
+            actionButton.setVisibility(View.VISIBLE);
+            recoverButton.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -354,7 +359,6 @@ public class InspectFragment extends Fragment implements
         zoomin = (ImageView) view.findViewById(R.id.zoomin);
         zoomout = (ImageView) view.findViewById(R.id.zoomout);
         lockcenter = (ImageView) view.findViewById(R.id.lockcenter);
-        recovermapImageView=(ImageView)view.findViewById(R.id.recovermap);
         clearButton = (Button) view.findViewById(R.id.clearButton);
         saveButton = (Button) view.findViewById(R.id.saveButton);
         zoomin.setVisibility(View.GONE);
@@ -375,7 +379,6 @@ public class InspectFragment extends Fragment implements
         zoomout.setOnClickListener(controlListener);
         lockcenter.setOnClickListener(controlListener);
         clearButton.setOnClickListener(controlListener);
-        recovermapImageView.setOnClickListener(controlListener);
         // new a SAILS engine.
         mSails = new SAILS(mcontext);
         // set location mode.
@@ -388,8 +391,22 @@ public class InspectFragment extends Fragment implements
         mSailsMapView = new SAILSMapView(mcontext);
         ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
 
+        final ImageView fabIconNew = new ImageView(mcontext);
+        fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
+         recoverButton = new FloatingActionButton.Builder(activity)
+                .setContentView(fabIconNew)
+                .build();
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
+        recoverButton.setPosition(7, layoutParams);
 
-
+        recoverButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSailsMapView.autoSetMapZoomAndView();
+                mSailsMapView.setAnimatingToRotationAngle(0);
+                mSailsMapView.redraw();
+            }
+        });
 
         // configure SAILS map after map preparation finish.
         mSailsMapView.post(new Runnable() {
@@ -528,11 +545,6 @@ public class InspectFragment extends Fragment implements
                 flag = 0;
             } else if (v == saveButton) {
 
-            }
-            else if(v==recovermapImageView){
-                mSailsMapView.autoSetMapZoomAndView();
-                mSailsMapView.setAnimatingToRotationAngle(0);
-                mSailsMapView.redraw();
             }
         }
     };
