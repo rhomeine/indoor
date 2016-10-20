@@ -63,12 +63,13 @@ public class MainActivity extends AppCompatActivity
         InspectFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         DataFragment.OnFragmentInteractionListener,
-        FragmentServiceCallback,DrawerLayout.DrawerListener{
+        FragmentServiceCallback{
 
     private ViewPager mPager;
     private ArrayList<Fragment> mFragmentList = new ArrayList<Fragment>();
     private FragmentPagerAdapter fragmentPagerAdapter;
     private NavigationView navigationView;
+    private String LOG_TAG = "MainActivity";
 
     private TextView mTabInspect, mTabHistory, mTabData;
     private ImageView userProfile;
@@ -94,36 +95,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initComponent();
         initLogin();
-        //    initFloorSelectButton();
-    }
-
-    @Override
-    public void onDrawerOpened(View drawerView) {
-        if(inspectFragment!=null){
-            if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
-                inspectFragment.setFloorSelectButtonVisible(false);
-            }
-        }
-    }
-
-    @Override
-    public void onDrawerStateChanged(int newState) {
-    }
-
-    @Override
-    public void onDrawerSlide(View drawerView, float slideOffset) {
-
-    }
-
-    @Override
-    public void onDrawerClosed(View drawerView) {
-        if(inspectFragment!=null){
-            if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
-                if(mPager.getCurrentItem() == 0){
-                    inspectFragment.setFloorSelectButtonVisible(true);
-                }
-            }
-        }
     }
 
     protected void initComponent(){
@@ -230,6 +201,34 @@ public class MainActivity extends AppCompatActivity
 
         // initTabLineWidth();
         initUserCenter();
+
+        //处理导航打开与关闭时FloatingMenu的显示问题
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                Log.i(LOG_TAG,"onDrawerOpened");
+                if(inspectFragment!=null){
+                    if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
+                        inspectFragment.setFloorSelectButtonVisible(false);
+                    }
+                }
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                Log.i(LOG_TAG,"onDrawerClosed");
+                if((inspectFragment!=null)&&(mPager!=null)){
+                    if(mPager.getCurrentItem() == 0) {
+                        if ((inspectFragment.floatingActionMenu != null) && (inspectFragment.actionButton != null) && (inspectFragment.recoverButton != null)) {
+                            inspectFragment.setFloorSelectButtonVisible(true);
+                        }
+                    }
+                }
+                super.onDrawerClosed(drawerView);
+            }
+        });
         // 初始化广播接收器
         IntentFilter intentFilter = new IntentFilter(
                 Constants.ACTIONURL.MAIN_ACTIVITY_ACTION);
