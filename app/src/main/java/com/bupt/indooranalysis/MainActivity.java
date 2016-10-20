@@ -2,6 +2,7 @@ package com.bupt.indooranalysis;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDrawerOpened(View drawerView) {
                 Log.i(LOG_TAG,"onDrawerOpened");
+                initUserProfile();
                 if(inspectFragment!=null){
                     if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
                         inspectFragment.setFloorSelectButtonVisible(false);
@@ -296,7 +298,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                initUserProfile();
                 if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivityForResult(intent,REQUEST_CODE,null);
@@ -386,11 +387,17 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-            Intent mail = new Intent(Intent.ACTION_SENDTO);
-            mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
-            mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
-            mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
-            startActivity(mail);
+            try{
+                Intent mail = new Intent(Intent.ACTION_SENDTO);
+                mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
+                mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
+                mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
+                startActivity(mail);
+            }catch (ActivityNotFoundException e){
+                Toast.makeText(this,"未找到邮箱应用",Toast.LENGTH_SHORT).show();
+                Log.i(LOG_TAG,"ActivityNotFoundException:mailto");
+            }
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -409,8 +416,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onSettingsItemSelected() {
-        startActivity(new Intent(this, SettingsActivity.class));
-
+        startActivity(new Intent(this, SystemSettingActivity.class));
     }
 
     public void onDataItemSelected() {

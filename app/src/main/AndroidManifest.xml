@@ -44,9 +44,6 @@
         <activity
             android:name=".AboutSystemActivity"
             android:label="关于系统" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" />
         <activity android:name=".BaseAppCompatActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
@@ -57,6 +54,8 @@
         <activity
             android:name=".IndoorLocationActivity"
             android:label="@string/indoorLocation" />
+        <activity android:name=".SystemSettingActivity"
+                  android:label="@string/title_activity_settings"/>
         <!-- 配置一个Service组件 -->
         <service android:name=".ScanService">
             <intent-filter>
