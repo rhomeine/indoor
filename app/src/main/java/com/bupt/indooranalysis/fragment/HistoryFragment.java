@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.bupt.indoorPosition.adapter.CardViewAdapter;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indooranalysis.R;
+import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class HistoryFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private PullToRefreshView pullToRefreshView;
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
@@ -112,16 +113,20 @@ public class HistoryFragment extends Fragment {
         });
         recyclerView.setAdapter(cardViewAdapter);
 
-        //设置下拉刷新
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        pullToRefreshView = (PullToRefreshView) view.findViewById(R.id.pull_to_refresh);
+        pullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
+                pullToRefreshView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pullToRefreshView.setRefreshing(false);
+                        Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
+                    }
+                }, 1000);
             }
         });
-
+        //Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
         return view;
     }
 

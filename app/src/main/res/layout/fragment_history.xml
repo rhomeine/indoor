@@ -1,17 +1,21 @@
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.bupt.indooranalysis.fragment.HistoryFragment"
-    android:id="@+id/refresh_layout">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: Update blank fragment layout -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/base_swipe_list"
+    <com.yalantis.phoenix.PullToRefreshView
+        android:id="@+id/pull_to_refresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="match_parent">
 
-</android.support.v4.widget.SwipeRefreshLayout>
+        <!-- TODO: Update blank fragment layout -->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/base_swipe_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </com.yalantis.phoenix.PullToRefreshView>
+
+</RelativeLayout>
