@@ -428,7 +428,6 @@ public class InspectFragment extends Fragment implements
                                         initFloorSelectButton();
                                     }
                                 });
-
                             }
 
                             //没有网络链接时程序崩溃,待解决

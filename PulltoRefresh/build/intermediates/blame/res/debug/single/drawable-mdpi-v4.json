@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi-v4\\sky.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-mdpi\\sky.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi-v4\\buildings.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-mdpi\\buildings.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi-v4\\sun.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-mdpi\\sun.png"
+    }
+]
