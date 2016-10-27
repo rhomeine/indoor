@@ -1,1 +1,1 @@
-include ':app', 'FloatingActionButton', ':PulltoRefresh', ':NewFloatingActionButton'
+include ':app', 'FloatingActionButton', ':PulltoRefresh'

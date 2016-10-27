@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/FloatingActionButton" />
-            <option value="$PROJECT_DIR$/NewFloatingActionButton" />
             <option value="$PROJECT_DIR$/PulltoRefresh" />
             <option value="$PROJECT_DIR$/app" />
           </set>
