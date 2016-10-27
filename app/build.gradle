@@ -43,7 +43,6 @@ dependencies {
     compile files('libs/jackson-databind-2.0.6.jar')
     compile files('libs/jackson-core-2.0.6.jar')
     compile 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
-    compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.yalantis:phoenix:1.2.3'
     compile files('libs/SAILS_SDK_V1.73_Published.jar')
 }
