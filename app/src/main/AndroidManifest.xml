@@ -30,7 +30,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -45,17 +46,25 @@
             android:name=".AboutSystemActivity"
             android:label="关于系统" />
         <activity android:name=".BaseAppCompatActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".RegisterActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".UserCenterActivity"
             android:label="@string/title_activity_user_center"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".IndoorLocationActivity"
-            android:label="@string/indoorLocation" />
-        <activity android:name=".SystemSettingActivity"
-                  android:label="@string/title_activity_settings"/>
+            android:label="@string/indoorLocation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".SystemSettingActivity"
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait"/>
         <!-- 配置一个Service组件 -->
         <service android:name=".ScanService">
             <intent-filter>
