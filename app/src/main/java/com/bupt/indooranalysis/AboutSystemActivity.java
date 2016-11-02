@@ -26,7 +26,6 @@ public class AboutSystemActivity extends BaseAppCompatActivity {
         getToolbarTitle().setText("关于系统");
         getSubTitle().setText("");
         initaboutsystem();
-
     }
 
     @Override

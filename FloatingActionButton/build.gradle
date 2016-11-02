@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.oguzdev.circularfloatingactionmenu.samples"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 3
         versionName "1.0.2"

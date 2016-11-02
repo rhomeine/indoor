@@ -87,7 +87,6 @@ public class InspectFragment extends Fragment implements
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private Spinner spinner;
     private ArrayList<String> locationList;
     private ArrayAdapter<String> arrayAdapter;
@@ -694,7 +693,6 @@ public class InspectFragment extends Fragment implements
 
                         }
                     }).setNegativeButton("否", null).show();
-
         }
     }
 
@@ -754,10 +752,8 @@ public class InspectFragment extends Fragment implements
 
     public void drawPosition(int x, int y) {
 
-        GeoPoint geoPointNow = new GeoPoint(
-                geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) / 1680 * y,
-                geoPointLocationLB.longitude
-                        - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
+        GeoPoint geoPointNow = new GeoPoint(geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) /
+                1680 * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
         Marker marker = new Marker(geoPointNow,
                 Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_cir)));
         listOverlay.getOverlayItems().clear();
