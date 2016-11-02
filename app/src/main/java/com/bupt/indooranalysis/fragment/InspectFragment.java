@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Sim;
+import com.bupt.indoorPosition.callback.FragmentServiceCallback;
 import com.bupt.indoorPosition.callback.InspectUpdateCallback;
 import com.bupt.indoorPosition.dao.DBManager;
 import com.bupt.indoorPosition.model.ModelService;
@@ -160,13 +161,17 @@ public class InspectFragment extends Fragment implements
     private Map<String, Integer> ScanBlueToothTimesInPeriod = new HashMap<String, Integer>();
     //定位boolean
     private int isCalposition;
+    //更新flag
+    private boolean isUpdatedOver = false;
+    //scanServer
+    private Intent scanServiceintent;
 
     public FloatingActionMenu floatingActionMenu;
     public FloatingActionButton actionButton;
     public ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
 
-    public   FloatingActionButton recoverButton;
+    public FloatingActionButton recoverButton;
 
     private AccelerometerService accelerometerService;
 
@@ -202,26 +207,26 @@ public class InspectFragment extends Fragment implements
 
 
         Intent intent = new Intent(getActivity(), AccelerometerService.class);
-        getActivity().bindService(intent,conn,Context.BIND_AUTO_CREATE);
+        getActivity().bindService(intent, conn, Context.BIND_AUTO_CREATE);
     }
 
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(LOG_TAG,"onServiceConnected");
-            accelerometerService = ((AccelerometerService.MyBinder)service).getService();
+            Log.i(LOG_TAG, "onServiceConnected");
+            accelerometerService = ((AccelerometerService.MyBinder) service).getService();
             accelerometerService.setOnAccelerometerChangeListener(new AccelerometerService.OnAccelerometerChangeListener() {
                 @Override
                 public void onAccelerationChange(float delta) {
                     //处理加速度传感器传回的加速度差值
-                    Log.i(LOG_TAG,"Delta callback");
+                    Log.i(LOG_TAG, "Delta callback");
                 }
             });
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.i(LOG_TAG,"onServiceDisconnected");
+            Log.i(LOG_TAG, "onServiceDisconnected");
         }
     };
 
@@ -273,7 +278,7 @@ public class InspectFragment extends Fragment implements
     }
 
     public void setFloorSelectButtonVisible(boolean isVisible) {
-        if((floatingActionMenu!=null)&&(actionButton!=null)&&(recoverButton!=null)){
+        if ((floatingActionMenu != null) && (actionButton != null) && (recoverButton != null)) {
             if (!isVisible) {
                 floatingActionMenu.close(true);
                 actionButton.setVisibility(View.GONE);
@@ -291,6 +296,10 @@ public class InspectFragment extends Fragment implements
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_inspect, container, false);
+        mcontext = getContext();
+        activity = (MainActivity) getActivity();
+        scanServiceintent = new Intent(mcontext, ScanService.class);
+        scanServiceintent.setAction("com.bupt.indooranalysis.ScanService");
         isCalposition = 0;
         btnUpload = (Button) view.findViewById(R.id.btn_updatedata);
         btnClear = (Button) view.findViewById(R.id.btn_cleardata);
@@ -308,31 +317,47 @@ public class InspectFragment extends Fragment implements
         arrayAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_spinner_item, locationList);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
-        mcontext = getContext();
-        activity = (MainActivity) getActivity();
+
         LocalizationTimer = new Timer();
         initComponent();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 switch (isCalposition) {
                     case 0:
-                        button.setText("!");
-                        isCalposition = 1;
-                        final Intent intent = new Intent(mcontext, ScanService.class);
-                        intent.setAction("com.bupt.indooranalysis.ScanService");
                         if (!MessageUtil.checkLogin(mcontext)) {
                             return;
                         }
-                        //更新数据
-                        updateBeacon();
+                        button.setText("!");
+                        isCalposition = 1;
+
+                        if (!isUpdatedOver) {
+                            //更新数据
+                            updateBeacon();
+                        } else {
+                            isCalposition = 2;
+                            setTimerTasks();
+                            if (startScanning == false) {
+                                startScanning = true;
+                                ((FragmentServiceCallback) activity).startOrStopActivityService(
+                                        scanServiceintent, true);
+                            }
+                        }
                         break;
                     case 1:
                         break;
                     case 2:
                         LocalizationTimer.cancel();
                         LocalizationTimer = new Timer();
+                        button.setText(">");
+                        isCalposition = 0;
+                        if (startScanning) {
+                            startScanning = false;
+                            ((FragmentServiceCallback) activity).startOrStopActivityService(
+                                    scanServiceintent, false);
+                        }
                         break;
                     default:
                         break;
@@ -395,7 +420,7 @@ public class InspectFragment extends Fragment implements
 
         final ImageView fabIconNew = new ImageView(mcontext);
         fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
-         recoverButton = new FloatingActionButton.Builder(activity)
+        recoverButton = new FloatingActionButton.Builder(activity)
                 .setContentView(fabIconNew)
                 .build();
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
@@ -623,6 +648,12 @@ public class InspectFragment extends Fragment implements
                 setTimerTasks();
                 isCalposition = 2;
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
+                isUpdatedOver = true;
+                if (startScanning == false) {
+                    startScanning = true;
+                    ((FragmentServiceCallback) activity).startOrStopActivityService(
+                            scanServiceintent, true);
+                }
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
@@ -891,6 +922,11 @@ public class InspectFragment extends Fragment implements
             LocalizationTimer.cancel();
         if (GetBluetoothDeviceTimer != null)
             GetBluetoothDeviceTimer.cancel();
+        if (startScanning) {
+            startScanning = false;
+            ((FragmentServiceCallback) activity).startOrStopActivityService(
+                    scanServiceintent, false);
+        }
         super.onDestroy();
     }
 
