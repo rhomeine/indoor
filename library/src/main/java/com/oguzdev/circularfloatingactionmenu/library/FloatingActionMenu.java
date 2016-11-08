@@ -32,7 +32,6 @@ import java.util.List;
 /**
  * Provides the main structure of the menu.
  */
-
 public class FloatingActionMenu {
 
     /** Reference to the view (usually a button) to trigger the menu to show */

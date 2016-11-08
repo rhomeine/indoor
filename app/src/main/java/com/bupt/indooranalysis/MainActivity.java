@@ -45,6 +45,7 @@ import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.model.UserService;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.Global;
+import com.bupt.indooranalysis.Util.PermissionsChecker;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
 import com.bupt.indooranalysis.fragment.InspectFragment;
@@ -89,13 +90,27 @@ public class MainActivity extends AppCompatActivity
     private InspectUpdateCallback cbInspect;
     private SettingUpdateCallback cbSetting;
     private int REQUEST_CODE = 100;
+    private int REQUEST_CODE_PERMISSION = 0;
+    private PermissionsChecker permissionsChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        permissionsChecker = new PermissionsChecker(this);
         initComponent();
         initLogin();
+
+        PackageManager pm = getPackageManager();
+        boolean permission = (PackageManager.PERMISSION_GRANTED ==
+                pm.checkPermission("android.permission.ACCESS_COARSE_LOCATION", "com.bupt.indooranalysis"));
+        if (permission) {
+            Toast.makeText(MainActivity.this, "有权限",
+                    Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(MainActivity.this, "没有权限",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected void initComponent(){
@@ -331,6 +346,9 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE){
             initUserCenter();
+        }
+        if (requestCode == REQUEST_CODE_PERMISSION && resultCode == PermissionsActivity.PERMISSIONS_DENIED) {
+            finish();
         }
     }
 
@@ -600,4 +618,16 @@ public class MainActivity extends AppCompatActivity
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 缺少权限时, 进入权限配置页面
+        if (permissionsChecker.lacksPermissions(PermissionsChecker.PERMISSIONS)) {
+            startPermissionsActivity();
+        }
+    }
+
+    private void startPermissionsActivity() {
+        PermissionsActivity.startActivityForResult(this, REQUEST_CODE_PERMISSION, PermissionsChecker.PERMISSIONS);
+    }
 }

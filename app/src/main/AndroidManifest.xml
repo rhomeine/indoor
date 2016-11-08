@@ -64,6 +64,7 @@
             android:name=".SystemSettingActivity"
             android:label="@string/title_activity_settings"
             android:screenOrientation="portrait"/>
+        <activity android:name=".PermissionsActivity"/>
         <!-- 配置一个Service组件 -->
         <service android:name=".ScanService">
             <intent-filter>
