@@ -164,6 +164,8 @@ public class InspectFragment extends Fragment implements
     private boolean isUpdatedOver = false;
     //scanServer
     private Intent scanServiceintent;
+    //蓝牙计数flag
+    private int bluecount = 0;
 
     public FloatingActionMenu floatingActionMenu;
     public FloatingActionButton actionButton;
@@ -340,8 +342,8 @@ public class InspectFragment extends Fragment implements
                             setTimerTasks();
                             if (startScanning == false) {
                                 startScanning = true;
-                                ((FragmentServiceCallback) activity).startOrStopActivityService(
-                                        scanServiceintent, true);
+//                                ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                                        scanServiceintent, true);
                             }
                         }
                         break;
@@ -354,8 +356,8 @@ public class InspectFragment extends Fragment implements
                         isCalposition = 0;
                         if (startScanning) {
                             startScanning = false;
-                            ((FragmentServiceCallback) activity).startOrStopActivityService(
-                                    scanServiceintent, false);
+//                            ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                                    scanServiceintent, false);
                         }
                         break;
                     default:
@@ -650,8 +652,8 @@ public class InspectFragment extends Fragment implements
                 isUpdatedOver = true;
                 if (startScanning == false) {
                     startScanning = true;
-                    ((FragmentServiceCallback) activity).startOrStopActivityService(
-                            scanServiceintent, true);
+//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                            scanServiceintent, true);
                 }
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
@@ -920,8 +922,8 @@ public class InspectFragment extends Fragment implements
             GetBluetoothDeviceTimer.cancel();
         if (startScanning) {
             startScanning = false;
-            ((FragmentServiceCallback) activity).startOrStopActivityService(
-                    scanServiceintent, false);
+//            ((FragmentServiceCallback) activity).startOrStopActivityService(
+//                    scanServiceintent, false);
         }
         super.onDestroy();
     }
@@ -1131,7 +1133,7 @@ public class InspectFragment extends Fragment implements
                     txPower = -60;
                 }
                 int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
-                if (device.getAddress().equals("80:30:DC:0D:B1:55")) {
+                if (device.getAddress().equals("80:30:DC:0D:F4:55")) {
                     // String newMac = device.getAddress();
                     // DBManager dbManager = new
                     // DBManager(IndoorLocationActivity.this);
@@ -1139,6 +1141,7 @@ public class InspectFragment extends Fragment implements
                     // Log.d("genxinshujufordistance",
                     // "" + dis + " " + device.getAddress() + " " + rssi + " " +
                     // "txPower:" + txPower);
+                    bluecount += 1;
                 }
                 ModelService.updateBeaconForLocal(mcontext, beaconSet,
                         new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap, ScanBlueToothTimesInPeriod);
@@ -1169,8 +1172,17 @@ public class InspectFragment extends Fragment implements
                                 b.getX(), b.getY(), b.getDislist()));
                     }
                 }
+                Set<Beacon> newbeaconSet = new HashSet<Beacon>();
+                synchronized (beaconSet) {
+                    Iterator<Beacon> ite = beaconSet.iterator();
+                    while (ite.hasNext()) {
+                        Beacon b = ite.next();
+                        newbeaconSet.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
+                                b.getX(), b.getY(), b.getDislist()));
+                    }
+                }
                 List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
-                List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
+                List<Integer> list2 = ModelService.localizationFunc1(newbeaconSet);
                 List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
                         (newbeaconMap2));
                 List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
@@ -1231,6 +1243,9 @@ public class InspectFragment extends Fragment implements
                 if (localizationCount % 5 == 0) {
                     bleRestart();
                 }
+                //蓝牙计数
+                HistoryFragment.blueTime.add(bluecount);
+                bluecount = 0;
             }
         }, 3000, 5000);
     }

@@ -80,7 +80,7 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="UyGqCbtoDXSAOHZqqxrqaehbjre9b1dM" />
+            android:value="csMaD9QGThU8IgnksruLBEP6gYzTXiaT" />
         <!-- key:开发者申请的key -->
         <service
             android:name=".AccelerometerService"

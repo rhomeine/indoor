@@ -1103,6 +1103,7 @@ public class ModelService {
         Set<Beacon> newBeaconMap = new HashSet<Beacon>();
         while (it.hasNext()) {
             Beacon b = it.next();
+            Log.d("ModelService",b.getMac()+": "+b.getDislist().size());
             // 对每个点采集的时序数据进行高斯滤波
             if (b.getDislist().size() < 5) {
 //                Iterator<Integer> iterasmall = b.getDislist().iterator();

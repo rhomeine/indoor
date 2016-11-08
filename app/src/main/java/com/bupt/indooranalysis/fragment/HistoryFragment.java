@@ -8,6 +8,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,6 +45,7 @@ public class HistoryFragment extends Fragment {
     private CardViewAdapter cardViewAdapter;
     private List<InspectedBeacon> inspectedBeacons = new ArrayList<InspectedBeacon>();
     private OnFragmentInteractionListener mListener;
+    public static List<Integer> blueTime = new ArrayList<Integer>();
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -84,17 +87,18 @@ public class HistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         //填入测试内容,待修改
-        InspectedBeacon beacon = new InspectedBeacon();
-        beacon.setBuildingName("北邮科技大厦");
-        beacon.setDate("2016-05-23 14:55");
-        beacon.setDuration("34分钟");
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
-        inspectedBeacons.add(beacon);
+
+//        beacon.setBuildingName("北邮科技大厦");
+//        beacon.setDate("2016-05-23 14:55");
+//        beacon.setDuration("34分钟");
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+//        inspectedBeacons.add(beacon);
+
 
 
         recyclerView = (RecyclerView) view.findViewById(R.id.base_swipe_list);
@@ -102,11 +106,11 @@ public class HistoryFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
 
-        cardViewAdapter = new CardViewAdapter(getContext(),inspectedBeacons);
+        cardViewAdapter = new CardViewAdapter(getContext(), inspectedBeacons);
         cardViewAdapter.setOnItemClickListener(new CardViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(getContext(),"点击了一个记录",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "点击了一个记录", Toast.LENGTH_SHORT).show();
             }
         });
         recyclerView.setAdapter(cardViewAdapter);
@@ -119,7 +123,25 @@ public class HistoryFragment extends Fragment {
                     @Override
                     public void run() {
                         pullToRefreshView.setRefreshing(false);
-                        Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
+                        //
+                        inspectedBeacons.clear();
+                        for (int i = 0; i < blueTime.size(); i++) {
+                            InspectedBeacon beacon = new InspectedBeacon();
+                            beacon.setBuildingName("北邮科技大厦");
+                            beacon.setDate("2016-05-23 14:55");
+                            beacon.setDuration(blueTime.get(i)+"次");
+                            inspectedBeacons.add(beacon);
+                        }
+                        cardViewAdapter = new CardViewAdapter(getContext(), inspectedBeacons);
+                        cardViewAdapter.setOnItemClickListener(new CardViewAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                Toast.makeText(getContext(), "点击了一个记录", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        recyclerView.setAdapter(cardViewAdapter);
+                        //
+                        Toast.makeText(getContext(), "请完善下拉刷新", Toast.LENGTH_SHORT).show();
                     }
                 }, 1000);
             }

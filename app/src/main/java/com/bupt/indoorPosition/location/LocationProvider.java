@@ -99,6 +99,7 @@ public class LocationProvider {
 
 		@Override
 		public void onReceiveLocation(BDLocation location) {
+			Log.d("Model",location.getLocType()+"");
 			if (location.getLocType() == BDLocation.TypeGpsLocation
 					|| location.getLocType() == BDLocation.TypeNetWorkLocation
 					|| location.getLocType() == BDLocation.TypeOffLineLocation) {
