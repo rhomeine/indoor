@@ -64,8 +64,14 @@ import android.widget.Toast;
 public class ModelService {
 
     public static Sim getPhoneInfo(TelephonyManager telephonyManager) {
+        CellLocation location = null;
+        try{
+            location = telephonyManager.getCellLocation();
+        }catch (SecurityException e){
+            Log.e("ModelService","没有获取位置权限");
+            return null;
+        }
 
-        CellLocation location = telephonyManager.getCellLocation();
         String phoneType = new String();
         if (location instanceof GsmCellLocation) {
             phoneType = "GSM";
