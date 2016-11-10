@@ -13,6 +13,9 @@ import android.os.Message;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.bupt.indooranalysis.fragment.HistoryFragment;
 
 import java.security.Timestamp;
 import java.sql.Time;
@@ -32,12 +35,20 @@ public class AccelerometerService extends Service implements SensorEventListener
     private Timer acceletimer = new Timer();
     private Handler handler;
     //计步算法所需参数
+    private float Gx = 0;
+    private float Gy = 0;
+    private float Gz = 0;
     private float a = 0;//采样所需的加速度样本
     private int acceleFlag = 0;
     private List<Float> newaccelelist1;
     private List<Float> newaccelelist2;
     private int acceleCount = 0;
     private float X;//自相关系数
+    //磁感应计算所需参数
+    private int count = 1;
+    private float Bx = 0;
+    private float By = 0;
+    private float Bz = 0;
 
 
     public interface OnAccelerometerChangeListener {
@@ -63,69 +74,12 @@ public class AccelerometerService extends Service implements SensorEventListener
         super.onCreate();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
 
         handler = new MHandler();
         acceletimer.schedule(new TimerTask() {
             @Override
             public void run() {
-//                if (isFirstaccele) {
-//                    isFirstaccele = false;
-//                    accelelist.clear();
-//                } else if (acceleFlag == 1) {
-//                    acceleFlag = 2;
-//                    newaccelelist1 = accelelist;
-//                    accelelist = new ArrayList<Float>();
-//                    if(newaccelelist2!=null){
-//                        float mean1 = 0;
-//                        float variance1 = 0;
-//                        for (float i : newaccelelist1) {
-//                        mean1 += i;
-//                    }
-//                    mean1 = mean1 / newaccelelist1.size();
-//                    for(float i : newaccelelist1){
-//                        variance1 += (float)Math.pow(i-mean1,2);
-//                    }
-//                    variance1 = (float)Math.sqrt(variance1);
-//                    //
-//                    float mean2 = 0;
-//                    float variance2 = 0;
-//                    for (float i : newaccelelist2) {
-//                        mean2 += i;
-//                    }
-//                    mean2 = mean2 / newaccelelist2.size();
-//                    for(float i : newaccelelist2){
-//                        variance2 += (float)Math.pow(i-mean2,2);
-//                    }
-//                    variance2 = (float)Math.sqrt(variance2);
-//                    //
-//                    }
-//
-//                } else if (acceleFlag == 2) {
-//                    acceleFlag = 1;
-//                    newaccelelist2 = accelelist;
-//                    accelelist = new ArrayList<Float>();
-//                    float mean1 = 0;
-//                    float variance1 = 0;
-//                    for (float i : newaccelelist1) {
-//                        mean1 += i;
-//                    }
-//                    mean1 = mean1 / newaccelelist1.size();
-//                    for(float i : newaccelelist1){
-//                        variance1 += (float)Math.pow(i-mean1,2);
-//                    }
-//                    variance1 = (float)Math.sqrt(variance1);
-//                    //
-//                    float mean2 = 0;
-//                    float variance2 = 0;
-//                    for (float i : newaccelelist2) {
-//                        mean2 += i;
-//                    }
-//                    mean2 = mean2 / newaccelelist2.size();
-//                    for(float i : newaccelelist2){
-//                        variance2 += (float)Math.pow(i-mean2,2);
-//                    }
-//                    variance2 = (float)Math.sqrt(variance2);
-//                }
                 acceleCount += 1;
                 accelelist.add(a);
 
@@ -152,6 +106,19 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     @Override
+    public boolean onUnbind(Intent intent) {
+        sensorManager.unregisterListener(this);
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+        super.onRebind(intent);
+    }
+
+    @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
@@ -161,21 +128,32 @@ public class AccelerometerService extends Service implements SensorEventListener
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
+            Gx = event.values[0];
+            Gy = event.values[1];
+            Gz = event.values[2];
 
-            a = (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+            a = (float) Math.sqrt(Math.pow(Gx, 2) + Math.pow(Gy, 2) + Math.pow(Gz, 2));
             float delta = Math.abs(a - GRAVITY_FILTER);
 
             //    Log.i(LOG_TAG,"X =>"+Float.toString(x)+" Y =>"+Float.toString(y) + " Z =>"+Float.toString(z));
-            //Log.i(LOG_TAG,"Acceleration=>"+Float.toString(a));
+            Log.i(LOG_TAG,"Acceleration=>"+Float.toString(a));
             if (delta > 1.5) {
                 if (onAccelerometerChangeListener != null) {
                     onAccelerometerChangeListener.onAccelerationChange(delta);
                 }
 //                Log.i(LOG_TAG, "Delta=>" + Float.toString(delta));
             }
+        }else if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
+            //if(count ++== 20){
+                count = 1;
+                Bx = event.values[0];
+                By = event.values[1];
+                Bz = event.values[2];
+//                Log.d(LOG_TAG,Bx+" "+By+" "+Bz);
+            float tan = a*(Bz*Gx-Bx*Gz)/(By*(Gx*Gx+Gz*Gz)-Gy*(Bx*Gx+Bz*Gz));
+//            Log.d(LOG_TAG,tan+"");
+            //}
+
         }
 
 
@@ -236,7 +214,8 @@ public class AccelerometerService extends Service implements SensorEventListener
                         X1 = X1 / (variance1 * variance2);
                         X = X1;
                     }
-                    Log.d("Accelero", "1: " + newaccelelist1.size() + " " + X1 + " " + "variance1: " + variance1 + " " + variance2);
+                    HistoryFragment.blueTime.add(X);
+//                    Log.d("Accelero", "1: " + newaccelelist1.size() + " " + X1 + " " + "variance1: " + variance1 + " " + variance2);
                 } else if (acceleFlag == 2) {
                     acceleFlag = 1;
                     newaccelelist2 = accelelist;
@@ -272,7 +251,8 @@ public class AccelerometerService extends Service implements SensorEventListener
                         X2 = X2 / (variance1 * variance2);
                         X = X2;
                     }
-                    Log.d("Accelero", "2: " + newaccelelist2.size() + " " + X2 + " " + "variance1: " + variance1 + " " + variance2);
+//                    Log.d("Accelero", "2: " + newaccelelist2.size() + " " + X2 + " " + "variance1: " + variance1 + " " + variance2);
+                    HistoryFragment.blueTime.add(X);
                 }
             }
         }

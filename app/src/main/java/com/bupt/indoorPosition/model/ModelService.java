@@ -26,6 +26,7 @@ import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.BeaconInfo;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.bean.IndoorRecord;
+import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.bean.InspectDisplay;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Inspection;
@@ -64,14 +65,8 @@ import android.widget.Toast;
 public class ModelService {
 
     public static Sim getPhoneInfo(TelephonyManager telephonyManager) {
-        CellLocation location = null;
-        try{
-            location = telephonyManager.getCellLocation();
-        }catch (SecurityException e){
-            Log.e("ModelService","没有获取位置权限");
-            return null;
-        }
 
+        CellLocation location = telephonyManager.getCellLocation();
         String phoneType = new String();
         if (location instanceof GsmCellLocation) {
             phoneType = "GSM";
@@ -154,6 +149,7 @@ public class ModelService {
         List<LocalizationBeacon> list = JsonUtil.convertListFromMap(response, "list", LocalizationBeacon.class);
         DBManager dbManager = new DBManager(context);
         dbManager.refreshLocalization(list);
+
         return true;
     }
 
@@ -179,6 +175,15 @@ public class ModelService {
                 beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance()));
             }
         }
+    }
+
+    //更新楼宇代号
+    public static int updateBuilding(Context context,String Mac,int BuildingNumber){
+        DBManager dbManager = new DBManager(context);
+        if (dbManager.isContainLocalization(Mac)){
+            BuildingNumber = dbManager.returnLocalizationBuilding(Mac);
+        }
+        return BuildingNumber;
     }
 
     // 同理 设置对应localization
@@ -257,6 +262,58 @@ public class ModelService {
 
     }
 
+    //
+    public static boolean recordIndoorSignalData(Context context, IndoorSignalRecord record, List<Neighbor> neighbors,
+                                                 List<Integer> xylist, Speed speed) {
+        // Log.d("recordIndoorData", "neighbor size " + neighbors.size());
+        Log.d("recordIndoorData", "record" + record.getSignalStrength());
+        int x = xylist.get(0);
+        int y = xylist.get(1);
+        if (x == 0 && y == 0) {
+            // 不做记录 return position;
+            Log.d("NullPosition", "have not got");
+//            position = new Beacon("暂无设备", 99, 99, 99);
+            return false;
+        }
+        if (record != null && !SignalUtil.isValidStrength(record.getSignalStrength())) {
+            // 不做记录 return position;
+            Log.e("invalid signalStrength", record.getSignalStrength() + " dbm");
+//            position = new Beacon("暂无设备", 99, 99, 99);
+            return false;
+        }
+
+        if (record != null && (!SignalUtil.isValidRsrp(record.getRsrp()) || !SignalUtil.isValidRsrq(record.getRsrq())
+                || !SignalUtil.isValidSinr(record.getSinr()))) {
+            Log.e("invalid rsrp&rsrq&sinr", record.getRsrp() + " dbm" + record.getRsrq() + "   " + record.getSinr());
+//            position = new Beacon("暂无设备", 99, 99, 99);
+            return false;
+        }
+
+        // Log.d("recordIndoorData", "position " + position.getRssi());
+        record.setPositionX(x);
+        record.setPositionY(y);
+
+        String uuid = BeaconUtil.getUUID();
+        speed.setUuidFK(uuid);
+
+//        beaconinfo.setMac(position.getMac());
+//        beaconinfo.setUuidFK(uuid);
+//        beaconinfo.setBeaconRssi(position.getRssi());
+//        beaconinfo.setbTxPower(position.getTxPower());
+//        beaconinfo.setDistance(position.getDistance());
+        // record.setBeaconRssi(position.getRssi());
+        // record.setBTxPower(position.getTxPower());
+        record.setTime(new Timestamp(System.currentTimeMillis()));
+        record.setUuid(uuid);
+        // record.setDistance(position.getDistance());
+        // Log.d("recordIndoorData", record.getUuid());
+        DBManager dbManager = new DBManager(context);
+        dbManager.insertIndoorSignalRecord(record);
+        if (neighbors != null)
+            dbManager.insertNeighborRecord(neighbors, record.getUuid());
+        return true;
+    }
+
     /**
      * @param context
      * @param record
@@ -317,6 +374,55 @@ public class ModelService {
         }
         return position;
     }
+
+    //对应真实位置数据
+    public static boolean uploadSignalRecord(Context context) {
+        DBManager dbManager = new DBManager(context);
+        List<IndoorSignalRecord> list = dbManager.selectAllIndoorSignalRecord();
+        List<Speed> speedlist = dbManager.selectAllSpeedList();
+
+        // for (IndoorRecord ir : list)
+        // Log.d("upload", ir.getPosition());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonIndoorRecord = null;
+        String jsonSpeed = null;
+        try {
+            jsonIndoorRecord = objectMapper.writeValueAsString(list);
+            jsonSpeed = objectMapper.writeValueAsString(speedlist);
+            Log.d("上传测试啊，jsonIndoorRecord ", "" + jsonIndoorRecord);
+            Log.d("上传测试啊，jsonSpeed ", "" + jsonSpeed);
+        } catch (JsonGenerationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // if ((json1 == null) || (json2 == null) || (json3 == null))
+        // return false;
+        String url = context.getString(R.string.uploadIndoorSignalUrl);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("listRecord", jsonIndoorRecord);
+        params.put("listSpeed", jsonSpeed);
+
+        Map<String, Object> result = HttpUtil.post(url, params);
+
+        if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
+            // context.sendBroadcast(MessageUtil.getServerResponseBundle(result));
+            return false;
+        }
+
+        if (result != null && ((Integer) (result.get("status"))) == 1) {
+            dbManager.deleteAllIndoorRecord();
+            dbManager.deleteAllSpeedList();
+            return true;
+        }
+        return false;
+    }
+    //
 
     public static boolean uploadRecord(Context context) {
         DBManager dbManager = new DBManager(context);
@@ -477,7 +583,7 @@ public class ModelService {
         return false;
     }
 
-    public static int UploadTest(IndoorRecord cellState) {
+    public static int UploadTest(IndoorSignalRecord cellState) {
         int sendBufferSize = 8192;
         String hostIp = "115.28.164.238";
         int hostPort = 9999;
@@ -597,7 +703,7 @@ public class ModelService {
         return dl_bps;
     }
 
-    public static Object[] getFileStream(IndoorRecord cellState, String fileName) {
+    public static Object[] getFileStream(IndoorSignalRecord cellState, String fileName) {
         int size = 200 * 1024;
         String _fileName = "unknown";
         if (Constants._2G.contains(cellState.getNetworkType())) {
@@ -615,7 +721,7 @@ public class ModelService {
         return new Object[]{bais, _fileName, (long) size};
     }
 
-    public static void speedTest(Context context, Speed speed, IndoorRecord cellState) {
+    public static void speedTest(Context context, Speed speed, IndoorSignalRecord cellState) {
         int ul = UploadTest(cellState);
         int dl = DownloadTest();
         Log.i("上行速度/下行速度 ", "" + ul + " / " + dl);
@@ -625,6 +731,27 @@ public class ModelService {
         dbManager.insertSpeedList(speed);
     }
 
+    //
+    public static boolean retreatSignal(Map<String, Integer> map, boolean isInArea) {
+        boolean tobeornottobe = false;
+        if (map.containsKey("isInArea")) {
+            if (isInArea) {
+                if (map.get("isInArea") > 0) {
+                    int a = map.get("isInArea");
+                    map.put("isInArea", a - 1);
+                    tobeornottobe = false;
+                } else {
+                    map.put("isInArea", 10);
+                    tobeornottobe = true;
+                }
+            }
+        } else {
+            map.put("isInArea", 10);
+        }
+        return tobeornottobe;
+    }
+
+    //
     public static boolean retreat(Map<String, Integer> map, Beacon currentPostion) {
         boolean tobeornottobe = true;
         if (map.containsKey(currentPostion.getMac())) {
@@ -1109,7 +1236,7 @@ public class ModelService {
         Set<Beacon> newBeaconMap = new HashSet<Beacon>();
         while (it.hasNext()) {
             Beacon b = it.next();
-            Log.d("ModelService",b.getMac()+": "+b.getDislist().size());
+            Log.d("ModelService", b.getMac() + ": " + b.getDislist().size());
             // 对每个点采集的时序数据进行高斯滤波
             if (b.getDislist().size() < 5) {
 //                Iterator<Integer> iterasmall = b.getDislist().iterator();

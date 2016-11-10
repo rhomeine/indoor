@@ -45,7 +45,9 @@ public class HistoryFragment extends Fragment {
     private CardViewAdapter cardViewAdapter;
     private List<InspectedBeacon> inspectedBeacons = new ArrayList<InspectedBeacon>();
     private OnFragmentInteractionListener mListener;
-    public static List<Integer> blueTime = new ArrayList<Integer>();
+    //加速度计计步测试用数据
+    public static List<Float> blueTime = new ArrayList<Float>();
+    public static List<Float> blueTime1 = new ArrayList<Float>();
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -129,7 +131,7 @@ public class HistoryFragment extends Fragment {
                             InspectedBeacon beacon = new InspectedBeacon();
                             beacon.setBuildingName("北邮科技大厦");
                             beacon.setDate("2016-05-23 14:55");
-                            beacon.setDuration(blueTime.get(i)+"次");
+                            beacon.setDuration(blueTime.get(i)+" "+blueTime1.get(i));
                             inspectedBeacons.add(beacon);
                         }
                         cardViewAdapter = new CardViewAdapter(getContext(), inspectedBeacons);
@@ -141,6 +143,8 @@ public class HistoryFragment extends Fragment {
                         });
                         recyclerView.setAdapter(cardViewAdapter);
                         //
+                        blueTime = new ArrayList<Float>();
+                        blueTime1 = new ArrayList<Float>();
                         Toast.makeText(getContext(), "请完善下拉刷新", Toast.LENGTH_SHORT).show();
                     }
                 }, 1000);

@@ -15,6 +15,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String tableBeacon = "beacon";
     public static final String tableLocalization = "localization";
     public static final String tableCalPosition = "calposition";
+    public static final String tableIndoorSignalRecord = "indoorSignalRecord";
     public static final String tableIndoorRecord = "indoorRecord";
     public static final String tableNeighborRecord = "neighborRecord";
     public static final String tableInspector = "inspector";
@@ -63,6 +64,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "(_id VARCHAR(32) PRIMARY KEY, maxLikehoodX int,maxLikehoodY int,dealedMLX int,dealedMLY int,threeX int,threeY int," +
                 "dealedThreeX int,dealedThreeY int,realPositionX int,realPositionY int );");
 
+        db.execSQL("CREATE TABLE IF NOT EXISTS "
+                + tableIndoorSignalRecord
+                + "(id INTEGER PRIMARY KEY AUTOINCREMENT,signalStrength int,"
+                + "cid int,positionX int,positionY int,"
+                + "time timestamp,netType varchar(16),networkType varchar(16), "
+                + "lac varchar(16),mnc varchar(4),uuid varchar(128),rsrp int,rsrq int,sinr int,imsi varchar(16));");
         db.execSQL("CREATE TABLE IF NOT EXISTS "
                 + tableIndoorRecord
                 + "(id INTEGER PRIMARY KEY AUTOINCREMENT,signalStrength int,"

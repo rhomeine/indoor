@@ -6,6 +6,33 @@
     tools:context=".MainActivity">
 
 
+    <EditText
+        android:id="@+id/locationEditX"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/spinner"
+        android:layout_marginRight="15dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="X:"
+        android:inputType="number"
+        android:textSize="12sp">
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/locationEditY"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/locationEditX"
+        android:layout_below="@+id/locationEditX"
+        android:layout_marginTop="19dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Y:"
+        android:inputType="number"
+        android:textSize="12sp" />
 
     <RadioGroup
         android:id="@+id/rg_tab"

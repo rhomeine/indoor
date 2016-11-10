@@ -14,6 +14,7 @@ import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.BeaconInfo;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.bean.IndoorRecord;
+import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.LocalizationBeacon;
 import com.bupt.indoorPosition.bean.Inspection;
@@ -47,6 +48,13 @@ public class DBManager {
     private static final String INSERT_SPEEDLIST = "insert into " + DBHelper.tableSpeedList + " (uuidFK,dl_bps,ul_bps) values (?,?,?);";
     private static final String SELECT_ALL_SPEEDLIST = "select uuidFK,dl_bps,ul_bps from " + DBHelper.tableSpeedList;
 
+    /* indoorsignalrecord */
+    private static final String INSERT_INDOORSIGNALRECORD = "insert into " + DBHelper.tableIndoorSignalRecord + " (signalStrength,cid,positionX,positionY,time," +
+            "netType,networkType,lac,mnc,uuid,rsrp,rsrq,sinr,imsi) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+    private static final String DELETE_ALL_INDOORSIGNALRECORD = "delete from " + DBHelper.tableIndoorSignalRecord;
+    private static final String SELECT_ALL_INDOORSIGNALRECORD = "select signalStrength,cid,positionX,positionY," + "time,netType,networkType,lac,mnc,uuid," +
+            "rsrp,rsrq,sinr,imsi from " + DBHelper.tableIndoorSignalRecord;
+
     /* indoorrecord */
     private static final String INSERT_INDOORRECORD = "insert into " + DBHelper.tableIndoorRecord + " (signalStrength,cid,position,time," +
             "netType,networkType,lac,mnc,uuid,rsrp,rsrq,sinr,imsi) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -63,7 +71,7 @@ public class DBManager {
     private static final String DELETEL_ALL_LOCALIZATION = "delete from " + DBHelper.tableLocalization;
     private static final String INSERT_LOCALIZATION = "insert into " + DBHelper.tableLocalization + " (_id,buildingName,buildingNumber," +
             "description,x,y,floor) values (?,?,?,?,?,?,?);";
-    private static final String SELECT_LOCALIZATION = "select _id from " + DBHelper.tableLocalization + " where _id=?";
+    private static final String SELECT_LOCALIZATION = "select _id,buildingNumber from " + DBHelper.tableLocalization + " where _id=?";
     private static final String SELECT_LOCALIZATIONXY = "select x,y from " + DBHelper.tableLocalization + " where _id=?";
 
     private static final String SELECT_ALL_LOCALIZATION = "select _id from " + DBHelper.tableLocalization;
@@ -226,6 +234,22 @@ public class DBManager {
         return find;
     }
 
+    public int returnLocalizationBuilding(String id) {
+        // Log.d("DBManager", "enter");
+        Cursor c = db.rawQuery(SELECT_LOCALIZATION, new String[]{id});
+        int build = 0;
+        while (c.moveToNext()) {
+            String _id = c.getString(c.getColumnIndex("_id"));
+            // Log.d("DBManager",_id);
+            if (_id != null && _id.equals(id)) {
+                build = c.getInt(c.getColumnIndex("buildingNumber"));
+                break;
+            }
+        }
+        c.close();
+        return build;
+    }
+
     public List<Integer> LocalizationXY(String id) {
         Cursor c = db.rawQuery(SELECT_LOCALIZATIONXY, new String[]{id});
         List<Integer> list = new ArrayList<Integer>();
@@ -368,6 +392,62 @@ public class DBManager {
     public void deleteAllCalposition() {
         db.execSQL(DELETE_ALL_CALPOSITION);
     }
+
+
+    //
+    public void insertIndoorSignalRecord(IndoorSignalRecord record) {
+        db.execSQL(INSERT_INDOORSIGNALRECORD, new Object[]{record.getSignalStrength(), record.getCid(), record.getPositionX(),record.getPositionY(), record.getTime(),
+                record.getNetType(), record.getNetworkType(), record.getLac(), record.getMnc(), record.getUuid(), record.getRsrp(),
+                record.getRsrq(), record.getSinr(), record.getImsi()});
+    }
+
+    public void deleteAllIndoorSignalRecord() {
+        db.execSQL(DELETE_ALL_INDOORSIGNALRECORD);
+    }
+
+    public List<IndoorSignalRecord> selectAllIndoorSignalRecord() {
+        Cursor c = db.rawQuery(SELECT_ALL_INDOORSIGNALRECORD, new String[]{});
+        List<IndoorSignalRecord> list = new ArrayList<IndoorSignalRecord>();
+        while (c.moveToNext()) {
+            int signalStrength = c.getInt(c.getColumnIndex("signalStrength"));
+            int cid = c.getInt(c.getColumnIndex("cid"));
+            int positionX = c.getInt(c.getColumnIndex("positionX"));
+            int positionY = c.getInt(c.getColumnIndex("positionY"));
+            // int beaconRssi = c.getInt(c.getColumnIndex("beaconRssi"));
+            // int bTxPower = c.getInt(c.getColumnIndex("bTxPower"));
+            // int distance = c.getInt(c.getColumnIndex("distance"));
+            String netType = c.getString(c.getColumnIndex("netType"));
+            String networkType = c.getString(c.getColumnIndex("networkType"));
+            int lac = c.getInt(c.getColumnIndex("lac"));
+            // String mcc = c.getString(c.getColumnIndex("mcc"));
+            String mnc = c.getString(c.getColumnIndex("mnc"));
+            String timeStr = c.getString(c.getColumnIndex("time"));
+            // String cellRecordTimeStr = c.getString(c
+            // .getColumnIndex("cellRecordTime"));
+            String uuid = c.getString(c.getColumnIndex("uuid"));
+            int rsrp = c.getInt(c.getColumnIndex("rsrp"));
+            int rsrq = c.getInt(c.getColumnIndex("rsrq"));
+            int sinr = c.getInt(c.getColumnIndex("sinr"));
+            String imsi = c.getString(c.getColumnIndex("imsi"));
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Timestamp time = null;
+
+            try {
+                if (timeStr != null) time = new Timestamp(format.parse(timeStr).getTime());
+                // if (cellRecordTimeStr != null)
+                // cellRecordTime = new Timestamp(format.parse(
+                // cellRecordTimeStr).getTime());
+            } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            list.add(new IndoorSignalRecord(signalStrength, cid, positionX,positionY, time, netType, networkType, lac, mnc, uuid, rsrp, rsrq, sinr, imsi));
+        }
+        c.close();
+        return list;
+    }
+
+
 
     // "
     // (signalStrength,cid,position,time,netType,networkType,lac,mnc,uuid,rsrp,rsrq,sinr)

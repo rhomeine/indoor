@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bupt.indoorPosition.bean.Beacon;
+import com.bupt.indoorPosition.bean.CalculatePosition;
+import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Sim;
 import com.bupt.indoorPosition.callback.FragmentServiceCallback;
@@ -46,7 +48,7 @@ import com.bupt.indooranalysis.AccelerometerService;
 import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
-import com.bupt.indooranalysis.ScanService;
+import com.bupt.indooranalysis.ScanSignalService;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
@@ -94,6 +96,10 @@ public class InspectFragment extends Fragment implements
 
     private Button btnClear;
     private Button btnUpload;
+    private EditText locationEditX;
+    private EditText locationEditY;
+
+
     private boolean startScanning = false;
     private MainActivity activity = null;
     private Context mcontext = null;
@@ -175,6 +181,12 @@ public class InspectFragment extends Fragment implements
     public FloatingActionButton recoverButton;
 
     private AccelerometerService accelerometerService;
+
+    //
+    public static boolean isInArea = false;
+    public static int buildingNumber = 0;
+
+    private int calPositionInsertTimes = 0;
 
     public InspectFragment() {
         // Required empty public constructor
@@ -299,11 +311,14 @@ public class InspectFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_inspect, container, false);
         mcontext = getContext();
         activity = (MainActivity) getActivity();
-        scanServiceintent = new Intent(mcontext, ScanService.class);
-        scanServiceintent.setAction("com.bupt.indooranalysis.ScanService");
+        scanServiceintent = new Intent(mcontext, ScanSignalService.class);
+        scanServiceintent.setAction("com.bupt.indooranalysis.ScanSignalService");
         isCalposition = 0;
         btnUpload = (Button) view.findViewById(R.id.btn_updatedata);
         btnClear = (Button) view.findViewById(R.id.btn_cleardata);
+        locationEditX = (EditText) view.findViewById(R.id.locationEditX);
+        locationEditY = (EditText) view.findViewById(R.id.locationEditY);
+
         btnClear.setOnClickListener(new ClearListener());
         btnUpload.setOnClickListener(new UploadListener());
 
@@ -342,8 +357,9 @@ public class InspectFragment extends Fragment implements
                             setTimerTasks();
                             if (startScanning == false) {
                                 startScanning = true;
-//                                ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                                        scanServiceintent, true);
+                                isInArea = false;
+                                ((FragmentServiceCallback) activity).startOrStopActivityService(
+                                        scanServiceintent, true);
                             }
                         }
                         break;
@@ -356,8 +372,10 @@ public class InspectFragment extends Fragment implements
                         isCalposition = 0;
                         if (startScanning) {
                             startScanning = false;
-//                            ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                                    scanServiceintent, false);
+                            ((FragmentServiceCallback) activity).startOrStopActivityService(
+                                    scanServiceintent, false);
+                            Toast.makeText(mcontext, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
+                            calPositionInsertTimes = 0;
                         }
                         break;
                     default:
@@ -652,8 +670,9 @@ public class InspectFragment extends Fragment implements
                 isUpdatedOver = true;
                 if (startScanning == false) {
                     startScanning = true;
-//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                            scanServiceintent, true);
+                    isInArea = false;
+                    ((FragmentServiceCallback) activity).startOrStopActivityService(
+                            scanServiceintent, true);
                 }
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
@@ -689,6 +708,7 @@ public class InspectFragment extends Fragment implements
                             dbManager.deleteAllBeaconInfo();
                             dbManager.deleteAllBeaconDebug();
                             dbManager.deleteAllTrainData();
+                            dbManager.deleteAllCalposition();
                             btnClear.setText("清除数据");
                             isDeleting = false;
                             Toast.makeText(activity, "数据清除完成", Toast.LENGTH_SHORT).show();
@@ -714,13 +734,16 @@ public class InspectFragment extends Fragment implements
                 @Override
                 public void run() {
                     Log.d("upload", "开始上传报告");
-                    boolean status = ModelService.uploadRecord(mcontext);
+                    boolean status = ModelService.uploadSignalRecord(mcontext);
                     boolean neighbor = ModelService.uploadNeighbor(mcontext);
                     boolean inspection = ModelService.uploadInspection(mcontext);
+                    //calPositionInsertTimes
+                    boolean isUploadCal = ModelService.uploadCalPosition(mcontext);
+                    //
                     Message msg = new Message();
                     msg.what = Constants.MSG.UPLOAD;
                     Bundle b = new Bundle();
-                    b.putBoolean("status", status && neighbor && inspection);
+                    b.putBoolean("status", status && neighbor && inspection && isUploadCal);
                     msg.setData(b);
                     msg.what = Constants.MSG.UPLOAD;
                     Log.d("上传测试", "" + status);
@@ -922,8 +945,8 @@ public class InspectFragment extends Fragment implements
             GetBluetoothDeviceTimer.cancel();
         if (startScanning) {
             startScanning = false;
-//            ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                    scanServiceintent, false);
+            ((FragmentServiceCallback) activity).startOrStopActivityService(
+                    scanServiceintent, false);
         }
         super.onDestroy();
     }
@@ -1170,6 +1193,10 @@ public class InspectFragment extends Fragment implements
                                 b.getX(), b.getY(), b.getDislist()));
                         newbeaconMap3.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
                                 b.getX(), b.getY(), b.getDislist()));
+                        if (buildingNumber == 0) {
+                            buildingNumber = ModelService.updateBuilding(mcontext, b.getMac(), buildingNumber);
+                            Log.d("buildingNumber", buildingNumber + "");
+                        }
                     }
                 }
                 Set<Beacon> newbeaconSet = new HashSet<Beacon>();
@@ -1187,31 +1214,26 @@ public class InspectFragment extends Fragment implements
                         (newbeaconMap2));
                 List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
                 //输入定位坐标
-//                String X = EtxPX.getText().toString();
-//                String Y = EtxPY.getText().toString();
-//                int dataX = 0;
-//                int dataY = 0;
-//                if (X != null && !"".equals(X)) {
-//                    for (int i = 0; i < X.length(); i++) {
-//                        if (X.charAt(i) >= 48 && X.charAt(i) <= 57) {//匹配数字
-//                            dataX = Integer.parseInt(X);
-//                        }
-//                    }
-//                }
-//                if (Y != null && !"".equals(Y)) {
-//                    for (int i = 0; i < Y.length(); i++) {
-//                        if (Y.charAt(i) >= 48 && Y.charAt(i) <= 57) {//匹配数字
-//                            dataY = Integer.parseInt(Y);
-//                        }
-//                    }
-//                }
-//                            boolean isinsert = ModelService.recordCalculatePosition(IndoorLocationActivity.this, new CalculatePosition
-// (list2
-//                                    .get(0), list2.get(1), list1
-//                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
-//                            if (isinsert) {
-//                                calPositionInsertTimes += 1;
-//                            }
+                String X = locationEditX.getText().toString();
+                String Y = locationEditY.getText().toString();
+                int dataX = 0;
+                int dataY = 0;
+                if (X != null && !"".equals(X)) {
+                    dataX = Integer.parseInt(X);
+                }
+                if (Y != null && !"".equals(Y)) {
+                    dataY = Integer.parseInt(Y);
+                }
+                if ((dataX != 0) && (dataY != 0) && (!((list4.get(0) == 0) && (list4.get(1) == 0)))) {
+                    boolean isinsert = ModelService.recordCalculatePosition(mcontext, new CalculatePosition
+                            (list2
+                                    .get(0), list2.get(1), list1
+                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
+                    if (isinsert) {
+                        calPositionInsertTimes += 1;
+                    }
+                }
+                //
                 Message msg = new Message();
                 Bundle b = new Bundle();
                 msg.what = 0x01;
@@ -1243,9 +1265,15 @@ public class InspectFragment extends Fragment implements
                 if (localizationCount % 5 == 0) {
                     bleRestart();
                 }
+
                 //蓝牙计数
-                HistoryFragment.blueTime.add(bluecount);
+//                HistoryFragment.blueTime.add(X);
                 bluecount = 0;
+                isInArea = ModelService.recordIndoorSignalData(
+                        mcontext, (IndoorSignalRecord) (ScanSignalService.cellState.clone()), ScanSignalService.neighbors,
+                        list4, ScanSignalService.speed);
+                Log.d("InspectInspect",isInArea+"");
+
             }
         }, 3000, 5000);
     }
