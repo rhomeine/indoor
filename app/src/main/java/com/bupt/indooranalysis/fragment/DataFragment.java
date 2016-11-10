@@ -122,6 +122,7 @@ public class DataFragment extends Fragment {
 
         // new and insert a SAILS MapView from layout resource.
         mSailsMapView = new SAILSMapView(mcontext);
+        mSailsMapView.enableRotate(false);
         ((FrameLayout) view.findViewById(R.id.SAILSMap_FragmentMap)).addView(mSailsMapView);
         // configure SAILS map after map preparation finish.
         mSailsMapView.post(new Runnable() {

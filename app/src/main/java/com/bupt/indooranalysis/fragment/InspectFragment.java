@@ -435,6 +435,7 @@ public class InspectFragment extends Fragment implements
 
         // new and insert a SAILS MapView from layout resource.
         mSailsMapView = new SAILSMapView(mcontext);
+        mSailsMapView.enableRotate(false);
         ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
 
         final ImageView fabIconNew = new ImageView(mcontext);
