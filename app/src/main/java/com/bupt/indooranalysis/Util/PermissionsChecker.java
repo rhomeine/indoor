@@ -17,7 +17,9 @@ public class PermissionsChecker {
             "android.permission.ACCESS_COARSE_LOCATION",
             "android.permission.READ_PHONE_STATE",
             "android.permission.READ_CONTACTS",
-            "android.permission.GET_ACCOUNTS"
+            "android.permission.GET_ACCOUNTS",
+            "android.permission.BLUETOOTH",
+            "android.permission.BLUETOOTH_ADMIN"
     };
 
     public PermissionsChecker(Context context) {

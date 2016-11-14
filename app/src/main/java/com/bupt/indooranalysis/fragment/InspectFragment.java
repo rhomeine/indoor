@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bupt.indoorPosition.bean.Beacon;
+import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
@@ -93,6 +94,7 @@ public class InspectFragment extends Fragment implements
     private ArrayList<String> locationList;
     private ArrayAdapter<String> arrayAdapter;
     private String location;
+    private static String currentBuilding = null;
 
     private Button btnClear;
     private Button btnUpload;
@@ -246,6 +248,8 @@ public class InspectFragment extends Fragment implements
     //初始化楼层选择按钮
     protected void initFloorSelectButton() {
         //初始化楼层
+        destroyFloorSelectButton();
+        floor = new ArrayList<>();
         for (String s : mSails.getFloorDescList()) {
             floor.add(s);
         }
@@ -277,8 +281,10 @@ public class InspectFragment extends Fragment implements
             floorbuttons.get(i).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.i(LOG_TAG,mSailsMapView.getCurrentBrowseFloorName()+"::"+mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
                         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(finalI));
+                        Log.i(LOG_TAG,mSails.getFloorNameList().toString());
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
@@ -288,6 +294,18 @@ public class InspectFragment extends Fragment implements
             });
         }
 
+    }
+
+    public void destroyFloorSelectButton(){
+        if(floatingActionMenu!=null)
+            floatingActionMenu.close(true);
+        floatingActionMenu = null;
+        floorbuttons = null;
+        if(actionButton!=null)
+            actionButton.detach();
+        actionButton = null;
+        floor = null;
+    //    Toast.makeText(getContext(),"清除按钮",Toast.LENGTH_SHORT).show();
     }
 
     public void setFloorSelectButtonVisible(boolean isVisible) {
@@ -322,17 +340,30 @@ public class InspectFragment extends Fragment implements
         btnClear.setOnClickListener(new ClearListener());
         btnUpload.setOnClickListener(new UploadListener());
 
+        //初始化大楼选择控件
         spinner = (Spinner) view.findViewById(R.id.spinner1);
         button = (Button) view.findViewById(R.id.buttonRound);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
-        locationList.add("北邮科技大厦");
-        locationList.add("郑州大厦");
-        locationList.add("北航大楼");
-
+        for(int i=0;i<Buildings.BuildingsList.size();i++ ){
+            locationList.add(Buildings.BuildingsList.get(i));
+        }
         arrayAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_spinner_item, locationList);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                currentBuilding = spinner.getSelectedItem().toString();
+                mSailsMapView.post(updateBuildingMaps);
+                Log.i(LOG_TAG,"Current building is changed to "+currentBuilding);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         LocalizationTimer = new Timer();
         initComponent();
@@ -437,6 +468,8 @@ public class InspectFragment extends Fragment implements
         mSailsMapView = new SAILSMapView(mcontext);
         mSailsMapView.enableRotate(false);
         ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
+        currentBuilding = spinner.getSelectedItem().toString();
+        Log.i(LOG_TAG,"Current building is "+currentBuilding);
 
         final ImageView fabIconNew = new ImageView(mcontext);
         fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
@@ -455,42 +488,79 @@ public class InspectFragment extends Fragment implements
             }
         });
 
-        // configure SAILS map after map preparation finish.
-        mSailsMapView.post(new Runnable() {
-            @Override
-            public void run() {
-                // please change token and building id to your own building
-                // project in cloud.
-                mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", "57eb81cf08920f6b4b00053a", // keyanlou
-                        // 57e381af08920f6b4b0004a0 meetingroom
-                        new SAILS.OnFinishCallback() {
-                            @Override
-                            public void onSuccess(String response) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mapViewInitial();
-                                        initFloorSelectButton();
-                                    }
-                                });
-                            }
+        mSailsMapView.post(updateBuildingMaps);
 
-                            //没有网络链接时程序崩溃,待解决
-                            @Override
-                            public void onFailed(String response) {
-                                Toast t = Toast.makeText(mcontext,
-                                        "Load cloud project fail, please check network connection.",
-                                        Toast.LENGTH_SHORT);
-                                t.show();
-                            }
-                        });
-            }
-        });
+        // configure SAILS map after map preparation finish.
+//        mSailsMapView.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                // please change token and building id to your own building
+//                // project in cloud.
+//                String buidingCode = Buildings.BuildingsMap.get(currentBuilding);
+//                mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
+//                        // 57e381af08920f6b4b0004a0 meetingroom
+//                        //"57eb81cf08920f6b4b00053a" keyanlou
+//                        new SAILS.OnFinishCallback() {
+//                            @Override
+//                            public void onSuccess(String response) {
+//                                getActivity().runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        mapViewInitial();
+//                                        initFloorSelectButton();
+//                                    }
+//                                });
+//                            }
+//
+//                            //没有网络链接时程序崩溃,待解决
+//                            @Override
+//                            public void onFailed(String response) {
+//                                Toast t = Toast.makeText(mcontext,
+//                                        "Load cloud project fail, please check network connection.",
+//                                        Toast.LENGTH_SHORT);
+//                                t.show();
+//                            }
+//                        });
+//            }
+//        });
 
         Log.i(LOG_TAG, "onCreateView");
 
         return view;
     }
+
+    Runnable updateBuildingMaps = new Runnable() {
+        @Override
+        public void run() {
+            // please change token and building id to your own building
+            // project in cloud.
+            String buidingCode = Buildings.BuildingsMap.get(currentBuilding);
+            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
+                    // 57e381af08920f6b4b0004a0 meetingroom
+                    //"57eb81cf08920f6b4b00053a" keyanlou
+                    new SAILS.OnFinishCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mapViewInitial();
+                                    initFloorSelectButton();
+                                }
+                            });
+                        }
+
+                        //没有网络链接时程序崩溃,待解决
+                        @Override
+                        public void onFailed(String response) {
+                            Toast t = Toast.makeText(mcontext,
+                                    "Load cloud project fail, please check network connection.",
+                                    Toast.LENGTH_SHORT);
+                            t.show();
+                        }
+                    });
+        }
+    };
 
     void mapViewInitial() {
         // establish a connection of SAILS engine into SAILS MapView.
