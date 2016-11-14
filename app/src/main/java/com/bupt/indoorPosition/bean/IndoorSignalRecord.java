@@ -24,11 +24,13 @@ public class IndoorSignalRecord implements Cloneable {
     private int rsrq;
     private int sinr;
     private String imsi;
+    private int buildingNum;
+    private int floor;
 
     public IndoorSignalRecord() {
     }
 
-    public IndoorSignalRecord(int signalStrength, int cid, int positionX, int positionY, Timestamp time, String netType, String networkType, int lac,  String mnc, String uuid, int rsrp, int rsrq, int sinr, String imsi) {
+    public IndoorSignalRecord(int signalStrength, int cid, int positionX, int positionY, Timestamp time, String netType, String networkType, int lac, String mnc, String uuid,  int rsrp, int rsrq, int sinr, String imsi, int buildingNum, int floor) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.time = time;
@@ -37,12 +39,14 @@ public class IndoorSignalRecord implements Cloneable {
         this.cid = cid;
         this.lac = lac;
         this.signalStrength = signalStrength;
-        this.mnc = mnc;
         this.uuid = uuid;
+        this.mnc = mnc;
         this.rsrp = rsrp;
         this.rsrq = rsrq;
-        this.imsi = imsi;
         this.sinr = sinr;
+        this.imsi = imsi;
+        this.buildingNum = buildingNum;
+        this.floor = floor;
     }
 
     @Override
@@ -173,6 +177,23 @@ public class IndoorSignalRecord implements Cloneable {
     public void setImsi(String imsi) {
         this.imsi = imsi;
     }
+
+    public int getBuildingNum() {
+        return buildingNum;
+    }
+
+    public void setBuildingNum(int buildingNum) {
+        this.buildingNum = buildingNum;
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+
     @Override
     public String toString() {
         return this.time + "," + this.signalStrength + "," + this.cid + "...";

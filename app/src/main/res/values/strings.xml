@@ -45,6 +45,7 @@
     <string name="uploadIndoorUrl1">http://115.28.164.238/androidServer/location/uploadIndoorRecord</string>
     <string name="hostUrl">http://115.28.164.238/androidServer</string>
     <string name="uploadIndoorUrl">http://115.28.164.238/androidServer/location/uploadIndoorRecord</string>
+    <string name="uploadForSignalHeatMap">http://115.28.164.238/androidServer/location/uploadForSignalHeatmap</string>
     <string name="uploadIndoorSignalUrl">http://115.28.164.238/androidServer/location/uploadIndoorSignalRecord</string>
     <string name="uploadCalPositionUrl">http://115.28.164.238/androidServer/location/uploadCalPositionRecord</string>
     <string name="uploadNeighborUrl">http://115.28.164.238/androidServer/location/uploadNeighbors</string>

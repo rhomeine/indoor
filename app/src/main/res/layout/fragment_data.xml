@@ -28,4 +28,13 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="40dp" />
 
+    <Button
+        android:text="Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/heatmap_button_ForPoint"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp" />
+
 </RelativeLayout>

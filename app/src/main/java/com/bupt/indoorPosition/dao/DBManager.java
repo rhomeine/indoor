@@ -50,10 +50,10 @@ public class DBManager {
 
     /* indoorsignalrecord */
     private static final String INSERT_INDOORSIGNALRECORD = "insert into " + DBHelper.tableIndoorSignalRecord + " (signalStrength,cid,positionX,positionY,time," +
-            "netType,networkType,lac,mnc,uuid,rsrp,rsrq,sinr,imsi) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            "netType,networkType,lac,mnc,uuid,rsrp,rsrq,sinr,imsi,buildingNum,floor) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
     private static final String DELETE_ALL_INDOORSIGNALRECORD = "delete from " + DBHelper.tableIndoorSignalRecord;
     private static final String SELECT_ALL_INDOORSIGNALRECORD = "select signalStrength,cid,positionX,positionY," + "time,netType,networkType,lac,mnc,uuid," +
-            "rsrp,rsrq,sinr,imsi from " + DBHelper.tableIndoorSignalRecord;
+            "rsrp,rsrq,sinr,imsi,buildingNum,floor from " + DBHelper.tableIndoorSignalRecord;
 
     /* indoorrecord */
     private static final String INSERT_INDOORRECORD = "insert into " + DBHelper.tableIndoorRecord + " (signalStrength,cid,position,time," +
@@ -398,7 +398,7 @@ public class DBManager {
     public void insertIndoorSignalRecord(IndoorSignalRecord record) {
         db.execSQL(INSERT_INDOORSIGNALRECORD, new Object[]{record.getSignalStrength(), record.getCid(), record.getPositionX(),record.getPositionY(), record.getTime(),
                 record.getNetType(), record.getNetworkType(), record.getLac(), record.getMnc(), record.getUuid(), record.getRsrp(),
-                record.getRsrq(), record.getSinr(), record.getImsi()});
+                record.getRsrq(), record.getSinr(), record.getImsi(),record.getBuildingNum(),record.getFloor()});
     }
 
     public void deleteAllIndoorSignalRecord() {
@@ -429,6 +429,8 @@ public class DBManager {
             int rsrq = c.getInt(c.getColumnIndex("rsrq"));
             int sinr = c.getInt(c.getColumnIndex("sinr"));
             String imsi = c.getString(c.getColumnIndex("imsi"));
+            int buildingNum = c.getInt(c.getColumnIndex("buildingNum"));
+            int floor = c.getInt(c.getColumnIndex("floor"));
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Timestamp time = null;
 
@@ -441,7 +443,7 @@ public class DBManager {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            list.add(new IndoorSignalRecord(signalStrength, cid, positionX,positionY, time, netType, networkType, lac, mnc, uuid, rsrp, rsrq, sinr, imsi));
+            list.add(new IndoorSignalRecord(signalStrength, cid, positionX,positionY, time, netType, networkType, lac, mnc, uuid, rsrp, rsrq, sinr, imsi, buildingNum, floor));
         }
         c.close();
         return list;

@@ -773,6 +773,7 @@ public class InspectFragment extends Fragment implements
                             DBManager dbManager = new DBManager(mcontext);
                             // dbManager.deleteAllBeaconInfo();
                             dbManager.deleteAllIndoorRecord();
+                            dbManager.deleteAllIndoorSignalRecord();
                             dbManager.deleteAllNeighborList();
                             dbManager.deleteAllSpeedList();
                             dbManager.deleteInspection();
@@ -814,6 +815,7 @@ public class InspectFragment extends Fragment implements
                     Message msg = new Message();
                     msg.what = Constants.MSG.UPLOAD;
                     Bundle b = new Bundle();
+                    Log.d("Inspect",status+" "+ neighbor+" "+inspection +" "+ isUploadCal);
                     b.putBoolean("status", status && neighbor && inspection && isUploadCal);
                     msg.setData(b);
                     msg.what = Constants.MSG.UPLOAD;

@@ -69,7 +69,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "(id INTEGER PRIMARY KEY AUTOINCREMENT,signalStrength int,"
                 + "cid int,positionX int,positionY int,"
                 + "time timestamp,netType varchar(16),networkType varchar(16), "
-                + "lac varchar(16),mnc varchar(4),uuid varchar(128),rsrp int,rsrq int,sinr int,imsi varchar(16));");
+                + "lac varchar(16),mnc varchar(4),uuid varchar(128),rsrp int,rsrq int,sinr int,imsi varchar(16),buildingNum int,floor int);");
         db.execSQL("CREATE TABLE IF NOT EXISTS "
                 + tableIndoorRecord
                 + "(id INTEGER PRIMARY KEY AUTOINCREMENT,signalStrength int,"

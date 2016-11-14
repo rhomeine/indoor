@@ -70,7 +70,7 @@
             <intent-filter>
 
                 <!-- 为该Service组件的intent-filter配置action -->
-                <action android:name="com.bupt.indooranalysis.ScanService" />
+                <action android:name="com.bupt.indooranalysis.ScanSignalService" />
             </intent-filter>
         </service>
         <service
@@ -80,7 +80,7 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="TFi9BuzYaseexEQkd9TSBRBQ56GGFlQW" />
+            android:value="csMaD9QGThU8IgnksruLBEP6gYzTXiaT" />
         <!-- key:开发者申请的key -->
         <service
             android:name=".AccelerometerService"

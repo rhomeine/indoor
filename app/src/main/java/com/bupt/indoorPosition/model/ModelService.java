@@ -46,6 +46,7 @@ import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.MessageUtil;
 import com.bupt.indoorPosition.uti.SignalUtil;
 import com.bupt.indooranalysis.R;
+import com.bupt.indooranalysis.fragment.InspectFragment;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -307,6 +308,7 @@ public class ModelService {
         record.setUuid(uuid);
         // record.setDistance(position.getDistance());
         // Log.d("recordIndoorData", record.getUuid());
+        record.setBuildingNum(InspectFragment.buildingNumber);
         DBManager dbManager = new DBManager(context);
         dbManager.insertIndoorSignalRecord(record);
         if (neighbors != null)
@@ -375,6 +377,28 @@ public class ModelService {
         return position;
     }
 
+
+    //获取热力图数据
+    public static List<IndoorSignalRecord> uploadForSignalHeatMap(Context context){
+        String url = context.getString(R.string.uploadForSignalHeatMap);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("city", LocationProvider.getCity());
+        params.put("province", LocationProvider.getProvince());
+        Map<String, Object> result = HttpUtil.post(url, params);
+        List<IndoorSignalRecord> list = new ArrayList<>();
+
+        if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
+            // context.sendBroadcast(MessageUtil.getServerResponseBundle(result));
+            return list;
+        }
+        if (result != null && ((Integer) (result.get("status"))) == 1) {
+            list = JsonUtil.convertListFromMap(result, "list", IndoorSignalRecord.class);
+            return list;
+        }
+        return list;
+
+    }
+
     //对应真实位置数据
     public static boolean uploadSignalRecord(Context context) {
         DBManager dbManager = new DBManager(context);
@@ -416,7 +440,7 @@ public class ModelService {
         }
 
         if (result != null && ((Integer) (result.get("status"))) == 1) {
-            dbManager.deleteAllIndoorRecord();
+            dbManager.deleteAllIndoorSignalRecord();
             dbManager.deleteAllSpeedList();
             return true;
         }

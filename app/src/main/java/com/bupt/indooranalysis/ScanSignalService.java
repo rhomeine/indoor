@@ -148,7 +148,7 @@ public class ScanSignalService extends Service {
 	public void onDestroy() {
 		if (positionTimer != null)
 			positionTimer.cancel();
-		Log.i("scan service bluetooth", "end");
+		Log.d("ScanSignal", "end");
 		Timestamp end = new Timestamp(System.currentTimeMillis());
 		int min = (int) Math.ceil((end.getTime() - startTime.getTime())
 				/ (1000 * 60));

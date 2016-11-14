@@ -1,10 +1,16 @@
 package com.bupt.indooranalysis.fragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +22,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bupt.indoorPosition.bean.IndoorSignalRecord;
+import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indooranalysis.R;
 import com.sails.engine.SAILS;
 import com.sails.engine.SAILSMapView;
 import com.sails.engine.core.model.GeoPoint;
 import com.sails.engine.overlay.ListOverlay;
 import com.sails.engine.overlay.Marker;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,7 +55,8 @@ public class DataFragment extends Fragment {
     private String mParam2;
 
     private Button button;
-    private  Button heatMapButton;
+    private Button heatMapButton;
+    private Button heatMapButtonForPoint;
     private OnFragmentInteractionListener mListener;
 
     private Context mcontext = null;
@@ -51,12 +65,16 @@ public class DataFragment extends Fragment {
     static SAILSMapView mSailsMapView;
     Spinner floorList;
     ArrayAdapter<String> adapter;
-    byte zoomSav=0;
+    byte zoomSav = 0;
 
     GeoPoint geoPointLocationLB = new GeoPoint(39.96289894781549, 116.35293035811996);
     GeoPoint geoPointLocationRT = new GeoPoint(39.96304388207584, 116.35312012440777);
 
     ListOverlay listOverlay = new ListOverlay();
+    List<IndoorSignalRecord> listForHeatMap = new ArrayList<>();
+    Map<Integer, List<Integer>> mapForHeatMap = new HashMap<>();
+    Map<Integer, Integer[]> mapForHeatMapLevel = new HashMap<>();
+    private Datahanler datahandler;
 
     public DataFragment() {
         // Required empty public constructor
@@ -96,9 +114,11 @@ public class DataFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_data, container, false);
 
         mcontext = getContext();
+        datahandler = new Datahanler();
         button = (Button) view.findViewById(R.id.buttonRound);
-        heatMapButton=(Button)view.findViewById(R.id.heatmap_button);
-        floorList = (Spinner) view. findViewById(R.id.spinner_datafragment);
+        heatMapButton = (Button) view.findViewById(R.id.heatmap_button);
+        heatMapButtonForPoint = (Button) view.findViewById(R.id.heatmap_button_ForPoint);
+        floorList = (Spinner) view.findViewById(R.id.spinner_datafragment);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +128,52 @@ public class DataFragment extends Fragment {
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                heatMap();
+                heatMapButton.setText("正在下载热力图数据");
+                heatMapButton.setClickable(false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext);
+                        if (listForHeatMap.size() != 0) {
+                            Message msg = new Message();
+                            msg.what = 0x01;
+                            datahandler.sendMessage(msg);
+                        } else {
+                            Message msg = new Message();
+                            msg.what = 0x02;
+                            datahandler.sendMessage(msg);
+
+                        }
+
+                    }
+                }).start();
+//                heatMap();
+            }
+        });
+
+        heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                heatMapButton.setText("正在下载热力图数据");
+                heatMapButton.setClickable(false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext);
+                        if (listForHeatMap.size() != 0) {
+                            Message msg = new Message();
+                            msg.what = 0x03;
+                            datahandler.sendMessage(msg);
+                        } else {
+                            Message msg = new Message();
+                            msg.what = 0x04;
+                            datahandler.sendMessage(msg);
+
+                        }
+
+                    }
+                }).start();
+//                heatMap();
             }
         });
 
@@ -181,6 +246,7 @@ public class DataFragment extends Fragment {
             public void onFloorChangedBefore(String floorName) {
                 // get current map view zoom level.
                 zoomSav = mSailsMapView.getMapViewPosition().getZoomLevel();
+                Log.d("Data", zoomSav + "");
             }
 
             @Override
@@ -225,26 +291,249 @@ public class DataFragment extends Fragment {
         });
     }
 
+//
 
-    public void heatMap() {
-        int sum = 1000;
+    static Map<Integer,Bitmap[]> creatBitmapMap(int color1, int color2) {
+
+        Map<Integer,Bitmap[]> bits = new HashMap<>();
+        for(int ratio = 0; ratio<10 ;ratio++){
+            Bitmap[] bitmaplist = new Bitmap[13];
+            for (int i = 0; i < 12; i++) {
+                Bitmap bitmap = Bitmap.createBitmap(100, 100,
+                        Bitmap.Config.ARGB_8888);
+
+                int alpha = (int) Double.valueOf(Color.alpha(color2)*((ratio+1)/10.0)).intValue();
+
+                int red = (int) ((Color.red(color2) - Color.red(color1)) * i * (1 / 11.0) + Color.red(color1));
+
+                int green = (int) ((Color.green(color2) - Color.green(color1)) * i * (1 / 11.0) + Color.green(color1));
+
+                int blue = (int) ((Color.blue(color2) - Color.blue(color1)) * i * (1 / 11.0) + Color.blue(color1));
+
+                bitmap.eraseColor(Color.argb(alpha, red, green, blue));
+                bitmaplist[i] = bitmap;
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(100, 100,
+                    Bitmap.Config.ARGB_8888);
+            bitmap.eraseColor(Color.argb(0, 0, 0, 0));
+            bitmaplist[12] = bitmap;
+
+            bits.put(ratio,bitmaplist);
+        }
+        return bits;
+    }
+    //
+    static Bitmap[] creatBitmapList(int color1, int color2) {
+
+        Bitmap[] bitmaplist = new Bitmap[13];
+        for (int i = 0; i < 12; i++) {
+            Bitmap bitmap = Bitmap.createBitmap(100, 100,
+                    Bitmap.Config.ARGB_8888);
+
+            int alpha = (int) Color.alpha(color2);
+
+            int red = (int) ((Color.red(color2) - Color.red(color1)) * i * (1 / 11.0) + Color.red(color1));
+
+            int green = (int) ((Color.green(color2) - Color.green(color1)) * i * (1 / 11.0) + Color.green(color1));
+
+            int blue = (int) ((Color.blue(color2) - Color.blue(color1)) * i * (1 / 11.0) + Color.blue(color1));
+
+            bitmap.eraseColor(Color.argb(alpha, red, green, blue));
+            bitmaplist[i] = bitmap;
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(100, 100,
+                Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.argb(0, 0, 0, 0));
+        bitmaplist[12] = bitmap;
+
+        return bitmaplist;
+    }
+
+    public void createBitmap(int color, float ratio) {
+        Bitmap bitmap = Bitmap.createBitmap(100, 100,
+                Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(color);
+
+    }
+
+
+    public void heatMapForGrid(List<IndoorSignalRecord> list) {
+
+        mapForHeatMap = new HashMap<>();
+        mapForHeatMapLevel = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            IndoorSignalRecord signal = list.get(i);
+            int tempX = signal.getPositionX() / (1680 / 64);
+            int tempY = signal.getPositionY() / (1680 / 64);
+            int temp = tempX + tempY * 64;
+            if (!mapForHeatMap.containsKey(temp)) {
+                List<Integer> signalStrength = new ArrayList<>();
+                signalStrength.add(signal.getSignalStrength());
+                mapForHeatMap.put(temp, signalStrength);
+            } else {
+                mapForHeatMap.get(temp).add(signal.getSignalStrength());
+            }
+        }
+        int color1 = Color.argb(100, 0, 255, 0);
+        int color2 = Color.argb(100, 255, 0, 0);
+        Map<Integer,Bitmap[]> bitmaps = creatBitmapMap(color1, color2);
+//        Bitmap[] bitmapslist = creatBitmapList(color1, color2);
+        int sum = 64;
+        GeoPoint[][] geoPoint = new GeoPoint[sum][sum];
+        Marker[][] marker = new Marker[sum][sum];
+        for (int i = 0; i < sum; i++) {
+            for (int j = 0; j < sum; j++) {
+//                geoPoint[i][j] = new GeoPoint(
+//                        geoPointLocationLB.latitude
+//                                - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * i / 64.0,
+//                        geoPointLocationLB.longitude
+//                                - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * j / 64.0);
+                int tempkey = i * 64 + j;
+                int tempLevel = 0;
+                if (mapForHeatMap.containsKey(tempkey)) {
+                    List<Integer> listInMap = mapForHeatMap.get(tempkey);
+                    for (int k = 0; k < listInMap.size(); k++) {
+                        tempLevel += listInMap.get(k);
+                    }
+                    tempLevel = tempLevel / listInMap.size();
+                    Integer[] levelAndAlpha = new Integer[3];
+                    levelAndAlpha[0] = tempLevel;
+                    levelAndAlpha[1] = 1;//含有的level个数
+                    levelAndAlpha[2] = 5;//透明度
+                    mapForHeatMapLevel.put(tempkey, levelAndAlpha);
+                }
+            }
+        }
+        //注意防止自增，计算中心点处跳过
+        int change = 1;
+        while (change != 0) {
+            change = 0;
+            for (int i = 0; i < sum; i++) {
+                for (int j = 0; j < sum; j++) {
+                    int tempkey = i * 64 + j;
+                    if (!mapForHeatMapLevel.containsKey(tempkey)) {
+                        for (int a = i - 1; a < i + 2; a++) {
+                            for (int b = j - 1; b < j + 2; b++) {
+                                if (a >= 0 && b >= 0 && a < 64 && b < 64) {
+                                    if (mapForHeatMapLevel.containsKey(a * 64 + b)&&(!((a * 64 + b) == tempkey))) {
+                                        if(!mapForHeatMapLevel.containsKey(tempkey)){
+                                            Integer[] levelAndAlpha = new Integer[3];
+                                            levelAndAlpha[0] = mapForHeatMapLevel.get(a * 64 + b)[0];
+                                            levelAndAlpha[1] = 1;
+                                            levelAndAlpha[2] = mapForHeatMapLevel.get(a * 64 + b)[2];
+                                            mapForHeatMapLevel.put(tempkey, levelAndAlpha);
+                                        }else{
+                                            mapForHeatMapLevel.get(tempkey)[0] += mapForHeatMapLevel.get(a * 64 + b)[0];
+                                            mapForHeatMapLevel.get(tempkey)[1] += 1;
+                                            if (mapForHeatMapLevel.get(tempkey)[2] < mapForHeatMapLevel.get(a * 64 + b)[2])
+                                                mapForHeatMapLevel.get(tempkey)[2] = mapForHeatMapLevel.get(a * 64 + b)[2];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (mapForHeatMapLevel.containsKey(tempkey)) {
+                            int level = mapForHeatMapLevel.get(tempkey)[0];
+                            int count = mapForHeatMapLevel.get(tempkey)[1];
+
+                            level = level / count;
+                            count = 1;
+                            int ratio = mapForHeatMapLevel.get(tempkey)[2];
+                            if (ratio != 0) {
+                                ratio -= 1;
+                            }
+                            if (ratio != 0) {
+                                mapForHeatMapLevel.get(tempkey)[0] = level;
+                                mapForHeatMapLevel.get(tempkey)[1] = count;
+                                mapForHeatMapLevel.get(tempkey)[2] = ratio;
+
+                                change += 1;
+                            }else{
+                                mapForHeatMapLevel.remove(tempkey);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        listOverlay.getOverlayItems().clear();
+
+        for (int i = 0; i < sum; i++) {
+            for (int j = 0; j < sum; j++) {
+                geoPoint[i][j] = new GeoPoint(
+                        geoPointLocationLB.latitude
+                                - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * i / 64.0,
+                        geoPointLocationLB.longitude
+                                - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * j / 64.0);
+                int tempkey = i * 64 + j;
+                int tempLevel = 0;
+                int count = 0;
+                int ratio = 0;
+                if (mapForHeatMapLevel.containsKey(tempkey)) {
+                    tempLevel = mapForHeatMapLevel.get(tempkey)[0];
+                    count = mapForHeatMapLevel.get(tempkey)[1];
+                    ratio = mapForHeatMapLevel.get(tempkey)[2];
+                }
+
+                if(ratio!=0) {
+                    if (tempLevel == 0) {
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[12]);
+                        marker[i][j] = new Marker(geoPoint[i][j],
+                                Marker.boundCenterBottom(drawable));
+                        listOverlay.getOverlayItems().add(marker[i][j]);
+                    } else if (tempLevel < -100) {
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[11]);
+                        marker[i][j] = new Marker(geoPoint[i][j],
+                                Marker.boundCenterBottom(drawable));
+                        listOverlay.getOverlayItems().add(marker[i][j]);
+                    } else if (tempLevel >= -90) {
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[0]);
+                        marker[i][j] = new Marker(geoPoint[i][j],
+                                Marker.boundCenterBottom(drawable));
+                        listOverlay.getOverlayItems().add(marker[i][j]);
+                    } else if (tempLevel < -90 && tempLevel >= -100) {
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[-tempLevel - 90]);
+                        marker[i][j] = new Marker(geoPoint[i][j],
+                                Marker.boundCenterBottom(drawable));
+                        listOverlay.getOverlayItems().add(marker[i][j]);
+
+                    }
+                }
+//                int ratio = (int) (((i + j) / 128.0) / (0.02));
+//                    Drawable drawable = new BitmapDrawable(bitmaps[ratio]);
+//                marker[i][j] = new Marker(geoPoint[i][j],
+//                        Marker.boundCenterBottom(drawable));
+            }
+        }
+
+        mSailsMapView.getOverlays().clear();
+        mSailsMapView.getOverlays().add(listOverlay);
+        mSailsMapView.redraw();
+    }
+
+    //
+    public void heatMap(List<IndoorSignalRecord> list) {
+        int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
         for (int i = 0; i < sum; i++) {
             geoPoint[i] = new GeoPoint(
                     geoPointLocationLB.latitude
-                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * Math.random(),
+                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (list.get(i).getPositionY() / 1680.0),
                     geoPointLocationLB.longitude
-                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * Math.random());
-            if (i < 800) {
+                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (list.get(i).getPositionX() / 1680.0));
+            if (list.get(i).getSignalStrength() < -100) {
                 marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.green_c)));
-            } else if (i < 950) {
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_c)));
+            } else if (list.get(i).getSignalStrength() < -90 && list.get(i).getSignalStrength() >= -100) {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenterBottom(getResources().getDrawable(R.drawable.yellow_c)));
             } else {
                 marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_c)));
+                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.green_c)));
             }
 
         }
@@ -296,5 +585,27 @@ public class DataFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    class Datahanler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 0x01) {
+                heatMapForGrid(listForHeatMap);
+                heatMapButton.setText("BUTTON");
+                heatMapButton.setClickable(true);
+            }else if(msg.what == 0x02){
+                heatMapButton.setText("未成功，请再试");
+                heatMapButton.setClickable(true);
+            }else if(msg.what == 0x03) {
+                heatMap(listForHeatMap);
+                heatMapButton.setText("BUTTON");
+                heatMapButton.setClickable(true);
+            }else if(msg.what == 0x04) {
+                heatMapButton.setText("未成功，请再试");
+                heatMapButton.setClickable(true);
+            }
+            super.handleMessage(msg);
+        }
     }
 }
