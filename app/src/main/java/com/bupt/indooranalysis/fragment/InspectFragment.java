@@ -342,6 +342,7 @@ public class InspectFragment extends Fragment implements
         //初始化大楼选择控件
         spinner = (Spinner) view.findViewById(R.id.spinner1);
         button = (ImageButton) view.findViewById(R.id.buttonRound);
+        button.setVisibility(Button.VISIBLE);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
         for(int i=0;i<Buildings.BuildingsList.size();i++ ){

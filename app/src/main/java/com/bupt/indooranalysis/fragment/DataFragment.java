@@ -114,8 +114,11 @@ public class DataFragment extends Fragment {
 
         mcontext = getContext();
         datahandler = new Datahanler();
-        heatMapButton = (Button) view.findViewById(R.id.heatmap_button);
-        heatMapButtonForPoint = (Button) view.findViewById(R.id.heatmap_button_ForPoint);
+        heatMapButton = (Button) view.findViewById(R.id.btn_cleardata);
+        heatMapButton.setText("网格热力图");
+        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
+        heatMapButtonForPoint.setText("点状热力图");
+
         floorList = (Spinner) view.findViewById(R.id.spinner_datafragment);
 
         heatMapButton.setOnClickListener(new View.OnClickListener() {
@@ -585,14 +588,14 @@ public class DataFragment extends Fragment {
         public void handleMessage(Message msg) {
             if (msg.what == 0x01) {
                 heatMapForGrid(listForHeatMap);
-                heatMapButton.setText("BUTTON");
+                heatMapButton.setText("网格热力图");
                 heatMapButton.setClickable(true);
             }else if(msg.what == 0x02){
                 heatMapButton.setText("未成功，请再试");
                 heatMapButton.setClickable(true);
             }else if(msg.what == 0x03) {
                 heatMap(listForHeatMap);
-                heatMapButton.setText("BUTTON");
+                heatMapButton.setText("点状热力图");
                 heatMapButton.setClickable(true);
             }else if(msg.what == 0x04) {
                 heatMapButton.setText("未成功，请再试");

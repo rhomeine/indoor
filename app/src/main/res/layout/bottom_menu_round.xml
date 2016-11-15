@@ -87,6 +87,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"
+        android:visibility="invisible"
         android:src="@drawable/ic_inspect_user"
         android:background="@color/transparent"/>
 
