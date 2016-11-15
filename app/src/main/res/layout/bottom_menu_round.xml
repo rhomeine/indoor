@@ -79,16 +79,15 @@
         <!-- </LinearLayout>-->
     </RadioGroup>
 
-    <Button
+
+    <ImageButton
         android:id="@+id/buttonRound"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/ic_round_botton_style"
-        android:text=">"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        android:textColor="@color/white" />
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_inspect_user"
+        android:background="@color/transparent"/>
 
 </RelativeLayout>

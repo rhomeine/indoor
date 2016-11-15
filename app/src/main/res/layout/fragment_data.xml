@@ -17,8 +17,6 @@
         android:id="@+id/spinner_datafragment"
         android:layout_centerHorizontal="true"></Spinner>
 
-    <include layout="@layout/bottom_menu_round" />
-
     <Button
         android:text="Button"
         android:layout_width="wrap_content"

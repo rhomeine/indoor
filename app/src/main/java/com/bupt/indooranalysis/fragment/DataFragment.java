@@ -54,7 +54,6 @@ public class DataFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private Button button;
     private Button heatMapButton;
     private Button heatMapButtonForPoint;
     private OnFragmentInteractionListener mListener;
@@ -115,16 +114,10 @@ public class DataFragment extends Fragment {
 
         mcontext = getContext();
         datahandler = new Datahanler();
-        button = (Button) view.findViewById(R.id.buttonRound);
         heatMapButton = (Button) view.findViewById(R.id.heatmap_button);
         heatMapButtonForPoint = (Button) view.findViewById(R.id.heatmap_button_ForPoint);
         floorList = (Spinner) view.findViewById(R.id.spinner_datafragment);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

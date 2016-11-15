@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -110,7 +111,7 @@ public class InspectFragment extends Fragment implements
     private boolean isDeleting = false;
     private boolean isUpdating = false;
 
-    private Button button;
+    private ImageButton button;
     private TextView floorNumTV;
 
     private OnFragmentInteractionListener mListener;
@@ -123,8 +124,6 @@ public class InspectFragment extends Fragment implements
     ImageView lockcenter;
     EditText editText1;
     EditText editText2;
-    Button clearButton;
-    Button saveButton;
     TextView locationTextView;
     Vibrator mVibrator;
     Spinner floorList;
@@ -342,7 +341,7 @@ public class InspectFragment extends Fragment implements
 
         //初始化大楼选择控件
         spinner = (Spinner) view.findViewById(R.id.spinner1);
-        button = (Button) view.findViewById(R.id.buttonRound);
+        button = (ImageButton) view.findViewById(R.id.buttonRound);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
         for(int i=0;i<Buildings.BuildingsList.size();i++ ){
@@ -377,7 +376,8 @@ public class InspectFragment extends Fragment implements
                         if (!MessageUtil.checkLogin(mcontext)) {
                             return;
                         }
-                        button.setText("!");
+//                        button.setText("!");
+                        button.setImageResource(R.drawable.ic_inspect_grey);
                         isCalposition = 1;
 
                         if (!isUpdatedOver) {
@@ -399,7 +399,8 @@ public class InspectFragment extends Fragment implements
                     case 2:
                         LocalizationTimer.cancel();
                         LocalizationTimer = new Timer();
-                        button.setText(">");
+//                        button.setText(">");
+                        button.setImageResource(R.drawable.ic_inspect_user);
                         isCalposition = 0;
                         if (startScanning) {
                             startScanning = false;
@@ -436,14 +437,9 @@ public class InspectFragment extends Fragment implements
         zoomin = (ImageView) view.findViewById(R.id.zoomin);
         zoomout = (ImageView) view.findViewById(R.id.zoomout);
         lockcenter = (ImageView) view.findViewById(R.id.lockcenter);
-        clearButton = (Button) view.findViewById(R.id.clearButton);
-        saveButton = (Button) view.findViewById(R.id.saveButton);
         zoomin.setVisibility(View.GONE);
         zoomout.setVisibility(View.GONE);
         lockcenter.setVisibility(View.GONE);
-        clearButton.setVisibility(View.GONE);
-        saveButton.setVisibility(View.GONE);
-
         editText1 = (EditText) view.findViewById(R.id.editText1);
         editText2 = (EditText) view.findViewById(R.id.editText2);
         editText1.setVisibility(View.GONE);
@@ -455,7 +451,6 @@ public class InspectFragment extends Fragment implements
         zoomin.setOnClickListener(controlListener);
         zoomout.setOnClickListener(controlListener);
         lockcenter.setOnClickListener(controlListener);
-        clearButton.setOnClickListener(controlListener);
         // new a SAILS engine.
         mSails = new SAILS(mcontext);
         // set location mode.
@@ -654,13 +649,6 @@ public class InspectFragment extends Fragment implements
                 mSailsMapView.getOverlays().add(listOverlay);
                 mSailsMapView.redraw();
                 // locationTextView.setText(geoPointLocationRT.latitude + " " + geoPointLocationRT.longitude);
-            } else if (v == clearButton) {
-                mSailsMapView.autoSetMapZoomAndView();
-                mSailsMapView.getOverlays().clear();
-                mSailsMapView.redraw();
-                flag = 0;
-            } else if (v == saveButton) {
-
             }
         }
     };
@@ -748,7 +736,7 @@ public class InspectFragment extends Fragment implements
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
-                button.setText(">");
+                button.setImageResource(R.drawable.ic_inspect_user);
                 isCalposition = 0;
 
             }

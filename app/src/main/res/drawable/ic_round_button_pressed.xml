@@ -5,7 +5,7 @@
     android:useLevel="false">
 
     <solid
-        android:color="#FF6161"/>
+        android:color="@color/colorPrimaryDark"/>
     <stroke
         android:width="3dp"
         android:color="@color/gray"/>
