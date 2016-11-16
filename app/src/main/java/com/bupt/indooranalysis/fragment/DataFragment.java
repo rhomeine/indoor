@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indooranalysis.R;
@@ -49,21 +50,26 @@ public class DataFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private String LOG_TAG = "DataFragment";
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private String currentBuilding;
+    private String currentFloor;
+    private ArrayList<String> locationList;
+    private ArrayList<String> floorList;
+    Spinner buildingSpinner;
+    Spinner floorSpinner;
+    ArrayAdapter<String> buildingAdapter;
+    ArrayAdapter<String> floorAdapter;
+    
     private Button heatMapButton;
     private Button heatMapButtonForPoint;
     private OnFragmentInteractionListener mListener;
-
     private Context mcontext = null;
 
     static SAILS mSails;
     static SAILSMapView mSailsMapView;
-    Spinner floorList;
-    ArrayAdapter<String> adapter;
     byte zoomSav = 0;
 
     GeoPoint geoPointLocationLB = new GeoPoint(39.96289894781549, 116.35293035811996);
@@ -119,8 +125,6 @@ public class DataFragment extends Fragment {
         heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
         heatMapButtonForPoint.setText("点状热力图");
 
-        floorList = (Spinner) view.findViewById(R.id.spinner_datafragment);
-
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,7 +176,31 @@ public class DataFragment extends Fragment {
 //                heatMap();
             }
         });
+        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings);
+        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor);
+        locationList = new ArrayList<String>();
+        for(String key: Buildings.BuildingsList.keySet()){
+            locationList.add(key);
+        }
+        buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
+        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        buildingSpinner.setAdapter(buildingAdapter);
+        buildingSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+//                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+                currentBuilding = buildingSpinner.getSelectedItem().toString();
+                mSailsMapView.post(updateBuildingMaps);
+                Log.i(LOG_TAG,"Current building is changed to "+currentBuilding);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        currentBuilding = buildingSpinner.getSelectedItem().toString();
         // new a SAILS engine.
         mSails = new SAILS(mcontext);
         // set location mode.
@@ -184,40 +212,13 @@ public class DataFragment extends Fragment {
         // new and insert a SAILS MapView from layout resource.
         mSailsMapView = new SAILSMapView(mcontext);
         mSailsMapView.enableRotate(false);
+        mSailsMapView.post(updateBuildingMaps);
         ((FrameLayout) view.findViewById(R.id.SAILSMap_FragmentMap)).addView(mSailsMapView);
         // configure SAILS map after map preparation finish.
-        mSailsMapView.post(new Runnable() {
-            @Override
-            public void run() {
-                // please change token and building id to your own building
-                // project in cloud.
-                mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", "57eb81cf08920f6b4b00053a", // keyanlou
-                        // 57e381af08920f6b4b0004a0 meetingroom
-                        new SAILS.OnFinishCallback() {
-                            @Override
-                            public void onSuccess(String response) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mapViewInitial();
-                                    }
-                                });
-
-                            }
-
-                            @Override
-                            public void onFailed(String response) {
-                                Toast t = Toast.makeText(mcontext,
-                                        "Load cloud project fail, please check network connection.",
-                                        Toast.LENGTH_SHORT);
-                                t.show();
-                            }
-                        });
-            }
-        });
 
         return view;
     }
+
 
     void mapViewInitial() {
         // establish a connection of SAILS engine into SAILS MapView.
@@ -266,18 +267,28 @@ public class DataFragment extends Fragment {
                         break;
                     position++;
                 }
-                floorList.setSelection(position);
+//                floorSpinner.setSelection(position);
             }
         });
 
-        adapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, mSails.getFloorDescList());
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        floorList.setAdapter(adapter);
-        floorList.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+        floorList = (ArrayList) mSails.getFloorDescList();
+        Log.i(LOG_TAG,"Floor list:"+floorList.toString()+'\n'+mSails.getFloorNumberList().toString());
+        floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
+        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        floorSpinner.setAdapter(floorAdapter);
+        floorSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+//                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
                     mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+                    Log.i(LOG_TAG,mSails.getFloorNameList().toString());
+                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+                    Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -287,7 +298,37 @@ public class DataFragment extends Fragment {
         });
     }
 
-//
+    Runnable updateBuildingMaps = new Runnable() {
+        @Override
+        public void run() {
+            // please change token and building id to your own building
+            // project in cloud.
+            String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
+            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
+                    // 57e381af08920f6b4b0004a0 meetingroom
+                    //"57eb81cf08920f6b4b00053a" keyanlou
+                    new SAILS.OnFinishCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mapViewInitial();
+                                }
+                            });
+                        }
+
+                        //没有网络链接时程序崩溃,待解决
+                        @Override
+                        public void onFailed(String response) {
+                            Toast t = Toast.makeText(mcontext,
+                                    "Load cloud project fail, please check network connection.",
+                                    Toast.LENGTH_SHORT);
+                            t.show();
+                        }
+                    });
+        }
+    };
 
     static Map<Integer,Bitmap[]> creatBitmapMap(int color1, int color2) {
 

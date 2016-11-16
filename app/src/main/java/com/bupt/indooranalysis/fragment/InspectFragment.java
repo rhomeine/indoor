@@ -345,8 +345,8 @@ public class InspectFragment extends Fragment implements
         button.setVisibility(Button.VISIBLE);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
-        for(int i=0;i<Buildings.BuildingsList.size();i++ ){
-            locationList.add(Buildings.BuildingsList.get(i));
+        for(String key:Buildings.BuildingsList.keySet()){
+            locationList.add(key);
         }
         arrayAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_spinner_item, locationList);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -530,7 +530,7 @@ public class InspectFragment extends Fragment implements
         public void run() {
             // please change token and building id to your own building
             // project in cloud.
-            String buidingCode = Buildings.BuildingsMap.get(currentBuilding);
+            String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
             mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
                     // 57e381af08920f6b4b0004a0 meetingroom
                     //"57eb81cf08920f6b4b00053a" keyanlou

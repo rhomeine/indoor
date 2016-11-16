@@ -14,8 +14,15 @@
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner_datafragment"
+        android:id="@+id/spinner_buildings"
         android:layout_centerHorizontal="true"></Spinner>
+    <Spinner
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_floor"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/spinner_buildings"
+        android:gravity="left"></Spinner>
 
     <include layout="@layout/bottom_menu_round"/>
 
