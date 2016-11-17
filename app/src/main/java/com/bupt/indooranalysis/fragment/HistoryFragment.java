@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.bupt.indoorPosition.adapter.CardViewAdapter;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indooranalysis.R;
+import com.bupt.indooranalysis.Util.ArcProgress;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.ArrayList;
@@ -38,11 +39,10 @@ public class HistoryFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     // TODO: Rename and change types of parameters
-    private PullToRefreshView pullToRefreshView;
     private String mParam1;
     private String mParam2;
-    private RecyclerView recyclerView;
-    private CardViewAdapter cardViewAdapter;
+    private ArcProgress arcProgress;
+
     private List<InspectedBeacon> inspectedBeacons = new ArrayList<InspectedBeacon>();
     private OnFragmentInteractionListener mListener;
     //加速度计计步测试用数据
@@ -87,78 +87,12 @@ public class HistoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+        arcProgress = (ArcProgress) view.findViewById(R.id.progress);
+        //设置进度控件方法，默认max为100
+//        arcProgress.setMax(100);
+//        arcProgress.setProgress(39);
 
-        //填入测试内容,待修改
-
-//        beacon.setBuildingName("北邮科技大厦");
-//        beacon.setDate("2016-05-23 14:55");
-//        beacon.setDuration("34分钟");
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-//        inspectedBeacons.add(beacon);
-
-
-
-        recyclerView = (RecyclerView) view.findViewById(R.id.base_swipe_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setHasFixedSize(true);
-
-        cardViewAdapter = new CardViewAdapter(getContext(), inspectedBeacons);
-        cardViewAdapter.setOnItemClickListener(new CardViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Toast.makeText(getContext(), "点击了一个记录", Toast.LENGTH_SHORT).show();
-            }
-        });
-        recyclerView.setAdapter(cardViewAdapter);
-
-        pullToRefreshView = (PullToRefreshView) view.findViewById(R.id.pull_to_refresh);
-        pullToRefreshView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                pullToRefreshView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        pullToRefreshView.setRefreshing(false);
-                        //
-                        inspectedBeacons.clear();
-                        for (int i = 0; i < blueTime.size(); i++) {
-                            InspectedBeacon beacon = new InspectedBeacon();
-                            beacon.setBuildingName("北邮科技大厦");
-                            beacon.setDate("2016-05-23 14:55");
-                            beacon.setDuration(blueTime.get(i)+" "+blueTime1.get(i));
-                            inspectedBeacons.add(beacon);
-                        }
-                        cardViewAdapter = new CardViewAdapter(getContext(), inspectedBeacons);
-                        cardViewAdapter.setOnItemClickListener(new CardViewAdapter.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(View view, int position) {
-                                Toast.makeText(getContext(), "点击了一个记录", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        recyclerView.setAdapter(cardViewAdapter);
-                        //
-                        blueTime = new ArrayList<Float>();
-                        blueTime1 = new ArrayList<Float>();
-                        Toast.makeText(getContext(), "请完善下拉刷新", Toast.LENGTH_SHORT).show();
-                    }
-                }, 1000);
-            }
-        });
-        //Toast.makeText(getContext(),"请完善下拉刷新",Toast.LENGTH_SHORT).show();
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override

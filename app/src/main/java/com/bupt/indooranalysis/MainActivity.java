@@ -306,7 +306,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        Log.i(LOG_TAG,"onClick"+v.getTransitionName());
         switch (id){
             case R.id.txt_tab_inspect:
                 mPager.setCurrentItem(0);
@@ -319,7 +318,6 @@ public class MainActivity extends AppCompatActivity
                 break;
             default:break;
         }
-        Toast.makeText(this,"onClick",Toast.LENGTH_SHORT).show();
     }
 
     //初始化用户相关
