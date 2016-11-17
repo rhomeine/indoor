@@ -17,7 +17,7 @@
 
         <include layout="@layout/activity_main_top_tab"/>
 
-        <android.support.v4.view.ViewPager
+        <com.bupt.indooranalysis.Util.MyViewPager
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

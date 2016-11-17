@@ -313,7 +313,11 @@ public class DataFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mapViewInitial();
+                                    try{
+                                        mapViewInitial();
+                                    }catch (IndexOutOfBoundsException e){
+                                        Log.e(LOG_TAG,"mapViewInitial出错:"+e.toString());
+                                    }
                                 }
                             });
                         }

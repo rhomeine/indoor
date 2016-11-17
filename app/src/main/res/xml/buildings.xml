@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<buildings>
+    <building id="1">
+        <name>北邮科研大楼</name>
+        <code>57eb81cf08920f6b4b00053a</code>
+        <lblongitude></lblongitude>
+        <lblatitude></lblatitude>
+        <rtlongitude></rtlongitude>
+        <rtlatitude></rtlatitude>
+    </building>
+</buildings>

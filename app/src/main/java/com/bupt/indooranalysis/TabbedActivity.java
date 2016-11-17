@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.bupt.indooranalysis.Util.MyViewPager;
+
 public class TabbedActivity extends AppCompatActivity {
 
     /**
@@ -33,7 +35,7 @@ public class TabbedActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    private MyViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +49,8 @@ public class TabbedActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (MyViewPager) findViewById(R.id.container);
+        mViewPager.setScrollble(false);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
     }

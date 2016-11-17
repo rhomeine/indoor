@@ -45,6 +45,7 @@ import com.bupt.indoorPosition.model.ModelService;
 import com.bupt.indoorPosition.model.UserService;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.Global;
+import com.bupt.indooranalysis.Util.MyViewPager;
 import com.bupt.indooranalysis.Util.PermissionsChecker;
 import com.bupt.indooranalysis.fragment.DataFragment;
 import com.bupt.indooranalysis.fragment.HistoryFragment;
@@ -65,9 +66,9 @@ public class MainActivity extends AppCompatActivity
         InspectFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         DataFragment.OnFragmentInteractionListener,
-        FragmentServiceCallback{
+        FragmentServiceCallback, View.OnClickListener{
 
-    private ViewPager mPager;
+    private MyViewPager mPager;
     private ArrayList<Fragment> mFragmentList = new ArrayList<Fragment>();
     private FragmentPagerAdapter fragmentPagerAdapter;
     private NavigationView navigationView;
@@ -118,9 +119,13 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         //init tab
         mTabInspect = (TextView) findViewById(R.id.txt_tab_inspect);
+        mTabInspect.setOnClickListener(this);
         mTabHistory = (TextView) findViewById(R.id.txt_tab_history);
+        mTabHistory.setOnClickListener(this);
         mTabData = (TextView) findViewById(R.id.txt_tab_data);
-        mPager = (ViewPager) findViewById(R.id.container);
+        mTabData.setOnClickListener(this);
+        mPager = (MyViewPager) findViewById(R.id.container);
+        mPager.setScrollble(false);
 
         //init app toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -298,6 +303,25 @@ public class MainActivity extends AppCompatActivity
         }, 10000, 1000 * 60 * 3);
     }
 
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        Log.i(LOG_TAG,"onClick"+v.getTransitionName());
+        switch (id){
+            case R.id.txt_tab_inspect:
+                mPager.setCurrentItem(0);
+                break;
+            case R.id.txt_tab_history:
+                mPager.setCurrentItem(1);
+                break;
+            case R.id.txt_tab_data:
+                mPager.setCurrentItem(2);
+                break;
+            default:break;
+        }
+        Toast.makeText(this,"onClick",Toast.LENGTH_SHORT).show();
+    }
+
     //初始化用户相关
     public void initUserCenter() {
 
@@ -407,7 +431,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
             try{
                 Intent mail = new Intent(Intent.ACTION_SENDTO);
-                mail.setData(Uri.parse("maiapp_iconlto:luomingtibo@gmail.com"));
+                mail.setData(Uri.parse("mailto:luomingtibo@gmail.com"));
                 mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
                 mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
                 startActivity(mail);

@@ -540,8 +540,12 @@ public class InspectFragment extends Fragment implements
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mapViewInitial();
-                                    initFloorSelectButton();
+                                    try{
+                                        mapViewInitial();
+                                        initFloorSelectButton();
+                                    }catch (IndexOutOfBoundsException e){
+                                        Log.e(LOG_TAG,"mapViewInitial出错:"+e.toString());
+                                    }
                                 }
                             });
                         }
