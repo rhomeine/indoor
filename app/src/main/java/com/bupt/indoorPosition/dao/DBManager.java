@@ -72,6 +72,7 @@ public class DBManager {
     private static final String INSERT_LOCALIZATION = "insert into " + DBHelper.tableLocalization + " (_id,buildingName,buildingNumber," +
             "description,x,y,floor) values (?,?,?,?,?,?,?);";
     private static final String SELECT_LOCALIZATION = "select _id,buildingNumber from " + DBHelper.tableLocalization + " where _id=?";
+    private static final String SELECT_LOCALIZATION_FLOOR = "select _id,floor from " + DBHelper.tableLocalization + " where _id=?";
     private static final String SELECT_LOCALIZATIONXY = "select x,y from " + DBHelper.tableLocalization + " where _id=?";
 
     private static final String SELECT_ALL_LOCALIZATION = "select _id from " + DBHelper.tableLocalization;
@@ -248,6 +249,22 @@ public class DBManager {
         }
         c.close();
         return build;
+    }
+
+    public int returnLocalizationFloor(String id) {
+        // Log.d("DBManager", "enter");
+        Cursor c = db.rawQuery(SELECT_LOCALIZATION_FLOOR, new String[]{id});
+        int floor = 0;
+        while (c.moveToNext()) {
+            String _id = c.getString(c.getColumnIndex("_id"));
+            // Log.d("DBManager",_id);
+            if (_id != null && _id.equals(id)) {
+                floor = c.getInt(c.getColumnIndex("floor"));
+                break;
+            }
+        }
+        c.close();
+        return floor;
     }
 
     public List<Integer> LocalizationXY(String id) {

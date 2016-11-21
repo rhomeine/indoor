@@ -186,6 +186,14 @@ public class ModelService {
         }
         return BuildingNumber;
     }
+    //更新楼层号
+    public static int updateFloor(Context context,String Mac,int floor){
+        DBManager dbManager = new DBManager(context);
+        if (dbManager.isContainLocalization(Mac)){
+            floor = dbManager.returnLocalizationFloor(Mac);
+        }
+        return floor;
+    }
 
     // 同理 设置对应localization
     public static void updateBeaconForLocal(Context context, Set<Beacon> beaconSet, Beacon newBeacon,
@@ -309,6 +317,7 @@ public class ModelService {
         // record.setDistance(position.getDistance());
         // Log.d("recordIndoorData", record.getUuid());
         record.setBuildingNum(InspectFragment.buildingNumber);
+        record.setBuildingNum(InspectFragment.buildingfloor);
         DBManager dbManager = new DBManager(context);
         dbManager.insertIndoorSignalRecord(record);
         if (neighbors != null)
@@ -379,13 +388,15 @@ public class ModelService {
 
 
     //获取热力图数据
-    public static List<IndoorSignalRecord> uploadForSignalHeatMap(Context context){
+    public static List<IndoorSignalRecord> uploadForSignalHeatMap(Context context,String currentBuilding,String currentFloor){
         String url = context.getString(R.string.uploadForSignalHeatMap);
         Map<String, String> params = new HashMap<String, String>();
-        params.put("city", LocationProvider.getCity());
-        params.put("province", LocationProvider.getProvince());
+        params.put("currentBuilding", currentBuilding);
+        params.put("currentFloor", currentFloor);
         Map<String, Object> result = HttpUtil.post(url, params);
         List<IndoorSignalRecord> list = new ArrayList<>();
+
+        Log.d("currentBuilding",currentBuilding+" "+currentFloor);
 
         if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
             // context.sendBroadcast(MessageUtil.getServerResponseBundle(result));
