@@ -10,6 +10,15 @@ public class LocalizationBeacon {
 	private int y;
 	private int count;
 	private int floor;
+	private int isInspect;
+
+	public int getIsInspect() {
+		return isInspect;
+	}
+
+	public void setIsInspect(int isInspect) {
+		this.isInspect = isInspect;
+	}
 
 	public String getMac() {
 		return mac;

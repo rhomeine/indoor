@@ -3,22 +3,46 @@
                 android:layout_height="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto">
 
+        <FrameLayout
+            android:id="@+id/SAILSMap_FragmentMap"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true" />
+        <!-- TODO: Update blank fragment layout -->
 
-        <com.bupt.indooranalysis.Util.ArcProgress
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:id="@+id/progress"
-            app:arc_max="100"
-            app:arc_progress="0"
-            app:arc_unfinished_color="@color/white"
-            app:arc_finished_color="@color/colorPrimaryDark"
-            app:arc_bottom_text="巡检进度"
-            app:arc_angle="270"
-            app:arc_stroke_width="10sp"
-            app:arc_text_color="@color/black"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
-            />
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_buildings_history"
+            android:layout_centerHorizontal="true"></Spinner>
+        <Spinner
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_floor_history"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/spinner_buildings_history"
+            android:gravity="left"></Spinner>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/inspect_progress_Text"
+            android:text="巡检进度：0%"
+            android:layout_above="@+id/progress_bar"
+            android:layout_centerHorizontal="true"/>
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:id="@+id/progress_bar"
+            android:max="100"
+            android:layout_alignParentBottom="true"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:progress="0" />
+
+
+
 
 
 </RelativeLayout>

@@ -14,7 +14,7 @@ public class Buildings {
 
     public static Map<String,Integer> buildingName = new HashMap<>();
 
-    public static Map<String,Integer> InspectHistory = new HashMap<>();
+    public static Map<String,LocalizationBeacon> InspectHistory = new HashMap<>();
 
 
     public static HashMap<String,Buildings> BuildingsList = new HashMap<String,Buildings>();

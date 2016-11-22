@@ -152,7 +152,8 @@ public class ModelService {
         //向巡检历史赋值
         Buildings.InspectHistory.clear();
         for(LocalizationBeacon b : list){
-            Buildings.InspectHistory.put(b.getMac(),0);
+            b.setIsInspect(0);
+            Buildings.InspectHistory.put(b.getMac(),b);
         }
         DBManager dbManager = new DBManager(context);
         dbManager.refreshLocalization(list);
@@ -1378,7 +1379,7 @@ public class ModelService {
             a = BeaconUtil.getMax(beaconSet);
             //
             if(Buildings.InspectHistory.containsKey(a.getMac()))
-            Buildings.InspectHistory.put(a.getMac(),1);
+            Buildings.InspectHistory.get(a.getMac()).setIsInspect(1);
             //
             beaconSet.remove(a);
             b = BeaconUtil.getMax(beaconSet);

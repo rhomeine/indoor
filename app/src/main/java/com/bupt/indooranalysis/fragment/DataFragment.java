@@ -188,8 +188,8 @@ public class DataFragment extends Fragment {
 //                heatMap();
             }
         });
-        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings);
-        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor);
+        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
+        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
         locationList = new ArrayList<String>();
         for (String key : Buildings.BuildingsList.keySet()) {
             locationList.add(key);
