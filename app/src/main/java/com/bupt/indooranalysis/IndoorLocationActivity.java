@@ -170,10 +170,10 @@ public class IndoorLocationActivity extends Activity {
                                             b.getX(), b.getY(), b.getDislist()));
                                 }
                             }
-                            List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
-                            List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
-                            List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
-                                    (newbeaconMap2));
+//                            List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
+//                            List<Integer> list2 = ModelService.localizationFunc1(beaconSet);
+//                            List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
+//                                    (newbeaconMap2));
                             List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
                             String X = EtxPX.getText().toString();
                             String Y = EtxPY.getText().toString();
@@ -202,12 +202,12 @@ public class IndoorLocationActivity extends Activity {
                             Message msg = new Message();
                             Bundle b = new Bundle();
                             msg.what = 0x01;
-                            b.putInt("list1x", list1.get(0));
-                            b.putInt("list1y", list1.get(1));
-                            b.putInt("list2x", list2.get(0));
-                            b.putInt("list2y", list2.get(1));
-                            b.putInt("list3x", list3.get(0));
-                            b.putInt("list3y", list3.get(1));
+//                            b.putInt("list1x", list1.get(0));
+//                            b.putInt("list1y", list1.get(1));
+//                            b.putInt("list2x", list2.get(0));
+//                            b.putInt("list2y", list2.get(1));
+//                            b.putInt("list3x", list3.get(0));
+//                            b.putInt("list3y", list3.get(1));
                             b.putInt("list4x", list4.get(0));
                             b.putInt("list4y", list4.get(1));
 

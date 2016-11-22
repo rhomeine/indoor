@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -62,20 +63,22 @@ public class DataFragment extends Fragment {
     Spinner floorSpinner;
     ArrayAdapter<String> buildingAdapter;
     ArrayAdapter<String> floorAdapter;
-    
+    private EditText locationEditX;
+    private EditText locationEditY;
+
     private Button heatMapButton;
     private Button heatMapButtonForPoint;
     private OnFragmentInteractionListener mListener;
     private Context mcontext = null;
 
-    static SAILS mSails;
+    static Map<String, SAILS> mSailsList = new HashMap();
     static SAILSMapView mSailsMapView;
     byte zoomSav = 0;
 
     GeoPoint geoPointLocationLB = new GeoPoint(39.96289894781549, 116.35293035811996);
     GeoPoint geoPointLocationRT = new GeoPoint(39.96304388207584, 116.35312012440777);
 
-    ListOverlay listOverlay = new ListOverlay();
+    Map<String,ListOverlay> listOverlayMap = new HashMap<>();
     List<IndoorSignalRecord> listForHeatMap = new ArrayList<>();
     Map<Integer, List<Integer>> mapForHeatMap = new HashMap<>();
     Map<Integer, Integer[]> mapForHeatMapLevel = new HashMap<>();
@@ -120,6 +123,11 @@ public class DataFragment extends Fragment {
 
         mcontext = getContext();
         datahandler = new Datahanler();
+
+        locationEditX = (EditText) view.findViewById(R.id.locationEditX);
+        locationEditY = (EditText) view.findViewById(R.id.locationEditY);
+        locationEditX.setVisibility(View.GONE);
+        locationEditY.setVisibility(View.GONE);
         heatMapButton = (Button) view.findViewById(R.id.btn_cleardata);
         heatMapButton.setText("网格热力图");
         heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
@@ -133,7 +141,9 @@ public class DataFragment extends Fragment {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext);
+                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+                        String Floor = Integer.valueOf(currentFloor) + "";
+                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
                         if (listForHeatMap.size() != 0) {
                             Message msg = new Message();
                             msg.what = 0x01;
@@ -154,12 +164,14 @@ public class DataFragment extends Fragment {
         heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                heatMapButton.setText("正在下载热力图数据");
-                heatMapButton.setClickable(false);
+                heatMapButtonForPoint.setText("正在下载热力图数据");
+                heatMapButtonForPoint.setClickable(false);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext);
+                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+                        String Floor = Integer.valueOf(currentFloor) + "";
+                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
                         if (listForHeatMap.size() != 0) {
                             Message msg = new Message();
                             msg.what = 0x03;
@@ -179,7 +191,7 @@ public class DataFragment extends Fragment {
         buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings);
         floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor);
         locationList = new ArrayList<String>();
-        for(String key: Buildings.BuildingsList.keySet()){
+        for (String key : Buildings.BuildingsList.keySet()) {
             locationList.add(key);
         }
         buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
@@ -191,8 +203,14 @@ public class DataFragment extends Fragment {
 //                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
 //                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
                 currentBuilding = buildingSpinner.getSelectedItem().toString();
-                mSailsMapView.post(updateBuildingMaps);
-                Log.i(LOG_TAG,"Current building is changed to "+currentBuilding);
+                if (floorSpinner.getSelectedItem() != null)
+                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+                if (mSailsList.containsKey(Buildings.BuildingsList.get(currentBuilding).getCode())) {
+                    mapViewInitial(mSailsList.get(Buildings.BuildingsList.get(currentBuilding).getCode()));
+                } else {
+                    mSailsMapView.post(updateBuildingMaps);
+                }
+                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
             }
 
             @Override
@@ -201,13 +219,7 @@ public class DataFragment extends Fragment {
             }
         });
         currentBuilding = buildingSpinner.getSelectedItem().toString();
-        // new a SAILS engine.
-        mSails = new SAILS(mcontext);
-        // set location mode.
-        mSails.setMode(SAILS.BLE_GFP_IMU);
-        // set floor number sort rule from descending to ascending.
-        mSails.setReverseFloorList(true);
-        // create location change call back.
+
 
         // new and insert a SAILS MapView from layout resource.
         mSailsMapView = new SAILSMapView(mcontext);
@@ -220,7 +232,8 @@ public class DataFragment extends Fragment {
     }
 
 
-    void mapViewInitial() {
+    void mapViewInitial(SAILS mSail) {
+        final SAILS mSails = mSail;
         // establish a connection of SAILS engine into SAILS MapView.
         mSailsMapView.setSAILSEngine(mSails);
 
@@ -232,6 +245,11 @@ public class DataFragment extends Fragment {
 
         // load first floor map in package.
         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
+
+        //设置GeoPoint
+
+        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
 
         // Auto Adjust suitable map zoom level and position to best view
         // position.
@@ -272,7 +290,7 @@ public class DataFragment extends Fragment {
         });
 
         floorList = (ArrayList) mSails.getFloorDescList();
-        Log.i(LOG_TAG,"Floor list:"+floorList.toString()+'\n'+mSails.getFloorNumberList().toString());
+        Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
         floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
         floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         floorSpinner.setAdapter(floorAdapter);
@@ -283,9 +301,28 @@ public class DataFragment extends Fragment {
 //                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
                 if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
                     mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-                    Log.i(LOG_TAG,mSails.getFloorNameList().toString());
+                    Log.i(LOG_TAG, mSails.getFloorNameList().toString());
                     currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+                    //
+                    String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+                    String Floor = Integer.valueOf(currentFloor) + "";
+                    if(mSailsMapView!=null)
+                        mSailsMapView.getOverlays().clear();
+                    if(mSailsMapView!=null && listOverlayMap.containsKey("Grid"+buildingName+Floor)){
+                        mSailsMapView.getOverlays().clear();
+                        mSailsMapView.getOverlays().add(listOverlayMap.get("Grid"+buildingName+Floor));
+                        mSailsMapView.redraw();
+                    }else if(mSailsMapView!=null && listOverlayMap.containsKey("Point"+buildingName+Floor)){
+                        mSailsMapView.getOverlays().clear();
+                        mSailsMapView.getOverlays().add(listOverlayMap.get("Point"+buildingName+Floor));
+                        mSailsMapView.redraw();
+                    }
+                    //
                     Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
+                    //设置GeoPoint
+
+                    geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+                    geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
                 } else {
                     Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
                 }
@@ -296,6 +333,7 @@ public class DataFragment extends Fragment {
 
             }
         });
+        currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
     }
 
     Runnable updateBuildingMaps = new Runnable() {
@@ -304,7 +342,14 @@ public class DataFragment extends Fragment {
             // please change token and building id to your own building
             // project in cloud.
             String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
-            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
+            // new a SAILS engine.
+            final SAILS mSails = new SAILS(mcontext);
+            // set location mode.
+            mSails.setMode(SAILS.BLE_GFP_IMU);
+            // set floor number sort rule from descending to ascending.
+            mSails.setReverseFloorList(true);
+            // create location change call back.
+            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
                     // 57e381af08920f6b4b0004a0 meetingroom
                     //"57eb81cf08920f6b4b00053a" keyanlou
                     new SAILS.OnFinishCallback() {
@@ -313,10 +358,11 @@ public class DataFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    try{
-                                        mapViewInitial();
-                                    }catch (IndexOutOfBoundsException e){
-                                        Log.e(LOG_TAG,"mapViewInitial出错:"+e.toString());
+                                    try {
+                                        mSailsList.put(Buildings.BuildingsList.get(currentBuilding).getCode(), mSails);
+                                        mapViewInitial(mSails);
+                                    } catch (IndexOutOfBoundsException e) {
+                                        Log.e(LOG_TAG, "mapViewInitial出错:" + e.toString());
                                     }
                                 }
                             });
@@ -325,25 +371,25 @@ public class DataFragment extends Fragment {
                         //没有网络链接时程序崩溃,待解决
                         @Override
                         public void onFailed(String response) {
-                            Toast t = Toast.makeText(mcontext,
-                                    "Load cloud project fail, please check network connection.",
-                                    Toast.LENGTH_SHORT);
-                            t.show();
+//                            Toast t = Toast.makeText(mcontext,
+//                                    "Load cloud project fail, please check network connection.",
+//                                    Toast.LENGTH_SHORT);
+//                            t.show();
                         }
                     });
         }
     };
 
-    static Map<Integer,Bitmap[]> creatBitmapMap(int color1, int color2) {
+    static Map<Integer, Bitmap[]> creatBitmapMap(int color1, int color2) {
 
-        Map<Integer,Bitmap[]> bits = new HashMap<>();
-        for(int ratio = 0; ratio<10 ;ratio++){
+        Map<Integer, Bitmap[]> bits = new HashMap<>();
+        for (int ratio = 0; ratio < 10; ratio++) {
             Bitmap[] bitmaplist = new Bitmap[13];
             for (int i = 0; i < 12; i++) {
                 Bitmap bitmap = Bitmap.createBitmap(100, 100,
                         Bitmap.Config.ARGB_8888);
 
-                int alpha = (int) Double.valueOf(Color.alpha(color2)*((ratio+1)/10.0)).intValue();
+                int alpha = (int) Double.valueOf(Color.alpha(color2) * ((ratio + 1) / 10.0)).intValue();
 
                 int red = (int) ((Color.red(color2) - Color.red(color1)) * i * (1 / 11.0) + Color.red(color1));
 
@@ -360,10 +406,11 @@ public class DataFragment extends Fragment {
             bitmap.eraseColor(Color.argb(0, 0, 0, 0));
             bitmaplist[12] = bitmap;
 
-            bits.put(ratio,bitmaplist);
+            bits.put(ratio, bitmaplist);
         }
         return bits;
     }
+
     //
     static Bitmap[] creatBitmapList(int color1, int color2) {
 
@@ -402,6 +449,8 @@ public class DataFragment extends Fragment {
 
     public void heatMapForGrid(List<IndoorSignalRecord> list) {
 
+
+        ListOverlay listOverlay = new ListOverlay();
         mapForHeatMap = new HashMap<>();
         mapForHeatMapLevel = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
@@ -419,7 +468,7 @@ public class DataFragment extends Fragment {
         }
         int color1 = Color.argb(100, 0, 255, 0);
         int color2 = Color.argb(100, 255, 0, 0);
-        Map<Integer,Bitmap[]> bitmaps = creatBitmapMap(color1, color2);
+        Map<Integer, Bitmap[]> bitmaps = creatBitmapMap(color1, color2);
 //        Bitmap[] bitmapslist = creatBitmapList(color1, color2);
         int sum = 64;
         GeoPoint[][] geoPoint = new GeoPoint[sum][sum];
@@ -458,14 +507,14 @@ public class DataFragment extends Fragment {
                         for (int a = i - 1; a < i + 2; a++) {
                             for (int b = j - 1; b < j + 2; b++) {
                                 if (a >= 0 && b >= 0 && a < 64 && b < 64) {
-                                    if (mapForHeatMapLevel.containsKey(a * 64 + b)&&(!((a * 64 + b) == tempkey))) {
-                                        if(!mapForHeatMapLevel.containsKey(tempkey)){
+                                    if (mapForHeatMapLevel.containsKey(a * 64 + b) && (!((a * 64 + b) == tempkey))) {
+                                        if (!mapForHeatMapLevel.containsKey(tempkey)) {
                                             Integer[] levelAndAlpha = new Integer[3];
                                             levelAndAlpha[0] = mapForHeatMapLevel.get(a * 64 + b)[0];
                                             levelAndAlpha[1] = 1;
                                             levelAndAlpha[2] = mapForHeatMapLevel.get(a * 64 + b)[2];
                                             mapForHeatMapLevel.put(tempkey, levelAndAlpha);
-                                        }else{
+                                        } else {
                                             mapForHeatMapLevel.get(tempkey)[0] += mapForHeatMapLevel.get(a * 64 + b)[0];
                                             mapForHeatMapLevel.get(tempkey)[1] += 1;
                                             if (mapForHeatMapLevel.get(tempkey)[2] < mapForHeatMapLevel.get(a * 64 + b)[2])
@@ -491,7 +540,7 @@ public class DataFragment extends Fragment {
                                 mapForHeatMapLevel.get(tempkey)[2] = ratio;
 
                                 change += 1;
-                            }else{
+                            } else {
                                 mapForHeatMapLevel.remove(tempkey);
                             }
                         }
@@ -519,24 +568,24 @@ public class DataFragment extends Fragment {
                     ratio = mapForHeatMapLevel.get(tempkey)[2];
                 }
 
-                if(ratio!=0) {
+                if (ratio != 0) {
                     if (tempLevel == 0) {
-                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[12]);
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio - 1)[12]);
                         marker[i][j] = new Marker(geoPoint[i][j],
                                 Marker.boundCenterBottom(drawable));
                         listOverlay.getOverlayItems().add(marker[i][j]);
                     } else if (tempLevel < -100) {
-                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[11]);
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio - 1)[11]);
                         marker[i][j] = new Marker(geoPoint[i][j],
                                 Marker.boundCenterBottom(drawable));
                         listOverlay.getOverlayItems().add(marker[i][j]);
                     } else if (tempLevel >= -90) {
-                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[0]);
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio - 1)[0]);
                         marker[i][j] = new Marker(geoPoint[i][j],
                                 Marker.boundCenterBottom(drawable));
                         listOverlay.getOverlayItems().add(marker[i][j]);
                     } else if (tempLevel < -90 && tempLevel >= -100) {
-                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio-1)[-tempLevel - 90]);
+                        Drawable drawable = new BitmapDrawable(bitmaps.get(ratio - 1)[-tempLevel - 90]);
                         marker[i][j] = new Marker(geoPoint[i][j],
                                 Marker.boundCenterBottom(drawable));
                         listOverlay.getOverlayItems().add(marker[i][j]);
@@ -552,11 +601,17 @@ public class DataFragment extends Fragment {
 
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
+        //
+        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+        String Floor = Integer.valueOf(currentFloor) + "";
+        listOverlayMap.put("Grid"+buildingName+Floor,listOverlay);
         mSailsMapView.redraw();
     }
 
     //
     public void heatMap(List<IndoorSignalRecord> list) {
+
+        ListOverlay listOverlay = new ListOverlay();
         int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
@@ -585,6 +640,10 @@ public class DataFragment extends Fragment {
         }
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
+        //
+        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+        String Floor = Integer.valueOf(currentFloor) + "";
+        listOverlayMap.put("Point"+buildingName+Floor,listOverlay);
         mSailsMapView.redraw();
     }
 
@@ -635,16 +694,16 @@ public class DataFragment extends Fragment {
                 heatMapForGrid(listForHeatMap);
                 heatMapButton.setText("网格热力图");
                 heatMapButton.setClickable(true);
-            }else if(msg.what == 0x02){
+            } else if (msg.what == 0x02) {
                 heatMapButton.setText("未成功，请再试");
                 heatMapButton.setClickable(true);
-            }else if(msg.what == 0x03) {
+            } else if (msg.what == 0x03) {
                 heatMap(listForHeatMap);
-                heatMapButton.setText("点状热力图");
-                heatMapButton.setClickable(true);
-            }else if(msg.what == 0x04) {
-                heatMapButton.setText("未成功，请再试");
-                heatMapButton.setClickable(true);
+                heatMapButtonForPoint.setText("点状热力图");
+                heatMapButtonForPoint.setClickable(true);
+            } else if (msg.what == 0x04) {
+                heatMapButtonForPoint.setText("未成功，请再试");
+                heatMapButtonForPoint.setClickable(true);
             }
             super.handleMessage(msg);
         }

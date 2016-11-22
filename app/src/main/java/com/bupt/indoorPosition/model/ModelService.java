@@ -24,6 +24,7 @@ import java.util.Set;
 
 import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.BeaconInfo;
+import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.bean.IndoorRecord;
 import com.bupt.indoorPosition.bean.IndoorSignalRecord;
@@ -148,6 +149,11 @@ public class ModelService {
             return false;
         }
         List<LocalizationBeacon> list = JsonUtil.convertListFromMap(response, "list", LocalizationBeacon.class);
+        //向巡检历史赋值
+        Buildings.InspectHistory.clear();
+        for(LocalizationBeacon b : list){
+            Buildings.InspectHistory.put(b.getMac(),0);
+        }
         DBManager dbManager = new DBManager(context);
         dbManager.refreshLocalization(list);
 
@@ -1366,6 +1372,10 @@ public class ModelService {
             Beacon c = new Beacon();
 
             a = BeaconUtil.getMax(beaconSet);
+            //
+            if(Buildings.InspectHistory.containsKey(a.getMac()))
+            Buildings.InspectHistory.put(a.getMac(),1);
+            //
             beaconSet.remove(a);
             b = BeaconUtil.getMax(beaconSet);
             beaconSet.remove(b);

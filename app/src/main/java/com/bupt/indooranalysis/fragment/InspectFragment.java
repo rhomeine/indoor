@@ -47,7 +47,6 @@ import com.bupt.indoorPosition.uti.BeaconUtil;
 import com.bupt.indoorPosition.uti.Constants;
 import com.bupt.indoorPosition.uti.MessageUtil;
 import com.bupt.indooranalysis.AccelerometerService;
-import com.bupt.indooranalysis.IndoorLocationActivity;
 import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
 import com.bupt.indooranalysis.ScanSignalService;
@@ -336,6 +335,8 @@ public class InspectFragment extends Fragment implements
         btnClear = (Button) view.findViewById(R.id.btn_cleardata);
         locationEditX = (EditText) view.findViewById(R.id.locationEditX);
         locationEditY = (EditText) view.findViewById(R.id.locationEditY);
+        locationEditX.setVisibility(View.GONE);
+        locationEditY.setVisibility(View.GONE);
 
         btnClear.setOnClickListener(new ClearListener());
         btnUpload.setOnClickListener(new UploadListener());
@@ -817,14 +818,14 @@ public class InspectFragment extends Fragment implements
                     boolean status = ModelService.uploadSignalRecord(mcontext);
                     boolean neighbor = ModelService.uploadNeighbor(mcontext);
                     boolean inspection = ModelService.uploadInspection(mcontext);
-                    //calPositionInsertTimes
-                    boolean isUploadCal = ModelService.uploadCalPosition(mcontext);
-                    //
+//                    //calPositionInsertTimes
+//                    boolean isUploadCal = ModelService.uploadCalPosition(mcontext);
+//                    //
                     Message msg = new Message();
                     msg.what = Constants.MSG.UPLOAD;
                     Bundle b = new Bundle();
-                    Log.d("Inspect", status + " " + neighbor + " " + inspection + " " + isUploadCal);
-                    b.putBoolean("status", status && neighbor && inspection && isUploadCal);
+                    Log.d("Inspect", status + " " + neighbor + " " + inspection );
+                    b.putBoolean("status", status && neighbor && inspection );
                     msg.setData(b);
                     msg.what = Constants.MSG.UPLOAD;
                     Log.d("上传测试", "" + status);
@@ -1240,7 +1241,7 @@ public class InspectFragment extends Fragment implements
                     txPower = -60;
                 }
                 int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
-                if (device.getAddress().equals("80:30:DC:0D:F4:55")) {
+                if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
                     // String newMac = device.getAddress();
                     // DBManager dbManager = new
                     // DBManager(IndoorLocationActivity.this);
@@ -1248,6 +1249,7 @@ public class InspectFragment extends Fragment implements
                     // Log.d("genxinshujufordistance",
                     // "" + dis + " " + device.getAddress() + " " + rssi + " " +
                     // "txPower:" + txPower);
+                    Log.d("InsepctInsepct","80:30:DC:0D:F6:0F"+" "+rssi);
                     bluecount += 1;
                 }
                 ModelService.updateBeaconForLocal(mcontext, beaconSet,
@@ -1277,6 +1279,7 @@ public class InspectFragment extends Fragment implements
                                 b.getX(), b.getY(), b.getDislist()));
                         newbeaconMap3.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
                                 b.getX(), b.getY(), b.getDislist()));
+                        Log.d("InsepctInsepct",b.getMac()+" "+b.getDislist().size());
                         if (buildingNumber == 0) {
                             buildingNumber = ModelService.updateBuilding(mcontext, b.getMac(), buildingNumber);
                             Log.d("buildingNumber", buildingNumber + "");
@@ -1296,41 +1299,41 @@ public class InspectFragment extends Fragment implements
                                 b.getX(), b.getY(), b.getDislist()));
                     }
                 }
-                List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
-                List<Integer> list2 = ModelService.localizationFunc1(newbeaconSet);
-                List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
-                        (newbeaconMap2));
+//                List<Integer> list1 = ModelService.localizationFuncAA(ModelService.threeLocalizationPredealedAA(newbeaconMap1));
+//                List<Integer> list2 = ModelService.localizationFunc1(newbeaconSet);
+//                List<Integer> list3 = ModelService.threePointLocalization(ModelService.threeLocalizationPredealedAA
+//                        (newbeaconMap2));
                 List<Integer> list4 = ModelService.sixPointMassCenter(ModelService.threeLocalizationPredealedAA(newbeaconMap3));
                 //输入定位坐标
-                String X = locationEditX.getText().toString();
-                String Y = locationEditY.getText().toString();
-                int dataX = 0;
-                int dataY = 0;
-                if (X != null && !"".equals(X)) {
-                    dataX = Integer.parseInt(X);
-                }
-                if (Y != null && !"".equals(Y)) {
-                    dataY = Integer.parseInt(Y);
-                }
-                if ((dataX != 0) && (dataY != 0) && (!((list4.get(0) == 0) && (list4.get(1) == 0)))) {
-                    boolean isinsert = ModelService.recordCalculatePosition(mcontext, new CalculatePosition
-                            (list2
-                                    .get(0), list2.get(1), list1
-                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
-                    if (isinsert) {
-                        calPositionInsertTimes += 1;
-                    }
-                }
+//                String X = locationEditX.getText().toString();
+//                String Y = locationEditY.getText().toString();
+//                int dataX = 0;
+//                int dataY = 0;
+//                if (X != null && !"".equals(X)) {
+//                    dataX = Integer.parseInt(X);
+//                }
+//                if (Y != null && !"".equals(Y)) {
+//                    dataY = Integer.parseInt(Y);
+//                }
+//                if ((dataX != 0) && (dataY != 0) && (!((list4.get(0) == 0) && (list4.get(1) == 0)))) {
+//                    boolean isinsert = ModelService.recordCalculatePosition(mcontext, new CalculatePosition
+//                            (list2
+//                                    .get(0), list2.get(1), list1
+//                                    .get(0), list1.get(1), list3.get(0), list3.get(1), list4.get(0), list4.get(1), dataX, dataY));
+//                    if (isinsert) {
+//                        calPositionInsertTimes += 1;
+//                    }
+//                }
                 //
                 Message msg = new Message();
                 Bundle b = new Bundle();
                 msg.what = 0x01;
-                b.putInt("list1x", list1.get(0));
-                b.putInt("list1y", list1.get(1));
-                b.putInt("list2x", list2.get(0));
-                b.putInt("list2y", list2.get(1));
-                b.putInt("list3x", list3.get(0));
-                b.putInt("list3y", list3.get(1));
+//                b.putInt("list1x", list1.get(0));
+//                b.putInt("list1y", list1.get(1));
+//                b.putInt("list2x", list2.get(0));
+//                b.putInt("list2y", list2.get(1));
+//                b.putInt("list3x", list3.get(0));
+//                b.putInt("list3y", list3.get(1));
                 b.putInt("list4x", list4.get(0));
                 b.putInt("list4y", list4.get(1));
 
@@ -1343,9 +1346,9 @@ public class InspectFragment extends Fragment implements
                     Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
                 }
                 ScanBlueToothTimesInPeriod.clear();
-                synchronized (beaconSet) {
-                    beaconSet.clear();
-                }
+//                synchronized (beaconSet) {
+//                    beaconSet.clear();
+//                }
                 synchronized (beaconMap) {
                     beaconMap.clear();
                 }

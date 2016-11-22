@@ -9,7 +9,7 @@
             android:layout_height="200dp"
             android:id="@+id/progress"
             app:arc_max="100"
-            app:arc_progress="30"
+            app:arc_progress="0"
             app:arc_unfinished_color="@color/white"
             app:arc_finished_color="@color/colorPrimaryDark"
             app:arc_bottom_text="巡检进度"

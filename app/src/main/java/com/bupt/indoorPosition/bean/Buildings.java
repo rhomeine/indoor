@@ -4,6 +4,7 @@ import com.sails.engine.core.model.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by WSPN on 2016/11/14.
@@ -11,12 +12,22 @@ import java.util.HashMap;
 
 public class Buildings {
 
+    public static Map<String,Integer> buildingName = new HashMap<>();
+
+    public static Map<String,Integer> InspectHistory = new HashMap<>();
+
+
     public static HashMap<String,Buildings> BuildingsList = new HashMap<String,Buildings>();
     static {
 //        BuildingsList.add("北邮科研大楼");
 //        BuildingsList.add("郑州中原金融产业园1栋");
 //        BuildingsMap.put("北邮科研大楼","57eb81cf08920f6b4b00053a");
 //        BuildingsMap.put("郑州中原金融产业园1栋","582581a608920f6b4b00132a");
+        buildingName.put("北邮科研大楼",1);
+        buildingName.put("郑州中原金融产业园1栋",2);
+
+
+
         HashMap<String,GeoPoint> LBGeoPointList = new HashMap<String, GeoPoint>();
         HashMap<String,GeoPoint> RTGeoPointList = new HashMap<String, GeoPoint>();
         LBGeoPointList.put("1层",new GeoPoint(34.7482914,113.7926622));
@@ -36,14 +47,14 @@ public class Buildings {
 
         HashMap<String,GeoPoint> LBGeoPointList2 = new HashMap<String, GeoPoint>();
         HashMap<String,GeoPoint> RTGeoPointList2 = new HashMap<String , GeoPoint>();
-        LBGeoPointList.put("5层",new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList.put("5层",new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("5层",new GeoPoint(39.96289894781549, 116.35293035811996));
+        RTGeoPointList2.put("5层",new GeoPoint(39.96304388207584, 116.35312012440777));
 
-        LBGeoPointList.put("6层",new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList.put("6层",new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("6层",new GeoPoint(39.96289894781549, 116.35293035811996));
+        RTGeoPointList2.put("6层",new GeoPoint(39.96304388207584, 116.35312012440777));
 
-        LBGeoPointList.put("7层",new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList.put("7层",new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("7层",new GeoPoint(39.96289894781549, 116.35293035811996));
+        RTGeoPointList2.put("7层",new GeoPoint(39.96304388207584, 116.35312012440777));
 
         BuildingsList.put("北邮科研大楼",new Buildings("北邮科研大楼","57eb81cf08920f6b4b00053a",LBGeoPointList2,RTGeoPointList2));
         BuildingsList.put("郑州中原金融产业园1栋",new Buildings("郑州中原金融产业园1栋","582581a608920f6b4b00132a",LBGeoPointList,RTGeoPointList));

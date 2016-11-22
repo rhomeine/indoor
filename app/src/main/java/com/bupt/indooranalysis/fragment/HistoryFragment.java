@@ -3,6 +3,7 @@ package com.bupt.indooranalysis.fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -16,14 +17,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bupt.indoorPosition.adapter.CardViewAdapter;
+import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indooranalysis.R;
 import com.bupt.indooranalysis.Util.ArcProgress;
 import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import android.os.Handler;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,6 +47,7 @@ public class HistoryFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private ArcProgress arcProgress;
+    private HisHandler hisHandler;
 
     private List<InspectedBeacon> inspectedBeacons = new ArrayList<InspectedBeacon>();
     private OnFragmentInteractionListener mListener;
@@ -88,9 +94,20 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         arcProgress = (ArcProgress) view.findViewById(R.id.progress);
+        hisHandler = new HisHandler();
         //设置进度控件方法，默认max为100
 //        arcProgress.setMax(100);
 //        arcProgress.setProgress(39);
+
+        arcProgress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Message msg = new Message();
+                msg.what = 0x01;
+                hisHandler.sendMessage(msg);
+            }
+
+        });
 
         return view;
     }
@@ -127,5 +144,25 @@ public class HistoryFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    class HisHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 0x01) {
+                if (Buildings.InspectHistory.size() != 0) {
+                    int count = 0;
+                    Iterator<Map.Entry<String, Integer>> it = Buildings.InspectHistory.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry<String, Integer> entry = it.next();
+                        if (entry.getValue() == 1)
+                            count += 1;
+                    }
+                    count = (100 * count) / Buildings.InspectHistory.size();
+                    arcProgress.setProgress(count);
+                    arcProgress.invalidate();
+                }
+            }
+            super.handleMessage(msg);
+        }
+    }
 
 }
