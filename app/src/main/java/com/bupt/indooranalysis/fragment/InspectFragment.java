@@ -1249,7 +1249,7 @@ public class InspectFragment extends Fragment implements
                     // Log.d("genxinshujufordistance",
                     // "" + dis + " " + device.getAddress() + " " + rssi + " " +
                     // "txPower:" + txPower);
-                    Log.d("InsepctInsepct","80:30:DC:0D:F6:0F"+" "+rssi);
+//                    Log.d("InsepctInsepct","80:30:DC:0D:F6:0F"+" "+rssi);
                     bluecount += 1;
                 }
                 ModelService.updateBeaconForLocal(mcontext, beaconSet,
@@ -1346,9 +1346,9 @@ public class InspectFragment extends Fragment implements
                     Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
                 }
                 ScanBlueToothTimesInPeriod.clear();
-//                synchronized (beaconSet) {
-//                    beaconSet.clear();
-//                }
+                synchronized (beaconSet) {
+                    beaconSet.clear();
+                }
                 synchronized (beaconMap) {
                     beaconMap.clear();
                 }
@@ -1363,7 +1363,7 @@ public class InspectFragment extends Fragment implements
                 isInArea = ModelService.recordIndoorSignalData(
                         mcontext, (IndoorSignalRecord) (ScanSignalService.cellState.clone()), ScanSignalService.neighbors,
                         list4, ScanSignalService.speed);
-                Log.d("InspectInspect", isInArea + "");
+                Log.d("InsepctInsepct", isInArea + "");
 
             }
         }, 3000, 5000);

@@ -208,6 +208,8 @@ public class ModelService {
         // 定位所需最新接受处beacon列表
 
         if (beaconSet.contains(newBeacon)) {
+            //
+//            Log.d("InsepctInsepct",newBeacon.getMac()+" "+newBeacon.getRssi());
             // mac 地址存在，只需要更新
             if (map.get(newBeacon.getMac()) != null) {
                 if (true) {//map.get(newBeacon.getMac()).intValue() < newBeacon.getRssi()) {
@@ -237,6 +239,8 @@ public class ModelService {
             String newMac = newBeacon.getMac();
             DBManager dbManager = new DBManager(context);
             if (dbManager.isContainLocalization(newMac)) {
+                //
+//                Log.d("InsepctInsepct",newBeacon.getMac()+" "+newBeacon.getRssi());
                 map.put(newBeacon.getMac(), 1);
                 // 合法mac
                 List<Integer> list = dbManager.LocalizationXY(newMac);
