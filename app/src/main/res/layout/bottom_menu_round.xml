@@ -11,7 +11,7 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/spinner"
+        android:layout_below="@+id/spinner1"
         android:layout_marginRight="15dp"
         android:ems="10"
         android:gravity="center"
@@ -47,16 +47,15 @@
 
         <RadioButton
             android:id="@+id/btn_cleardata"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
             android:layout_weight="1"
             android:background="@color/white"
+            android:drawableTop="@drawable/ic_clear"
             android:button="@null"
             android:gravity="center"
-            android:paddingLeft="0dp"
-            android:text="清除数据"
-            android:textSize="16dp" />
+            android:text="清除"
+            android:textSize="12dp" />
         <!--</LinearLayout>-->
         <!--给中间凸起按钮预留位置-->
         <LinearLayout
@@ -67,15 +66,15 @@
 
         <RadioButton
             android:id="@+id/btn_updatedata"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
             android:button="@null"
             android:gravity="center"
-            android:paddingLeft="0dp"
-            android:text="上传数据"
-            android:textSize="16dp" />
+            android:drawableTop="@drawable/ic_upload"
+            android:text="上传"
+            android:textSize="12dp" />
         <!-- </LinearLayout>-->
     </RadioGroup>
 

@@ -333,7 +333,12 @@ public class DataFragment extends Fragment {
 
             }
         });
-        currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
+        try{
+            currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
+        }catch (NullPointerException e){
+            Log.i(LOG_TAG,"mSailsMapView is null");
+        }
+
     }
 
     Runnable updateBuildingMaps = new Runnable() {

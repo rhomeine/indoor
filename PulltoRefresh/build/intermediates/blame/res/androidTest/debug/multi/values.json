@@ -1,18 +1,22 @@
 [
     {
-        "outputFile": "C:\\Users\\delove\\Desktop\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "/home/rhoy/workspace/indoorAnalysis/C:\\Users\\delove\\Desktop\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": []
     },
     {
-        "outputFile": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "/home/rhoy/workspace/indoorAnalysis/PulltoRefresh/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values/values.xml",
         "map": []
     },
     {
-        "outputFile": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\C:\\Users\\delove\\Desktop\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "/home/rhoy/workspace/indoorAnalysis/D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": []
     },
     {
-        "outputFile": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "/home/rhoy/workspace/indoorAnalysis/D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\C:\\Users\\delove\\Desktop\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "map": []
+    },
+    {
+        "outputFile": "/home/rhoy/workspace/indoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": []
     }
 ]

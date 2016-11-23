@@ -7,34 +7,43 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <FrameLayout
-        android:id="@+id/SAILSMap"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_centerInParent="true" />
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" >
-        <Spinner
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinner1"
-            android:layout_centerHorizontal="true"></Spinner>
+            android:layout_marginTop="2dp"
+            android:id="@+id/linear_layout"
+            android:weightSum="3">
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner1"
+                android:layout_weight="1"
+                android:layout_centerHorizontal="true"></Spinner>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="正在载入楼层"
-            android:id="@+id/floorNum"
-            android:layout_marginTop="30dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_centerHorizontal="true"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="正在载入楼层"
+                android:id="@+id/floorNum"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="2"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+        </LinearLayout>
 
 
+        <FrameLayout
+            android:id="@+id/SAILSMap"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/linear_layout"
+            android:layout_centerInParent="true" />
 
         <ImageView
             android:id="@+id/zoomin"
@@ -62,16 +71,6 @@
             android:layout_marginBottom="70dp"
             android:src="@drawable/center1" />
 
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:layout_marginTop="60dp" />
 
         <TextView
             android:id="@+id/locationText"

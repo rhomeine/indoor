@@ -125,7 +125,6 @@ public class InspectFragment extends Fragment implements
     EditText editText2;
     TextView locationTextView;
     Vibrator mVibrator;
-    Spinner floorList;
     ArrayAdapter<String> adapter;
     byte zoomSav = 0;
 
@@ -451,9 +450,6 @@ public class InspectFragment extends Fragment implements
         editText1.setVisibility(View.GONE);
         editText2.setVisibility(View.GONE);
         locationTextView = (TextView) view.findViewById(R.id.locationText);
-        floorList = (Spinner) view.findViewById(R.id.spinner);
-        floorList.setVisibility(View.GONE);
-
         zoomin.setOnClickListener(controlListener);
         zoomout.setOnClickListener(controlListener);
         lockcenter.setOnClickListener(controlListener);
@@ -633,19 +629,7 @@ public class InspectFragment extends Fragment implements
 
         adapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, mSails.getFloorDescList());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        floorList.setAdapter(adapter);
-        floorList.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
-                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
     View.OnClickListener controlListener = new View.OnClickListener() {

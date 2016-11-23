@@ -3,25 +3,34 @@
                 android:layout_height="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:id="@+id/linear_layout"
+            android:weightSum="3">
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spinner_buildings_history"
+                    android:layout_weight="1"
+                    android:layout_centerHorizontal="true"></Spinner>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spinner_floor_history"
+                    android:layout_weight="2"
+                    android:layout_marginLeft="5dp"
+                   ></Spinner>
+        </LinearLayout>
+
         <FrameLayout
             android:id="@+id/SAILSMap_FragmentMap"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:layout_below="@id/linear_layout"
             android:layout_centerHorizontal="true" />
         <!-- TODO: Update blank fragment layout -->
-
-        <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinner_buildings_history"
-            android:layout_centerHorizontal="true"></Spinner>
-        <Spinner
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinner_floor_history"
-            android:layout_marginTop="5dp"
-            android:layout_below="@id/spinner_buildings_history"
-            android:gravity="left"></Spinner>
 
 
         <TextView
@@ -36,6 +45,7 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:id="@+id/progress_bar"
+            android:background="@color/white"
             android:max="100"
             android:layout_alignParentBottom="true"
             style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
