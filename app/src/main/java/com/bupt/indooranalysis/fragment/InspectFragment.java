@@ -96,8 +96,8 @@ public class InspectFragment extends Fragment implements
     private String location;
     private static String currentBuilding = null;
 
-    private Button btnClear;
-    private Button btnUpload;
+    private android.support.design.widget.FloatingActionButton btnClear;
+    private android.support.design.widget.FloatingActionButton btnUpload;
     private EditText locationEditX;
     private EditText locationEditY;
 
@@ -110,17 +110,14 @@ public class InspectFragment extends Fragment implements
     private boolean isDeleting = false;
     private boolean isUpdating = false;
 
-    private ImageButton button;
+    private android.support.design.widget.FloatingActionButton button;
     private TextView floorNumTV;
 
     private OnFragmentInteractionListener mListener;
 
-
     static SAILS mSails;
     static SAILSMapView mSailsMapView;
-    ImageView zoomin;
-    ImageView zoomout;
-    ImageView lockcenter;
+
     EditText editText1;
     EditText editText2;
     TextView locationTextView;
@@ -176,8 +173,6 @@ public class InspectFragment extends Fragment implements
     public FloatingActionButton actionButton;
     public ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
-
-    public FloatingActionButton recoverButton;
 
     private AccelerometerService accelerometerService;
 
@@ -307,14 +302,12 @@ public class InspectFragment extends Fragment implements
     }
 
     public void setFloorSelectButtonVisible(boolean isVisible) {
-        if ((floatingActionMenu != null) && (actionButton != null) && (recoverButton != null)) {
+        if ((floatingActionMenu != null) && (actionButton != null)) {
             if (!isVisible) {
                 floatingActionMenu.close(true);
                 actionButton.setVisibility(View.GONE);
-                recoverButton.setVisibility(View.GONE);
             } else {
                 actionButton.setVisibility(View.VISIBLE);
-                recoverButton.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -330,19 +323,14 @@ public class InspectFragment extends Fragment implements
         scanServiceintent = new Intent(mcontext, ScanSignalService.class);
         scanServiceintent.setAction("com.bupt.indooranalysis.ScanSignalService");
         isCalposition = 0;
-        btnUpload = (Button) view.findViewById(R.id.btn_updatedata);
-        btnClear = (Button) view.findViewById(R.id.btn_cleardata);
-        locationEditX = (EditText) view.findViewById(R.id.locationEditX);
-        locationEditY = (EditText) view.findViewById(R.id.locationEditY);
-        locationEditX.setVisibility(View.GONE);
-        locationEditY.setVisibility(View.GONE);
-
+        btnUpload = (android.support.design.widget.FloatingActionButton) view.findViewById(R.id.fab_upload);
+        btnClear = (android.support.design.widget.FloatingActionButton) view.findViewById(R.id.fab_clear);
         btnClear.setOnClickListener(new ClearListener());
         btnUpload.setOnClickListener(new UploadListener());
 
         //初始化大楼选择控件
         spinner = (Spinner) view.findViewById(R.id.spinner1);
-        button = (ImageButton) view.findViewById(R.id.buttonRound);
+        button = (android.support.design.widget.FloatingActionButton) view.findViewById(R.id.fab_inspect);
         button.setVisibility(Button.VISIBLE);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
@@ -439,20 +427,13 @@ public class InspectFragment extends Fragment implements
 
         handler = new MAHandler();
 
-        zoomin = (ImageView) view.findViewById(R.id.zoomin);
-        zoomout = (ImageView) view.findViewById(R.id.zoomout);
-        lockcenter = (ImageView) view.findViewById(R.id.lockcenter);
-        zoomin.setVisibility(View.GONE);
-        zoomout.setVisibility(View.GONE);
-        lockcenter.setVisibility(View.GONE);
+
         editText1 = (EditText) view.findViewById(R.id.editText1);
         editText2 = (EditText) view.findViewById(R.id.editText2);
         editText1.setVisibility(View.GONE);
         editText2.setVisibility(View.GONE);
         locationTextView = (TextView) view.findViewById(R.id.locationText);
-        zoomin.setOnClickListener(controlListener);
-        zoomout.setOnClickListener(controlListener);
-        lockcenter.setOnClickListener(controlListener);
+
         // new a SAILS engine.
         mSails = new SAILS(mcontext);
         // set location mode.
@@ -470,20 +451,8 @@ public class InspectFragment extends Fragment implements
 
         final ImageView fabIconNew = new ImageView(mcontext);
         fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
-        recoverButton = new FloatingActionButton.Builder(activity)
-                .setContentView(fabIconNew)
-                .build();
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
-        recoverButton.setPosition(7, layoutParams);
 
-        recoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSailsMapView.autoSetMapZoomAndView();
-                mSailsMapView.setAnimatingToRotationAngle(0);
-                mSailsMapView.redraw();
-            }
-        });
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
 
         mSailsMapView.post(updateBuildingMaps);
 
@@ -632,32 +601,6 @@ public class InspectFragment extends Fragment implements
 
     }
 
-    View.OnClickListener controlListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v == zoomin) {
-                // set map zoomin function.
-                mSailsMapView.zoomIn();
-
-            } else if (v == zoomout) {
-                // set map zoomout function.
-                mSailsMapView.zoomOut();
-            } else if (v == lockcenter) {
-                //tempX = Integer.valueOf(editText1.getText().toString());
-                //tempY = Integer.valueOf(editText2.getText().toString());
-                geoPointLocationRT = mSailsMapView.getProjection().fromPixels(tempX, tempY);
-                Marker marker = new Marker(geoPointLocationRT,
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_cir)));
-                listOverlay.getOverlayItems().clear();
-                listOverlay.getOverlayItems().add(marker);
-                mSailsMapView.getOverlays().clear();
-                mSailsMapView.getOverlays().add(listOverlay);
-                mSailsMapView.redraw();
-                // locationTextView.setText(geoPointLocationRT.latitude + " " + geoPointLocationRT.longitude);
-            }
-        }
-    };
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -704,7 +647,7 @@ public class InspectFragment extends Fragment implements
             } else {
                 Toast.makeText(activity, "上传失败", Toast.LENGTH_SHORT).show();
             }
-            btnUpload.setText(R.string.btnStartUpload);
+            Toast.makeText(activity, "上传报告", Toast.LENGTH_SHORT).show();
             btnUpload.setClickable(true);
 
         } else if (msg.what == Constants.MSG.SHOW_BEACON) {
@@ -761,7 +704,7 @@ public class InspectFragment extends Fragment implements
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             isDeleting = true;
-                            btnClear.setText("正在清除...");
+                            Toast.makeText(activity, "正在清除", Toast.LENGTH_SHORT).show();
                             Log.i("fragmentInspect202", "delete");
                             DBManager dbManager = new DBManager(mcontext);
                             // dbManager.deleteAllBeaconInfo();
@@ -774,7 +717,7 @@ public class InspectFragment extends Fragment implements
                             dbManager.deleteAllBeaconDebug();
                             dbManager.deleteAllTrainData();
                             dbManager.deleteAllCalposition();
-                            btnClear.setText("清除数据");
+                            Toast.makeText(activity, "清除数据", Toast.LENGTH_SHORT).show();
                             isDeleting = false;
                             Toast.makeText(activity, "数据清除完成", Toast.LENGTH_SHORT).show();
 
@@ -793,7 +736,7 @@ public class InspectFragment extends Fragment implements
             if (!MessageUtil.checkLogin(mcontext)) {
                 return;
             }
-            btnUpload.setText(R.string.btnUploadding);
+            Toast.makeText(activity, "正在上传数据", Toast.LENGTH_SHORT).show();
             btnUpload.setClickable(false);
             new Thread(new Runnable() {
                 @Override

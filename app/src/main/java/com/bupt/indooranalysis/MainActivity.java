@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,6 +31,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initState();
         permissionsChecker = new PermissionsChecker(this);
         initComponent();
         initLogin();
@@ -231,7 +235,7 @@ public class MainActivity extends AppCompatActivity
                 Log.i(LOG_TAG,"onDrawerOpened");
                 initUserProfile();
                 if(inspectFragment!=null){
-                    if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)&&(inspectFragment.recoverButton!=null)){
+                    if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)){
                         inspectFragment.setFloorSelectButtonVisible(false);
                     }
                 }
@@ -243,7 +247,7 @@ public class MainActivity extends AppCompatActivity
                 Log.i(LOG_TAG,"onDrawerClosed");
                 if((inspectFragment!=null)&&(mPager!=null)){
                     if(mPager.getCurrentItem() == 0) {
-                        if ((inspectFragment.floatingActionMenu != null) && (inspectFragment.actionButton != null) && (inspectFragment.recoverButton != null)) {
+                        if ((inspectFragment.floatingActionMenu != null) && (inspectFragment.actionButton != null)) {
                             inspectFragment.setFloorSelectButtonVisible(true);
                         }
                     }
@@ -317,6 +321,20 @@ public class MainActivity extends AppCompatActivity
                 mPager.setCurrentItem(2);
                 break;
             default:break;
+        }
+    }
+
+    private void initState() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
     }
 

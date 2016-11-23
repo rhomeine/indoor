@@ -14,12 +14,14 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/spinner_buildings_history"
                     android:layout_weight="1"
+                    android:spinnerMode="dialog"
                     android:layout_centerHorizontal="true"></Spinner>
                 <Spinner
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/spinner_floor_history"
                     android:layout_weight="2"
+                    android:spinnerMode="dialog"
                     android:layout_marginLeft="5dp"
                    ></Spinner>
         </LinearLayout>

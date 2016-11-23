@@ -15,7 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/spinner_buildings_data"
-            android:background="@drawable/spinner_rect"
             android:spinnerMode="dialog"
             android:layout_weight="1"
             android:layout_centerHorizontal="true"></Spinner>
@@ -25,7 +24,6 @@
             android:id="@+id/spinner_floor_data"
             android:layout_marginLeft="5dp"
             android:spinnerMode="dialog"
-            android:background="@drawable/spinner_rect"
             android:layout_weight="2"
             android:gravity="left"></Spinner>
     </LinearLayout>
@@ -44,7 +42,6 @@
         android:id="@+id/linear_layout_bottom"
         android:weightSum="3"
         android:orientation="horizontal"
-        android:background="@color/white"
         android:paddingBottom="10dp"
         android:layout_alignParentBottom="true">
 
@@ -52,6 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@color/white"
             android:spinnerMode="dialog"
             android:id="@+id/spinner_network"></Spinner>
 
@@ -59,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@color/white"
             android:spinnerMode="dialog"
             android:id="@+id/spinner_data_type"></Spinner>
 
@@ -85,6 +84,6 @@
         android:layout_above="@+id/btn_ok"
         android:layout_alignRight="@+id/btn_ok"
         android:layout_marginBottom="20dp"
-        android:src="@drawable/img_4g"/>
+        android:src="@drawable/ic_4g"/>
 
 </RelativeLayout>
