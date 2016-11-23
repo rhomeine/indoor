@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:orientation="horizontal"
         android:id="@+id/linear_layout"
         android:weightSum="3">
         <Spinner
@@ -15,6 +16,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/spinner_buildings_data"
             android:background="@drawable/spinner_rect"
+            android:spinnerMode="dialog"
             android:layout_weight="1"
             android:layout_centerHorizontal="true"></Spinner>
         <Spinner
@@ -22,6 +24,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/spinner_floor_data"
             android:layout_marginLeft="5dp"
+            android:spinnerMode="dialog"
             android:background="@drawable/spinner_rect"
             android:layout_weight="2"
             android:gravity="left"></Spinner>
@@ -35,6 +38,53 @@
         android:layout_centerHorizontal="true" />
     <!-- TODO: Update blank fragment layout -->
 
-    <include layout="@layout/bottom_menu_round"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linear_layout_bottom"
+        android:weightSum="3"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:paddingBottom="10dp"
+        android:layout_alignParentBottom="true">
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:spinnerMode="dialog"
+            android:id="@+id/spinner_network"></Spinner>
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:spinnerMode="dialog"
+            android:id="@+id/spinner_data_type"></Spinner>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"></LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/btn_ok"
+        android:background="@drawable/button_ok"
+        android:layout_alignBottom="@+id/linear_layout_bottom"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="15dp"/>
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="120dp"
+        android:layout_above="@+id/btn_ok"
+        android:layout_alignRight="@+id/btn_ok"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/img_legend"/>
 
 </RelativeLayout>

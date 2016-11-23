@@ -55,12 +55,20 @@ public class DataFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
     private String currentBuilding;
     private String currentFloor;
+    private String currentNetwork;
+    private String currentDataType;
+
     private ArrayList<String> locationList;
     private ArrayList<String> floorList;
+
     Spinner buildingSpinner;
     Spinner floorSpinner;
+    Spinner networkSpinner;
+    Spinner dataTypeSpinner;
+
     ArrayAdapter<String> buildingAdapter;
     ArrayAdapter<String> floorAdapter;
     private EditText locationEditX;
@@ -68,6 +76,7 @@ public class DataFragment extends Fragment {
 
     private Button heatMapButton;
     private Button heatMapButtonForPoint;
+
     private OnFragmentInteractionListener mListener;
     private Context mcontext = null;
 
@@ -124,70 +133,84 @@ public class DataFragment extends Fragment {
         mcontext = getContext();
         datahandler = new Datahanler();
 
-        locationEditX = (EditText) view.findViewById(R.id.locationEditX);
-        locationEditY = (EditText) view.findViewById(R.id.locationEditY);
-        locationEditX.setVisibility(View.GONE);
-        locationEditY.setVisibility(View.GONE);
-        heatMapButton = (Button) view.findViewById(R.id.btn_cleardata);
-        heatMapButton.setText("网格热力图");
-        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
-        heatMapButtonForPoint.setText("点状热力图");
-
-        heatMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                heatMapButton.setText("正在下载热力图数据");
-                heatMapButton.setClickable(false);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-                        String Floor = Integer.valueOf(currentFloor) + "";
-                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
-                        if (listForHeatMap.size() != 0) {
-                            Message msg = new Message();
-                            msg.what = 0x01;
-                            datahandler.sendMessage(msg);
-                        } else {
-                            Message msg = new Message();
-                            msg.what = 0x02;
-                            datahandler.sendMessage(msg);
-
-                        }
-
-                    }
-                }).start();
+//        locationEditX = (EditText) view.findViewById(R.id.locationEditX);
+//        locationEditY = (EditText) view.findViewById(R.id.locationEditY);
+//        locationEditX.setVisibility(View.GONE);
+//        locationEditY.setVisibility(View.GONE);
+        heatMapButton = (Button) view.findViewById(R.id.btn_ok);
+//        heatMapButton.setText("网格热力图");
+//        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
+//        heatMapButtonForPoint.setText("点状热力图");
+//
+//        heatMapButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                heatMapButton.setText("正在下载热力图数据");
+//                heatMapButton.setClickable(false);
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+//                        String Floor = Integer.valueOf(currentFloor) + "";
+//                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
+//                        if (listForHeatMap.size() != 0) {
+//                            Message msg = new Message();
+//                            msg.what = 0x01;
+//                            datahandler.sendMessage(msg);
+//                        } else {
+//                            Message msg = new Message();
+//                            msg.what = 0x02;
+//                            datahandler.sendMessage(msg);
+//
+//                        }
+//
+//                    }
+//                }).start();
 //                heatMap();
-            }
-        });
+//            }
+//        });
 
-        heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                heatMapButtonForPoint.setText("正在下载热力图数据");
-                heatMapButtonForPoint.setClickable(false);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-                        String Floor = Integer.valueOf(currentFloor) + "";
-                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
-                        if (listForHeatMap.size() != 0) {
-                            Message msg = new Message();
-                            msg.what = 0x03;
-                            datahandler.sendMessage(msg);
-                        } else {
-                            Message msg = new Message();
-                            msg.what = 0x04;
-                            datahandler.sendMessage(msg);
-
-                        }
-
-                    }
-                }).start();
+//        heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                heatMapButtonForPoint.setText("正在下载热力图数据");
+//                heatMapButtonForPoint.setClickable(false);
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+//                        String Floor = Integer.valueOf(currentFloor) + "";
+//                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
+//                        if (listForHeatMap.size() != 0) {
+//                            Message msg = new Message();
+//                            msg.what = 0x03;
+//                            datahandler.sendMessage(msg);
+//                        } else {
+//                            Message msg = new Message();
+//                            msg.what = 0x04;
+//                            datahandler.sendMessage(msg);
+//
+//                        }
+//
+//                    }
+//                }).start();
 //                heatMap();
-            }
-        });
+//            }
+//        });
+
+        initSpinners(view);
+
+        // new and insert a SAILS MapView from layout resource.
+        mSailsMapView = new SAILSMapView(mcontext);
+        mSailsMapView.enableRotate(false);
+        mSailsMapView.post(updateBuildingMaps);
+        ((FrameLayout) view.findViewById(R.id.SAILSMap_FragmentMap)).addView(mSailsMapView);
+        // configure SAILS map after map preparation finish.
+
+        return view;
+    }
+
+    public void initSpinners(View view){
         buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
         floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
         locationList = new ArrayList<String>();
@@ -218,17 +241,55 @@ public class DataFragment extends Fragment {
 
             }
         });
-        currentBuilding = buildingSpinner.getSelectedItem().toString();
+        try{
+            currentBuilding = buildingSpinner.getSelectedItem().toString();
+        }catch (NullPointerException e){
+            Log.e(LOG_TAG, "NullPointerException "+e.toString());
+        }
 
+        networkSpinner = (Spinner) view.findViewById(R.id.spinner_network);
+        ArrayList<String> network = new ArrayList<>();
+        network.add("2G");
+        network.add("3G");
+        network.add("4G");
+        network.add("WIFI");
+        ArrayAdapter networkAdapter = new ArrayAdapter(mcontext,android.R.layout.simple_spinner_item,network);
+        networkAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        networkSpinner.setAdapter(networkAdapter);
+        networkSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currentNetwork = networkSpinner.getSelectedItem().toString();
+            }
 
-        // new and insert a SAILS MapView from layout resource.
-        mSailsMapView = new SAILSMapView(mcontext);
-        mSailsMapView.enableRotate(false);
-        mSailsMapView.post(updateBuildingMaps);
-        ((FrameLayout) view.findViewById(R.id.SAILSMap_FragmentMap)).addView(mSailsMapView);
-        // configure SAILS map after map preparation finish.
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
-        return view;
+            }
+        });
+        currentNetwork = networkSpinner.getSelectedItem().toString();
+
+        dataTypeSpinner = (Spinner) view.findViewById(R.id.spinner_data_type);
+        ArrayList<String> dataType = new ArrayList<>();
+        dataType.add("RSSI");
+        dataType.add("Rate");
+        dataType.add("Latency");
+        ArrayAdapter dataTypeAdapter = new ArrayAdapter(mcontext,android.R.layout.simple_spinner_item,dataType);
+        dataTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dataTypeSpinner.setAdapter(dataTypeAdapter);
+        dataTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currentDataType = dataTypeSpinner.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        currentDataType = dataTypeSpinner.getSelectedItem().toString();
+
     }
 
 
@@ -303,7 +364,6 @@ public class DataFragment extends Fragment {
                     mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
                     Log.i(LOG_TAG, mSails.getFloorNameList().toString());
                     currentFloor = mSailsMapView.getCurrentBrowseFloorName();
-                    //
                     String buildingName = Buildings.buildingName.get(currentBuilding) + "";
                     String Floor = Integer.valueOf(currentFloor) + "";
                     if(mSailsMapView!=null)
