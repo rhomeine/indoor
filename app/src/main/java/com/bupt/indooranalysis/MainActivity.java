@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         mPager.setOffscreenPageLimit(2);
         mPager.setAdapter(fragmentPagerAdapter);
         mPager.setCurrentItem(0);
-        mTabInspect.setTextColor(Color.BLACK);
+        mTabInspect.setTextColor(Color.WHITE);
         mTabHistory.setTextColor(Color.GRAY);
         mTabData.setTextColor(Color.GRAY);
         //    mTabInspect.setBackground(null);
@@ -195,15 +195,15 @@ public class MainActivity extends AppCompatActivity
 
                 switch (position) {
                     case 0:
-                        mTabInspect.setTextColor(Color.BLACK);
+                        mTabInspect.setTextColor(Color.WHITE);
                         mTabInspect.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     case 1:
-                        mTabHistory.setTextColor(Color.BLACK);
+                        mTabHistory.setTextColor(Color.WHITE);
                         mTabHistory.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     case 2:
-                        mTabData.setTextColor(Color.BLACK);
+                        mTabData.setTextColor(Color.WHITE);
                         mTabData.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     default:

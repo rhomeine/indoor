@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/baseColor"
+            android:background="@color/colorPrimary"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="8dip" >
@@ -28,8 +28,8 @@
                 android:gravity="center"
                 android:background="@drawable/shape_rect_button"
                 android:text="即时巡检"
-                android:textColor="#000000"
-                android:textSize="15dip" />
+                android:textColor="@color/white"
+                android:textSize="13dip" />
 
         </LinearLayout>
 
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/baseColor"
+            android:background="@color/colorPrimary"
             android:clickable="true"
             android:gravity="center"
             android:orientation="horizontal"
@@ -52,8 +52,8 @@
                 android:gravity="center"
                 android:background="@drawable/shape_rect_button"
                 android:text="巡检历史"
-                android:textColor="#000000"
-                android:textSize="15dip" />
+                android:textColor="@color/white"
+                android:textSize="13dip" />
         </LinearLayout>
 
         <LinearLayout
@@ -61,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/baseColor"
+            android:background="@color/colorPrimary"
             android:focusable="false"
             android:gravity="center"
             android:orientation="horizontal"
@@ -74,8 +74,8 @@
                 android:gravity="center"
                 android:text="数据分析"
                 android:background="@drawable/shape_rect_button"
-                android:textColor="#000000"
-                android:textSize="15dip" />
+                android:textColor="@color/white"
+                android:textSize="13dip" />
         </LinearLayout>
     </LinearLayout>
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#E0E0E0</color>
-    <color name="colorPrimaryDark">#A0A0A0</color>
-    <color name="colorAccent">#9E9E9E</color>
+    <color name="colorPrimary">#212121</color>
+    <color name="colorPrimaryDark">#111111</color>
+    <color name="colorAccent">#ff5252</color>
     <color name="baseColor">#FFFFFF</color>
     <color name="blue">#0000FF</color>
     <color name="dkgray">#80808FF0</color>
@@ -27,4 +27,7 @@
     <color name="mylocation">#1FFFFF</color>
     <color name="item_normal">#ffffff</color>
     <color name="item_pressed">#ffcccccc</color>
+
+    <color name="base_1">#ff5722</color>
+    <color name="base_2">#e64a19</color>
 </resources>
