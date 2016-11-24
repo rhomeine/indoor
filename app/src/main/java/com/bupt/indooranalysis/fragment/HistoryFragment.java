@@ -418,11 +418,28 @@ public class HistoryFragment extends Fragment {
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
         for (int i = 0; i < sum; i++) {
+            Log.d("wodeY",list.get(i).getY()+"Y");
+            Log.d("wodeY",list.get(i).getX()+"X");
+            int tmpY=list.get(i).getY();
+            int tmpX=list.get(i).getX();
+            int cha=50;
+            if(list.get(i).getY()==0){
+                tmpY=list.get(i).getY()+cha;
+            }
+            if(list.get(i).getY()==1680) {
+                tmpY=list.get(i).getY()-cha;
+            }
+            if(list.get(i).getX()==0){
+                tmpX=list.get(i).getX()+cha;
+            }
+            if(list.get(i).getX()==1680){
+                tmpX=list.get(i).getX()-cha;
+            }
             geoPoint[i] = new GeoPoint(
                     geoPointLocationLB.latitude
-                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (list.get(i).getY() / 1680.0),
+                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (tmpY / 1680.0),
                     geoPointLocationLB.longitude
-                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (list.get(i).getX() / 1680.0));
+                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (tmpX / 1680.0));
             if (list.get(i).getIsInspect() == 0) {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenterBottom(getResources().getDrawable(R.drawable.gray_cir)));
