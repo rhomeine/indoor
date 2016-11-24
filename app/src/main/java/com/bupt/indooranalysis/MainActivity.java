@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         //init app toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
+
         setSupportActionBar(toolbar);
 
         //init app navigation

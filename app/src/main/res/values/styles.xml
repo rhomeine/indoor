@@ -11,7 +11,7 @@
     </style>
 
     <style name="AppTheme.DrawerArrowToggle" parent="Base.Widget.AppCompat.DrawerArrowToggle">
-        <item name="color">@android:color/white</item>
+        <item name="color">@color/gray</item>
     </style>
 
     <style name="myToolbarNavigationButtonStyle" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
