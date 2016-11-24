@@ -34,9 +34,7 @@ public class LoginActivity extends BaseAppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		getToolbarTitle().setText("用户登录");
-		getToolbarTitle().setTextColor(ContextCompat.getColor(this,R.color.base_1));
 		getSubTitle().setText("注册");
-		getSubTitle().setTextColor(ContextCompat.getColor(this,R.color.base_1));
 		// 注册广播接受器
 
 
