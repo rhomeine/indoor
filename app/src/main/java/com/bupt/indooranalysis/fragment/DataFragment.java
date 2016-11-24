@@ -1,5 +1,6 @@
 package com.bupt.indooranalysis.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.IndoorSignalRecord;
 import com.bupt.indoorPosition.model.ModelService;
+import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
 import com.sails.engine.SAILS;
 import com.sails.engine.SAILSMapView;
@@ -56,16 +59,16 @@ public class DataFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private String currentBuilding;
-    private String currentFloor;
+//    private String currentBuilding;
+//    private String currentFloor;
     private String currentNetwork;
     private String currentDataType;
 
     private ArrayList<String> locationList;
     private ArrayList<String> floorList;
 
-    Spinner buildingSpinner;
-    Spinner floorSpinner;
+//    Spinner buildingSpinner;
+//    Spinner floorSpinner;
     Spinner networkSpinner;
     Spinner dataTypeSpinner;
 
@@ -75,10 +78,10 @@ public class DataFragment extends Fragment {
     private EditText locationEditY;
 
     private Button heatMapButton;
-    private Button heatMapButtonForPoint;
 
     private OnFragmentInteractionListener mListener;
     private Context mcontext = null;
+    private MainActivity mainActivity;
 
     static Map<String, SAILS> mSailsList = new HashMap();
     static SAILSMapView mSailsMapView;
@@ -211,41 +214,41 @@ public class DataFragment extends Fragment {
     }
 
     public void initSpinners(View view){
-        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
-        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
-        locationList = new ArrayList<String>();
-        for (String key : Buildings.BuildingsList.keySet()) {
-            locationList.add(key);
-        }
-        buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
-        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        buildingSpinner.setAdapter(buildingAdapter);
-        buildingSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
-//                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-                currentBuilding = buildingSpinner.getSelectedItem().toString();
-                if (floorSpinner.getSelectedItem() != null)
-                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
-                if (mSailsList.containsKey(Buildings.BuildingsList.get(currentBuilding).getCode())) {
-                    mapViewInitial(mSailsList.get(Buildings.BuildingsList.get(currentBuilding).getCode()));
-                } else {
-                    mSailsMapView.post(updateBuildingMaps);
-                }
-                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        try{
-            currentBuilding = buildingSpinner.getSelectedItem().toString();
-        }catch (NullPointerException e){
-            Log.e(LOG_TAG, "NullPointerException "+e.toString());
-        }
+//        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
+//        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
+//        locationList = new ArrayList<String>();
+//        for (String key : Buildings.BuildingsList.keySet()) {
+//            locationList.add(key);
+//        }
+//        buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
+//        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        buildingSpinner.setAdapter(buildingAdapter);
+//        buildingSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+////                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+////                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+//                currentBuilding = buildingSpinner.getSelectedItem().toString();
+//                if (floorSpinner.getSelectedItem() != null)
+//                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+//                if (mSailsList.containsKey(Buildings.BuildingsList.get(currentBuilding).getCode())) {
+//                    mapViewInitial(mSailsList.get(Buildings.BuildingsList.get(currentBuilding).getCode()));
+//                } else {
+//                    mSailsMapView.post(updateBuildingMaps);
+//                }
+//                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//        try{
+//            currentBuilding = buildingSpinner.getSelectedItem().toString();
+//        }catch (NullPointerException e){
+//            Log.e(LOG_TAG, "NullPointerException "+e.toString());
+//        }
 
         networkSpinner = (Spinner) view.findViewById(R.id.spinner_network);
         ArrayList<String> network = new ArrayList<>();
@@ -309,8 +312,8 @@ public class DataFragment extends Fragment {
 
         //设置GeoPoint
 
-        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
-        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
 
         // Auto Adjust suitable map zoom level and position to best view
         // position.
@@ -350,54 +353,54 @@ public class DataFragment extends Fragment {
             }
         });
 
-        floorList = (ArrayList) mSails.getFloorDescList();
-        Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
-        floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
-        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        floorSpinner.setAdapter(floorAdapter);
-        floorSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+//        floorList = (ArrayList) mSails.getFloorDescList();
+//        Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
+//        floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
+//        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        floorSpinner.setAdapter(floorAdapter);
+//        floorSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+////                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+////                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
 //                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
-                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-                    Log.i(LOG_TAG, mSails.getFloorNameList().toString());
-                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
-                    String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-                    String Floor = Integer.valueOf(currentFloor) + "";
-                    if(mSailsMapView!=null)
-                        mSailsMapView.getOverlays().clear();
-                    if(mSailsMapView!=null && listOverlayMap.containsKey("Grid"+buildingName+Floor)){
-                        mSailsMapView.getOverlays().clear();
-                        mSailsMapView.getOverlays().add(listOverlayMap.get("Grid"+buildingName+Floor));
-                        mSailsMapView.redraw();
-                    }else if(mSailsMapView!=null && listOverlayMap.containsKey("Point"+buildingName+Floor)){
-                        mSailsMapView.getOverlays().clear();
-                        mSailsMapView.getOverlays().add(listOverlayMap.get("Point"+buildingName+Floor));
-                        mSailsMapView.redraw();
-                    }
-                    //
-                    Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
-                    //设置GeoPoint
-
-                    geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
-                    geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
-                } else {
-                    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        try{
-            currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
-        }catch (NullPointerException e){
-            Log.i(LOG_TAG,"mSailsMapView is null");
-        }
+//                    Log.i(LOG_TAG, mSails.getFloorNameList().toString());
+//                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+//                    String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+//                    String Floor = Integer.valueOf(currentFloor) + "";
+//                    if(mSailsMapView!=null)
+//                        mSailsMapView.getOverlays().clear();
+//                    if(mSailsMapView!=null && listOverlayMap.containsKey("Grid"+buildingName+Floor)){
+//                        mSailsMapView.getOverlays().clear();
+//                        mSailsMapView.getOverlays().add(listOverlayMap.get("Grid"+buildingName+Floor));
+//                        mSailsMapView.redraw();
+//                    }else if(mSailsMapView!=null && listOverlayMap.containsKey("Point"+buildingName+Floor)){
+//                        mSailsMapView.getOverlays().clear();
+//                        mSailsMapView.getOverlays().add(listOverlayMap.get("Point"+buildingName+Floor));
+//                        mSailsMapView.redraw();
+//                    }
+//                    //
+//                    Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
+//                    //设置GeoPoint
+//
+//                    geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+//                    geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+//                } else {
+//                    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//        try{
+//            currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
+//        }catch (NullPointerException e){
+//            Log.i(LOG_TAG,"mSailsMapView is null");
+//        }
 
     }
 
@@ -406,7 +409,7 @@ public class DataFragment extends Fragment {
         public void run() {
             // please change token and building id to your own building
             // project in cloud.
-            String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
+            String buidingCode = Buildings.BuildingsList.get(Buildings.currentBuilding).getCode();
             // new a SAILS engine.
             final SAILS mSails = new SAILS(mcontext);
             // set location mode.
@@ -424,7 +427,7 @@ public class DataFragment extends Fragment {
                                 @Override
                                 public void run() {
                                     try {
-                                        mSailsList.put(Buildings.BuildingsList.get(currentBuilding).getCode(), mSails);
+                                        mSailsList.put(Buildings.BuildingsList.get(Buildings.currentBuilding).getCode(), mSails);
                                         mapViewInitial(mSails);
                                     } catch (IndexOutOfBoundsException e) {
                                         Log.e(LOG_TAG, "mapViewInitial出错:" + e.toString());
@@ -666,10 +669,8 @@ public class DataFragment extends Fragment {
 
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
-        //
-        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-        String Floor = Integer.valueOf(currentFloor) + "";
-        listOverlayMap.put("Grid"+buildingName+Floor,listOverlay);
+
+        listOverlayMap.put("Grid"+Buildings.currentBuilding+Buildings.currentFloor,listOverlay);
         mSailsMapView.redraw();
     }
 
@@ -706,8 +707,8 @@ public class DataFragment extends Fragment {
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
         //
-        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-        String Floor = Integer.valueOf(currentFloor) + "";
+        String buildingName = Buildings.currentBuilding;
+        String Floor = Buildings.currentFloor;
         listOverlayMap.put("Point"+buildingName+Floor,listOverlay);
         mSailsMapView.redraw();
     }
@@ -764,13 +765,12 @@ public class DataFragment extends Fragment {
                 heatMapButton.setClickable(true);
             } else if (msg.what == 0x03) {
                 heatMap(listForHeatMap);
-                heatMapButtonForPoint.setText("点状热力图");
-                heatMapButtonForPoint.setClickable(true);
+
             } else if (msg.what == 0x04) {
-                heatMapButtonForPoint.setText("未成功，请再试");
-                heatMapButtonForPoint.setClickable(true);
+
             }
             super.handleMessage(msg);
         }
     }
+
 }

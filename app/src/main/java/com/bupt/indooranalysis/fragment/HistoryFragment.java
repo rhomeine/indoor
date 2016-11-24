@@ -25,6 +25,7 @@ import com.bupt.indoorPosition.adapter.CardViewAdapter;
 import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.LocalizationBeacon;
+import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
 import com.bupt.indooranalysis.Util.ArcProgress;
 import com.sails.engine.SAILS;
@@ -80,7 +81,6 @@ public class HistoryFragment extends Fragment {
     GeoPoint geoPointLocationRT = new GeoPoint(39.96304388207584, 116.35312012440777);
     byte zoomSav = 0;
     ListOverlay listOverlay = new ListOverlay();
-
 
     private List<InspectedBeacon> inspectedBeacons = new ArrayList<InspectedBeacon>();
     private OnFragmentInteractionListener mListener;
@@ -142,7 +142,6 @@ public class HistoryFragment extends Fragment {
                 hisHandler.sendMessage(msg);
             }
         });
-
 
         buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_history);
         floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_history);

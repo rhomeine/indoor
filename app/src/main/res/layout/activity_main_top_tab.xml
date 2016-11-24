@@ -51,7 +51,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:background="@drawable/shape_rect_button"
-                android:text="巡检历史"
+                android:text="巡检详情"
                 android:textColor="@color/white"
                 android:textSize="13dip" />
         </LinearLayout>

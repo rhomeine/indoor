@@ -93,8 +93,6 @@ public class InspectFragment extends Fragment implements
     private Spinner spinner;
     private ArrayList<String> locationList;
     private ArrayAdapter<String> arrayAdapter;
-    private String location;
-    private static String currentBuilding = null;
 
     private android.support.design.widget.FloatingActionButton btnClear;
     private android.support.design.widget.FloatingActionButton btnUpload;
@@ -109,6 +107,7 @@ public class InspectFragment extends Fragment implements
     private Bundle savedState;
     private boolean isDeleting = false;
     private boolean isUpdating = false;
+    private boolean isFABinit = false;
 
     private android.support.design.widget.FloatingActionButton button;
     private TextView floorNumTV;
@@ -277,7 +276,7 @@ public class InspectFragment extends Fragment implements
                     Log.i(LOG_TAG, mSailsMapView.getCurrentBrowseFloorName() + "::" + mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
                         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(finalI));
-                        Log.i(LOG_TAG, mSails.getFloorNameList().toString());
+                        Buildings.currentFloor = floor.get(finalI);
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
@@ -286,7 +285,7 @@ public class InspectFragment extends Fragment implements
                 }
             });
         }
-
+        isFABinit = true;
     }
 
     public void destroyFloorSelectButton() {
@@ -343,10 +342,11 @@ public class InspectFragment extends Fragment implements
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                currentBuilding = spinner.getSelectedItem().toString();
+                Buildings.currentBuilding = spinner.getSelectedItem().toString();
+                if(isFABinit) actionButton.setVisibility(View.INVISIBLE);
                 mSailsMapView.post(updateBuildingMaps);
                 if(mSailsMapView!=null)
-                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding+" "+mSailsMapView.getCurrentBrowseFloorName());
+                Log.i(LOG_TAG, "Current building is changed to " + Buildings.currentBuilding+" "+mSailsMapView.getCurrentBrowseFloorName());
             }
 
             @Override
@@ -406,21 +406,6 @@ public class InspectFragment extends Fragment implements
                     default:
                         break;
 
-                    //此处设置开始巡检的启动状况
-//                if (startScanning == false) {
-//                    startScanning = true;
-////                btnStart.setText(R.string.btnStarting);
-////                btnimage.setImageResource(images[0]);
-//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                            intent, true);
-//                } else {
-//                    startScanning = false;
-////                    btnStart.setText(R.string.btnStartContent);
-//                    // bAdapter.disable();
-////                btnimage.setImageResource(images[1]);
-//                    ((FragmentServiceCallback) activity).startOrStopActivityService(
-//                            intent, false);
-//                }
                 }
             }
         });
@@ -446,50 +431,16 @@ public class InspectFragment extends Fragment implements
         mSailsMapView = new SAILSMapView(mcontext);
         mSailsMapView.enableRotate(false);
         ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
-        currentBuilding = spinner.getSelectedItem().toString();
-        Log.i(LOG_TAG, "Current building is " + currentBuilding);
+//        currentBuilding = spinner.getSelectedItem().toString();
+        Buildings.currentBuilding = spinner.getSelectedItem().toString();
+        Log.i(LOG_TAG, "Current building is " + Buildings.currentBuilding);
 
         final ImageView fabIconNew = new ImageView(mcontext);
         fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
 
-        mSailsMapView.post(updateBuildingMaps);
-
-        // configure SAILS map after map preparation finish.
-//        mSailsMapView.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                // please change token and building id to your own building
-//                // project in cloud.
-//                String buidingCode = Buildings.BuildingsMap.get(currentBuilding);
-//                mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a",buidingCode , // keyanlou
-//                        // 57e381af08920f6b4b0004a0 meetingroom
-//                        //"57eb81cf08920f6b4b00053a" keyanlou
-//                        new SAILS.OnFinishCallback() {
-//                            @Override
-//                            public void onSuccess(String response) {
-//                                getActivity().runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        mapViewInitial();
-//                                        initFloorSelectButton();
-//                                    }
-//                                });
-//                            }
-//
-//                            //没有网络链接时程序崩溃,待解决
-//                            @Override
-//                            public void onFailed(String response) {
-//                                Toast t = Toast.makeText(mcontext,
-//                                        "Load cloud project fail, please check network connection.",
-//                                        Toast.LENGTH_SHORT);
-//                                t.show();
-//                            }
-//                        });
-//            }
-//        });
-
+    //    mSailsMapView.post(updateBuildingMaps);
         Log.i(LOG_TAG, "onCreateView");
 
         return view;
@@ -500,7 +451,7 @@ public class InspectFragment extends Fragment implements
         public void run() {
             // please change token and building id to your own building
             // project in cloud.
-            String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
+            String buidingCode = Buildings.BuildingsList.get(Buildings.currentBuilding).getCode();
             mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
                     // 57e381af08920f6b4b0004a0 meetingroom
                     //"57eb81cf08920f6b4b00053a" keyanlou
@@ -513,6 +464,7 @@ public class InspectFragment extends Fragment implements
                                     try {
                                         mapViewInitial();
                                         initFloorSelectButton();
+                                        if(isFABinit) actionButton.setVisibility(View.VISIBLE);
                                     } catch (IndexOutOfBoundsException e) {
                                         Log.e(LOG_TAG, "mapViewInitial出错:" + e.toString());
                                     }
@@ -523,6 +475,12 @@ public class InspectFragment extends Fragment implements
                         //没有网络链接时程序崩溃,待解决
                         @Override
                         public void onFailed(String response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(isFABinit) actionButton.setVisibility(View.INVISIBLE);
+                                }
+                            });
 //                            Toast t = Toast.makeText(mcontext,
 //                                    "Load cloud project fail, please check network connection.",
 //                                    Toast.LENGTH_SHORT);
@@ -550,8 +508,8 @@ public class InspectFragment extends Fragment implements
 
         //设置GeoPoint
 
-        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
-        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
 
         // Auto Adjust suitable map zoom level and position to best view
         // position.
@@ -589,8 +547,8 @@ public class InspectFragment extends Fragment implements
                 //设置GeoPoint
 
 
-                geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
-                geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+                geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(position));
+                geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(position));
                 //  floorList.setSelection(position);
                 floorNumTV.setText(mSails.getFloorDescList().get(position));
             }

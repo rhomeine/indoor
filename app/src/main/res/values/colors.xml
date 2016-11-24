@@ -28,6 +28,6 @@
     <color name="item_normal">#ffffff</color>
     <color name="item_pressed">#ffcccccc</color>
 
-    <color name="base_1">#ff5722</color>
+    <color name="base_1">#FF3300</color>
     <color name="base_2">#e64a19</color>
 </resources>
