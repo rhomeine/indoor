@@ -142,33 +142,36 @@ public class DataFragment extends Fragment {
 //        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
 //        heatMapButtonForPoint.setText("点状热力图");
 //
-//        heatMapButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                heatMapButton.setText("正在下载热力图数据");
-//                heatMapButton.setClickable(false);
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-//                        String Floor = Integer.valueOf(currentFloor) + "";
-//                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
-//                        if (listForHeatMap.size() != 0) {
-//                            Message msg = new Message();
-//                            msg.what = 0x01;
-//                            datahandler.sendMessage(msg);
-//                        } else {
-//                            Message msg = new Message();
-//                            msg.what = 0x02;
-//                            datahandler.sendMessage(msg);
-//
-//                        }
-//
-//                    }
-//                }).start();
-//                heatMap();
-//            }
-//        });
+        heatMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                heatMapButton.setText("正在下载热力图数据");
+                heatMapButton.setClickable(false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+                        String Floor = Integer.valueOf(currentFloor) + "";
+                        Log.d("zhouxiangLog1",buildingName+" "+Floor);
+                       listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
+                        if (listForHeatMap.size() != 0) {
+                            Message msg = new Message();
+                            msg.what = 0x01;
+                            datahandler.sendMessage(msg);
+                            for(int i=0;i<listForHeatMap.size();i++){
+                                Log.d("zhouxiangLog1",listForHeatMap.get(i).toString());
+                            }
+                        } else {
+                            Message msg = new Message();
+                            msg.what = 0x02;
+                            datahandler.sendMessage(msg);
+
+                        }
+
+                    }
+                }).start();
+            }
+        });
 
 //        heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
 //            @Override
