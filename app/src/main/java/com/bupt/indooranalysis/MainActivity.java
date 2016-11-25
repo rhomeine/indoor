@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.Inspector;
 import com.bupt.indoorPosition.callback.FragmentServiceCallback;
@@ -316,9 +317,21 @@ public class MainActivity extends AppCompatActivity
                 mPager.setCurrentItem(0);
                 break;
             case R.id.txt_tab_history:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        historyFragment.updateMap(Buildings.currentBuilding,Buildings.currentFloor);
+                    }
+                }).run();
                 mPager.setCurrentItem(1);
                 break;
             case R.id.txt_tab_data:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dataFragment.updateMap(Buildings.currentBuilding,Buildings.currentFloor);
+                    }
+                }).run();
                 mPager.setCurrentItem(2);
                 break;
             default:break;

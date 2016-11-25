@@ -276,7 +276,7 @@ public class InspectFragment extends Fragment implements
                     Log.i(LOG_TAG, mSailsMapView.getCurrentBrowseFloorName() + "::" + mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
                         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(finalI));
-                        Buildings.currentFloor = floor.get(finalI);
+                        Buildings.currentFloor = mSails.getFloorNameList().get(finalI);
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
@@ -503,6 +503,8 @@ public class InspectFragment extends Fragment implements
 
         // load first floor map in package.
         mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
+//        Buildings.currentBuilding = mSails.getBuildingName();
+//        Buildings.currentFloor = mSails.getFloorNameList().get(0);
         //设置显示楼层
         floorNumTV.setText(mSails.getFloorDescList().get(0));
 
@@ -510,11 +512,11 @@ public class InspectFragment extends Fragment implements
 
         geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
         geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
-
+        Buildings.currentFloor = mSails.getFloorNameList().get(0);
+        Log.i(LOG_TAG,"mapViewInitial: current floor "+Buildings.currentFloor);
         // Auto Adjust suitable map zoom level and position to best view
         // position.
         mSailsMapView.autoSetMapZoomAndView();
-
         // design some action in floor change call back.
         mSailsMapView.setOnFloorChangedListener(new SAILSMapView.OnFloorChangedListener() {
             @Override

@@ -59,16 +59,16 @@ public class DataFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-//    private String currentBuilding;
-//    private String currentFloor;
+    private String currentBuilding;
+    private String currentFloor;
     private String currentNetwork;
     private String currentDataType;
 
     private ArrayList<String> locationList;
     private ArrayList<String> floorList;
-
-//    Spinner buildingSpinner;
-//    Spinner floorSpinner;
+    private ArrayList<Integer> floorNumberList;
+    Spinner buildingSpinner;
+    Spinner floorSpinner;
     Spinner networkSpinner;
     Spinner dataTypeSpinner;
 
@@ -216,42 +216,58 @@ public class DataFragment extends Fragment {
         return view;
     }
 
+    public void updateMap(String building, String floor){
+        currentBuilding = building;
+        currentFloor = floor;
+
+        Log.i(LOG_TAG,currentBuilding+" "+currentFloor);
+
+        int indexOfBuilding = locationList.indexOf(currentBuilding);
+        buildingSpinner.setSelection(indexOfBuilding);
+        int indexOfFloor = floorNumberList.indexOf(Integer.valueOf(currentFloor));
+        floorSpinner.setSelection(indexOfFloor);
+    }
+
     public void initSpinners(View view){
-//        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
-//        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
-//        locationList = new ArrayList<String>();
-//        for (String key : Buildings.BuildingsList.keySet()) {
-//            locationList.add(key);
-//        }
-//        buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
-//        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        buildingSpinner.setAdapter(buildingAdapter);
-//        buildingSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-////                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
-////                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-//                currentBuilding = buildingSpinner.getSelectedItem().toString();
-//                if (floorSpinner.getSelectedItem() != null)
-//                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
-//                if (mSailsList.containsKey(Buildings.BuildingsList.get(currentBuilding).getCode())) {
-//                    mapViewInitial(mSailsList.get(Buildings.BuildingsList.get(currentBuilding).getCode()));
-//                } else {
-//                    mSailsMapView.post(updateBuildingMaps);
-//                }
-//                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//        try{
-//            currentBuilding = buildingSpinner.getSelectedItem().toString();
-//        }catch (NullPointerException e){
-//            Log.e(LOG_TAG, "NullPointerException "+e.toString());
-//        }
+        buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_data);
+        floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_data);
+        buildingSpinner.setVisibility(View.VISIBLE);
+        buildingSpinner.setClickable(false);
+        floorSpinner.setVisibility(View.VISIBLE);
+        floorSpinner.setClickable(false);
+        locationList = new ArrayList<String>();
+        for (String key : Buildings.BuildingsList.keySet()) {
+            locationList.add(key);
+        }
+        buildingAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, locationList);
+        buildingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        buildingSpinner.setAdapter(buildingAdapter);
+        buildingSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
+//                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+                currentBuilding = buildingSpinner.getSelectedItem().toString();
+                if (floorSpinner.getSelectedItem() != null)
+                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+                if (mSailsList.containsKey(Buildings.BuildingsList.get(currentBuilding).getCode())) {
+                    mapViewInitial(mSailsList.get(Buildings.BuildingsList.get(currentBuilding).getCode()));
+                } else {
+                    mSailsMapView.post(updateBuildingMaps);
+                }
+                Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        try{
+            currentBuilding = buildingSpinner.getSelectedItem().toString();
+        }catch (NullPointerException e){
+            Log.e(LOG_TAG, "NullPointerException "+e.toString());
+        }
 
         networkSpinner = (Spinner) view.findViewById(R.id.spinner_network);
         ArrayList<String> network = new ArrayList<>();
@@ -356,54 +372,55 @@ public class DataFragment extends Fragment {
             }
         });
 
-//        floorList = (ArrayList) mSails.getFloorDescList();
-//        Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
-//        floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
-//        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        floorSpinner.setAdapter(floorAdapter);
-//        floorSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-////                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
-////                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
+        floorList = (ArrayList) mSails.getFloorDescList();
+        floorNumberList = (ArrayList) mSails.getFloorNumberList();
+        Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
+        floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
+        floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        floorSpinner.setAdapter(floorAdapter);
+        floorSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position)))
 //                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
-//                    Log.i(LOG_TAG, mSails.getFloorNameList().toString());
-//                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
-//                    String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-//                    String Floor = Integer.valueOf(currentFloor) + "";
-//                    if(mSailsMapView!=null)
-//                        mSailsMapView.getOverlays().clear();
-//                    if(mSailsMapView!=null && listOverlayMap.containsKey("Grid"+buildingName+Floor)){
-//                        mSailsMapView.getOverlays().clear();
-//                        mSailsMapView.getOverlays().add(listOverlayMap.get("Grid"+buildingName+Floor));
-//                        mSailsMapView.redraw();
-//                    }else if(mSailsMapView!=null && listOverlayMap.containsKey("Point"+buildingName+Floor)){
-//                        mSailsMapView.getOverlays().clear();
-//                        mSailsMapView.getOverlays().add(listOverlayMap.get("Point"+buildingName+Floor));
-//                        mSailsMapView.redraw();
-//                    }
-//                    //
-//                    Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
-//                    //设置GeoPoint
-//
-//                    geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
-//                    geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
-//                } else {
-//                    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//        try{
-//            currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
-//        }catch (NullPointerException e){
-//            Log.i(LOG_TAG,"mSailsMapView is null");
-//        }
+                if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(position))) {
+                    mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(position));
+                    Log.i(LOG_TAG, mSails.getFloorNameList().toString());
+                    currentFloor = mSailsMapView.getCurrentBrowseFloorName();
+                    String buildingName = Buildings.buildingName.get(currentBuilding) + "";
+                    String Floor = Integer.valueOf(currentFloor) + "";
+                    if(mSailsMapView!=null)
+                        mSailsMapView.getOverlays().clear();
+                    if(mSailsMapView!=null && listOverlayMap.containsKey("Grid"+buildingName+Floor)){
+                        mSailsMapView.getOverlays().clear();
+                        mSailsMapView.getOverlays().add(listOverlayMap.get("Grid"+buildingName+Floor));
+                        mSailsMapView.redraw();
+                    }else if(mSailsMapView!=null && listOverlayMap.containsKey("Point"+buildingName+Floor)){
+                        mSailsMapView.getOverlays().clear();
+                        mSailsMapView.getOverlays().add(listOverlayMap.get("Point"+buildingName+Floor));
+                        mSailsMapView.redraw();
+                    }
+                    //
+                    Toast.makeText(getActivity(), floorList.get(position), Toast.LENGTH_SHORT).show();
+                    //设置GeoPoint
+
+                    geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+                    geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,mSails.getFloorDescList().get(position));
+                } else {
+                    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        try{
+            currentFloor = mSailsMapView.getCurrentBrowseFloorName().toString();
+        }catch (NullPointerException e){
+            Log.i(LOG_TAG,"mSailsMapView is null");
+        }
 
     }
 

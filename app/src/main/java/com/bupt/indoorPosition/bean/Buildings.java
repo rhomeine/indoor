@@ -14,8 +14,8 @@ public class Buildings {
 
     public static Map<String,Integer> buildingName = new HashMap<>();
     public static Map<String,LocalizationBeacon> InspectHistory = new HashMap<>();
-    public static String currentBuilding;
-    public static String currentFloor;
+    public static String currentBuilding = "郑州中原金融产业园1栋";
+    public static String currentFloor = "1";
 
 
     public static HashMap<String,Buildings> BuildingsList = new HashMap<String,Buildings>();
@@ -25,7 +25,7 @@ public class Buildings {
 //        BuildingsMap.put("北邮科研大楼","57eb81cf08920f6b4b00053a");
 //        BuildingsMap.put("郑州中原金融产业园1栋","582581a608920f6b4b00132a");
         buildingName.put("北邮科研大楼",1);
-        buildingName.put("郑州中原金融产业园1栋",2);
+        buildingName.put("郑州中原金融产业园1栋",0);
 
 
 

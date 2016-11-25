@@ -70,6 +70,7 @@ public class HistoryFragment extends Fragment {
     private String currentFloor;
     private ArrayList<String> locationList;
     private ArrayList<String> floorList;
+    private ArrayList<Integer> floorNumberList;
     ArrayAdapter<String> buildingAdapter;
     ArrayAdapter<String> floorAdapter;
 
@@ -144,7 +145,9 @@ public class HistoryFragment extends Fragment {
         });
 
         buildingSpinner = (Spinner) view.findViewById(R.id.spinner_buildings_history);
+        buildingSpinner.setClickable(false);
         floorSpinner = (Spinner) view.findViewById(R.id.spinner_floor_history);
+        floorSpinner.setClickable(false);
         locationList = new ArrayList<String>();
         for (String key : Buildings.BuildingsList.keySet()) {
             locationList.add(key);
@@ -179,6 +182,7 @@ public class HistoryFragment extends Fragment {
                     mSailsMapView.post(updateBuildingMaps);
                 }
                 Log.i(LOG_TAG, "Current building is changed to " + currentBuilding);
+
             }
 
             @Override
@@ -199,7 +203,19 @@ public class HistoryFragment extends Fragment {
         return view;
     }
 
-    void mapViewInitial(SAILS mSail) {
+    public void updateMap(String building, String floor){
+        currentBuilding = building;
+        currentFloor = floor;
+
+        Log.i(LOG_TAG,currentBuilding+" "+currentFloor);
+
+        int indexOfBuilding = locationList.indexOf(currentBuilding);
+        buildingSpinner.setSelection(indexOfBuilding);
+        int indexOfFloor = floorNumberList.indexOf(Integer.valueOf(currentFloor));
+        floorSpinner.setSelection(indexOfFloor);
+    }
+
+    public void mapViewInitial(SAILS mSail) {
         final SAILS mSails = mSail;
         // establish a connection of SAILS engine into SAILS MapView.
         mSailsMapView.setSAILSEngine(mSails);
@@ -211,7 +227,7 @@ public class HistoryFragment extends Fragment {
         mSailsMapView.setLocatorMarkerVisible(true);
 
         // load first floor map in package.
-        mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
+        mSailsMapView.loadFloorMap(Buildings.currentFloor);
 
         //设置GeoPoint
 
@@ -257,6 +273,7 @@ public class HistoryFragment extends Fragment {
         });
 
         floorList = (ArrayList) mSails.getFloorDescList();
+        floorNumberList = (ArrayList) mSails.getFloorNumberList();
         Log.i(LOG_TAG, "Floor list:" + floorList.toString() + '\n' + mSails.getFloorNumberList().toString());
         floorAdapter = new ArrayAdapter<String>(mcontext, android.R.layout.simple_spinner_item, floorList);
         floorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -316,7 +333,7 @@ public class HistoryFragment extends Fragment {
             // set location mode.
             mSails.setMode(SAILS.BLE_GFP_IMU);
             // set floor number sort rule from descending to ascending.
-            mSails.setReverseFloorList(true);
+            mSails.setReverseFloorList(false);
             // create location change call back.
             mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
                     // 57e381af08920f6b4b0004a0 meetingroom
