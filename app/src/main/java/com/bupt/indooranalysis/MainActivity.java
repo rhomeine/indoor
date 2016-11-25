@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         //init app toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
+
         setSupportActionBar(toolbar);
 
         //init app navigation
@@ -435,9 +436,11 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_history) {
             // Handle the History request
-            onHistoryItemSelected();
+            //onHistoryItemSelected();
+            Toast.makeText(MainActivity.this,"该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_data) {
-            onDataItemSelected();
+            //onDataItemSelected();
+            Toast.makeText(MainActivity.this,"该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_setting) {
             onSettingsItemSelected();
         } else if (id == R.id.nav_info) {
@@ -455,7 +458,6 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this,"未找到邮箱应用",Toast.LENGTH_SHORT).show();
                 Log.i(LOG_TAG,"ActivityNotFoundException:mailto");
             }
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
