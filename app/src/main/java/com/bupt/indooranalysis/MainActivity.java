@@ -434,12 +434,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_history) {
-            // Handle the History request
-            onHistoryItemSelected();
-        } else if (id == R.id.nav_data) {
-            onDataItemSelected();
-        } else if (id == R.id.nav_setting) {
+       if (id == R.id.nav_setting) {
             onSettingsItemSelected();
         } else if (id == R.id.nav_info) {
             onSysteminfoItemSelected();
