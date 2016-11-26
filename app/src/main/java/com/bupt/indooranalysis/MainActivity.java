@@ -606,25 +606,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // 转发message
     class HomeHandler extends Handler {
-        // private WeakReference<MainActivity> mActivity;
-
-        // public MainHandler(Activity a) {
-        // mActivity = new WeakReference<MainActivity>(a);
-        // }
         @Override
         public void handleMessage(Message msg) {
-            // Log.i("Home_activity HomeHandler", "receive msg.what " +
-            // msg.what);
-            // Log.i("Home_activity HomeHandler", "" + (msg.what & 0xf0));
             Log.i("HomeHandler", "" + (msg.what & 0x0f));
             if ((msg.what & 0xf0) == ((int) 0xf0)) {
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);
                 }
             } else if ((msg.what & 0x0f) == ((int) 0x0f)) {
-                // Log.i("Home_activity HomeHandler", "0x0f");
                 if (cbInspect != null) {
                     cbInspect.handleUpdateMessage(msg);
                 }

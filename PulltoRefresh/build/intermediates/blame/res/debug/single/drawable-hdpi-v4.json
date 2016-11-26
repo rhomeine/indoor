@@ -4,11 +4,23 @@
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\sun.png"
     },
     {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\buildings.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\buildings.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\sun.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\sun.png"
+    },
+    {
         "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\sky.png",
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\sky.png"
     },
     {
         "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\buildings.png",
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\buildings.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\sky.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-hdpi\\sky.png"
     }
 ]

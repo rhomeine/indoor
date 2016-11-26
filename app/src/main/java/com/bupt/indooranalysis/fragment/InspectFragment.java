@@ -85,45 +85,20 @@ public class InspectFragment extends Fragment implements
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private String LOG_TAG = "InspectFragment";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private Spinner spinner;
-    private ArrayList<String> locationList;
-    private ArrayAdapter<String> arrayAdapter;
-
-    private android.support.design.widget.FloatingActionButton btnClear;
-    private android.support.design.widget.FloatingActionButton btnUpload;
-    private EditText locationEditX;
-    private EditText locationEditY;
-
-
-    private boolean startScanning = false;
-    private MainActivity activity = null;
-    private Context mcontext = null;
-    private List<Map<String, Object>> listData = null;
-    private Bundle savedState;
-    private boolean isDeleting = false;
-    private boolean isUpdating = false;
-    private boolean isFABinit = false;
-
-    private android.support.design.widget.FloatingActionButton button;
-    private TextView floorNumTV;
-
-    private OnFragmentInteractionListener mListener;
-
+    public static boolean isInArea = false;
+    public static int buildingNumber = 0;
+    public static int buildingfloor = 0;
     static SAILS mSails;
     static SAILSMapView mSailsMapView;
-
+    public FloatingActionMenu floatingActionMenu;
+    public FloatingActionButton actionButton;
+    public ArrayList<SubActionButton> floorbuttons;
     EditText editText1;
     EditText editText2;
     TextView locationTextView;
     Vibrator mVibrator;
     ArrayAdapter<String> adapter;
     byte zoomSav = 0;
-
     GeoPoint geoPointCenter;
     // picture
     // GeoPoint geoPointLocationLB = new GeoPoint(39.96289053181642,
@@ -131,22 +106,40 @@ public class InspectFragment extends Fragment implements
     // GeoPoint geoPointLocationRT = new GeoPoint(39.963035980045404,
     // 116.35312079496002);
     // drawable
-    GeoPoint geoPointLocationLB = new GeoPoint(34.7482912,113.7926698);
-    GeoPoint geoPointLocationRT = new GeoPoint(34.7500686,113.7941235);
+    GeoPoint geoPointLocationLB = new GeoPoint(34.7482912, 113.7926698);
+    GeoPoint geoPointLocationRT = new GeoPoint(34.7500686, 113.7941235);
     BoundingBox boundingBox;
     MapViewPosition mapViewPositionBase;
     int tempX = 0;
     int tempY = 0;
     ListOverlay listOverlay = new ListOverlay();
-
     int flag = 0;
-
+    private String LOG_TAG = "InspectFragment";
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+    private Spinner spinner;
+    private ArrayList<String> locationList;
+    private ArrayAdapter<String> arrayAdapter;
+    private android.support.design.widget.FloatingActionButton btnClear;
+    private android.support.design.widget.FloatingActionButton btnUpload;
+    private EditText locationEditX;
+    private EditText locationEditY;
+    private boolean isScanning = false;
+    private MainActivity activity = null;
+    private Context mcontext = null;
+    private List<Map<String, Object>> listData = null;
+    private Bundle savedState;
+    private boolean isDeleting = false;
+    private boolean isUpdating = false;
+    private boolean isFABinit = false;
+    private android.support.design.widget.FloatingActionButton inspectButton;
+    private TextView floorNumTV;
+    private OnFragmentInteractionListener mListener;
     private Set<Beacon> beaconSet;
     private BluetoothAdapter bAdapter;
-
     private Timer findLostBeaconTimer;
     private Handler handler;
-
     // 重启BLE扫描计时
     private int scanCount = 0;
     private int localizationCount = 0;
@@ -167,20 +160,110 @@ public class InspectFragment extends Fragment implements
     private Intent scanServiceintent;
     //蓝牙计数flag
     private int bluecount = 0;
-
-    public FloatingActionMenu floatingActionMenu;
-    public FloatingActionButton actionButton;
-    public ArrayList<SubActionButton> floorbuttons;
     private ArrayList<String> floor = new ArrayList<>();
+    Runnable updateBuildingMaps = new Runnable() {
+        @Override
+        public void run() {
 
+            String buidingCode = Buildings.BuildingsList.get(Buildings.currentBuilding).getCode();
+            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
+                    new SAILS.OnFinishCallback() {
+                        @Override
+                        public void onSuccess(String response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        mapViewInitial();
+                                        initFloorSelectButton();
+                                        if (isFABinit) actionButton.setVisibility(View.VISIBLE);
+                                    } catch (Exception e) {
+                                        Log.e(LOG_TAG, "mapViewInitial出错:" + e.toString());
+                                    }
+                                }
+                            });
+                        }
+
+                        //没有网络链接时程序崩溃,待解决
+                        @Override
+                        public void onFailed(String response) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (isFABinit) actionButton.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(mcontext, "Load cloud project fail, " +
+                                            "please check network connection.", Toast
+                                            .LENGTH_SHORT).show();
+                                    Log.e(LOG_TAG, "mapViewInitial onFailed");
+                                    floorNumTV.setText("请检查网络连接");
+                                }
+                            });
+
+                        }
+                    });
+        }
+    };
     private AccelerometerService accelerometerService;
-
-    //
-    public static boolean isInArea = false;
-    public static int buildingNumber = 0;
-    public static int buildingfloor = 0;
-
     private int calPositionInsertTimes = 0;
+    private ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(LOG_TAG, "onServiceConnected");
+            accelerometerService = ((AccelerometerService.MyBinder) service).getService();
+            accelerometerService.setOnAccelerometerChangeListener(new AccelerometerService.OnAccelerometerChangeListener() {
+                @Override
+                public void onAccelerationChange(float delta) {
+                    //处理加速度传感器传回的加速度差值
+                    Log.i(LOG_TAG, "Delta callback");
+                }
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(LOG_TAG, "onServiceDisconnected");
+        }
+    };
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+
+        @Override
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            // Log.d("callback", device.getAddress() + "\n" + rssi);
+            // int sec = (int) ((System.currentTimeMillis() - timeZero) / 1000);
+            // Log.e("onLeScan", "第" + sec + "s ,发现" + device.getAddress() +
+            // "\n有"
+            // + beaconSet.size() + "个");
+            if (device.getAddress() != null && rssi <= 0) {
+                // if(device.getAddress().equals("98:7B:F3:72:23:C5")){
+                // System.out.println(123456789);
+                // }
+                bleNoReactCount = 0;
+                int txPower = BeaconUtil.getBeaconTxPower(scanRecord);
+                if (device.getAddress().equals("98:7B:F3:72:23:C5")) {
+                    System.out.println(123456789 + " txPower " + txPower);
+                }
+                // 针对某些没有设置txpower的蓝牙芯片，设置默认的参考发射功率
+                if (txPower > 0) {
+                    txPower = -60;
+                }
+                int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
+                if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
+                    // String newMac = device.getAddress();
+                    // DBManager dbManager = new
+                    // DBManager(IndoorLocationActivity.this);
+                    // if (dbManager.isContainLocalization(newMac)) {
+                    // Log.d("genxinshujufordistance",
+                    // "" + dis + " " + device.getAddress() + " " + rssi + " " +
+                    // "txPower:" + txPower);
+//                    Log.d("InsepctInsepct","80:30:DC:0D:F6:0F"+" "+rssi);
+                    bluecount += 1;
+                }
+                ModelService.updateBeaconForLocal(mcontext, beaconSet,
+                        new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap, ScanBlueToothTimesInPeriod);
+
+            }
+        }
+    };
 
     public InspectFragment() {
         // Required empty public constructor
@@ -211,31 +294,9 @@ public class InspectFragment extends Fragment implements
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
         Intent intent = new Intent(getActivity(), AccelerometerService.class);
         getActivity().bindService(intent, conn, Context.BIND_AUTO_CREATE);
     }
-
-    private ServiceConnection conn = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(LOG_TAG, "onServiceConnected");
-            accelerometerService = ((AccelerometerService.MyBinder) service).getService();
-            accelerometerService.setOnAccelerometerChangeListener(new AccelerometerService.OnAccelerometerChangeListener() {
-                @Override
-                public void onAccelerationChange(float delta) {
-                    //处理加速度传感器传回的加速度差值
-                    Log.i(LOG_TAG, "Delta callback");
-                }
-            });
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(LOG_TAG, "onServiceDisconnected");
-        }
-    };
 
     //初始化楼层选择按钮
     protected void initFloorSelectButton() {
@@ -275,8 +336,8 @@ public class InspectFragment extends Fragment implements
                 public void onClick(View v) {
                     Log.i(LOG_TAG, mSailsMapView.getCurrentBrowseFloorName() + "::" + mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
-                        mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(finalI));
                         Buildings.currentFloor = mSails.getFloorNameList().get(finalI);
+                        mSailsMapView.loadFloorMap(Buildings.currentFloor);
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
@@ -329,8 +390,8 @@ public class InspectFragment extends Fragment implements
 
         //初始化大楼选择控件
         spinner = (Spinner) view.findViewById(R.id.spinner1);
-        button = (android.support.design.widget.FloatingActionButton) view.findViewById(R.id.fab_inspect);
-        button.setVisibility(Button.VISIBLE);
+        inspectButton = (android.support.design.widget.FloatingActionButton) view.findViewById(R.id.fab_inspect);
+        inspectButton.setVisibility(Button.VISIBLE);
         floorNumTV = (TextView) view.findViewById(R.id.floorNum);
         locationList = new ArrayList<String>();
         for (String key : Buildings.BuildingsList.keySet()) {
@@ -343,10 +404,10 @@ public class InspectFragment extends Fragment implements
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Buildings.currentBuilding = spinner.getSelectedItem().toString();
-                if(isFABinit) actionButton.setVisibility(View.INVISIBLE);
+                if (isFABinit) actionButton.setVisibility(View.INVISIBLE);
                 mSailsMapView.post(updateBuildingMaps);
-                if(mSailsMapView!=null)
-                Log.i(LOG_TAG, "Current building is changed to " + Buildings.currentBuilding+" "+mSailsMapView.getCurrentBrowseFloorName());
+                if (mSailsMapView != null)
+                    Log.i(LOG_TAG, "Current building is changed to " + Buildings.currentBuilding + " " + mSailsMapView.getCurrentBrowseFloorName());
             }
 
             @Override
@@ -358,7 +419,7 @@ public class InspectFragment extends Fragment implements
         LocalizationTimer = new Timer();
         initComponent();
 
-        button.setOnClickListener(new View.OnClickListener() {
+        inspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -367,8 +428,7 @@ public class InspectFragment extends Fragment implements
                         if (!MessageUtil.checkLogin(mcontext)) {
                             return;
                         }
-//                        button.setText("!");
-                        button.setImageResource(R.drawable.ic_inspect_grey);
+                        inspectButton.setImageResource(R.drawable.ic_inspect_grey);
                         isCalposition = 1;
 
                         if (!isUpdatedOver) {
@@ -377,8 +437,8 @@ public class InspectFragment extends Fragment implements
                         } else {
                             isCalposition = 2;
                             setTimerTasks();
-                            if (startScanning == false) {
-                                startScanning = true;
+                            if (isScanning == false) {
+                                isScanning = true;
                                 isInArea = false;
                                 ((FragmentServiceCallback) activity).startOrStopActivityService(
                                         scanServiceintent, true);
@@ -392,11 +452,10 @@ public class InspectFragment extends Fragment implements
                         buildingfloor = 0;
                         LocalizationTimer.cancel();
                         LocalizationTimer = new Timer();
-//                        button.setText(">");
-                        button.setImageResource(R.drawable.ic_inspect_user);
+                        inspectButton.setImageResource(R.drawable.ic_inspect_user);
                         isCalposition = 0;
-                        if (startScanning) {
-                            startScanning = false;
+                        if (isScanning) {
+                            isScanning = false;
                             ((FragmentServiceCallback) activity).startOrStopActivityService(
                                     scanServiceintent, false);
                             Toast.makeText(mcontext, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
@@ -411,8 +470,6 @@ public class InspectFragment extends Fragment implements
         });
 
         handler = new MAHandler();
-
-
         editText1 = (EditText) view.findViewById(R.id.editText1);
         editText2 = (EditText) view.findViewById(R.id.editText2);
         editText1.setVisibility(View.GONE);
@@ -440,55 +497,11 @@ public class InspectFragment extends Fragment implements
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(dp2px(50), dp2px(50));
 
-    //    mSailsMapView.post(updateBuildingMaps);
+        //    mSailsMapView.post(updateBuildingMaps);
         Log.i(LOG_TAG, "onCreateView");
 
         return view;
     }
-
-    Runnable updateBuildingMaps = new Runnable() {
-        @Override
-        public void run() {
-            // please change token and building id to your own building
-            // project in cloud.
-            String buidingCode = Buildings.BuildingsList.get(Buildings.currentBuilding).getCode();
-            mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
-                    // 57e381af08920f6b4b0004a0 meetingroom
-                    //"57eb81cf08920f6b4b00053a" keyanlou
-                    new SAILS.OnFinishCallback() {
-                        @Override
-                        public void onSuccess(String response) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        mapViewInitial();
-                                        initFloorSelectButton();
-                                        if(isFABinit) actionButton.setVisibility(View.VISIBLE);
-                                    } catch (IndexOutOfBoundsException e) {
-                                        Log.e(LOG_TAG, "mapViewInitial出错:" + e.toString());
-                                    }
-                                }
-                            });
-                        }
-
-                        //没有网络链接时程序崩溃,待解决
-                        @Override
-                        public void onFailed(String response) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if(isFABinit) actionButton.setVisibility(View.INVISIBLE);
-                                }
-                            });
-//                            Toast t = Toast.makeText(mcontext,
-//                                    "Load cloud project fail, please check network connection.",
-//                                    Toast.LENGTH_SHORT);
-//                            t.show();
-                        }
-                    });
-        }
-    };
 
     void mapViewInitial() {
 
@@ -510,10 +523,10 @@ public class InspectFragment extends Fragment implements
 
         //设置GeoPoint
 
-        geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
-        geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(0));
+        geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(0));
+        geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(0));
         Buildings.currentFloor = mSails.getFloorNameList().get(0);
-        Log.i(LOG_TAG,"mapViewInitial: current floor "+Buildings.currentFloor);
+        Log.i(LOG_TAG, "mapViewInitial: current floor " + Buildings.currentFloor);
         // Auto Adjust suitable map zoom level and position to best view
         // position.
         mSailsMapView.autoSetMapZoomAndView();
@@ -549,8 +562,8 @@ public class InspectFragment extends Fragment implements
                 //设置GeoPoint
 
 
-                geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(position));
-                geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding,mSails.getFloorDescList().get(position));
+                geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(position));
+                geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(position));
                 //  floorList.setSelection(position);
                 floorNumTV.setText(mSails.getFloorDescList().get(position));
             }
@@ -560,7 +573,6 @@ public class InspectFragment extends Fragment implements
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
     }
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -607,7 +619,6 @@ public class InspectFragment extends Fragment implements
             } else {
                 Toast.makeText(activity, "上传失败", Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(activity, "上传报告", Toast.LENGTH_SHORT).show();
             btnUpload.setClickable(true);
 
         } else if (msg.what == Constants.MSG.SHOW_BEACON) {
@@ -625,18 +636,14 @@ public class InspectFragment extends Fragment implements
                     + msg.what);
             Bundle b = msg.getData();
             boolean status = b.getBoolean("status");
-//            if (status) {
-//                Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
-//            }
+
             if (b.getBoolean("statusForLoacalization")) {
                 setTimerTasks();
                 isCalposition = 2;
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
                 isUpdatedOver = true;
-                if (startScanning == false) {
-                    startScanning = true;
+                if (isScanning == false) {
+                    isScanning = true;
                     isInArea = false;
                     ((FragmentServiceCallback) activity).startOrStopActivityService(
                             scanServiceintent, true);
@@ -644,7 +651,7 @@ public class InspectFragment extends Fragment implements
 //                startActivity(new Intent(mcontext, IndoorLocationActivity.class));
             } else {
                 Toast.makeText(activity, "更新失败", Toast.LENGTH_SHORT).show();
-                button.setImageResource(R.drawable.ic_inspect_user);
+                inspectButton.setImageResource(R.drawable.ic_inspect_user);
                 isCalposition = 0;
 
             }
@@ -653,96 +660,9 @@ public class InspectFragment extends Fragment implements
 
     }
 
-    class ClearListener implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
-            if (isDeleting)
-                return;
-            new AlertDialog.Builder(activity).setTitle("删除确认")
-                    .setMessage("确定清空所有巡检记录吗？")
-                    .setPositiveButton("是", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            isDeleting = true;
-                            Toast.makeText(activity, "正在清除", Toast.LENGTH_SHORT).show();
-                            Log.i("fragmentInspect202", "delete");
-                            DBManager dbManager = new DBManager(mcontext);
-                            // dbManager.deleteAllBeaconInfo();
-                            dbManager.deleteAllIndoorRecord();
-                            dbManager.deleteAllIndoorSignalRecord();
-                            dbManager.deleteAllNeighborList();
-                            dbManager.deleteAllSpeedList();
-                            dbManager.deleteInspection();
-                            dbManager.deleteAllBeaconInfo();
-                            dbManager.deleteAllBeaconDebug();
-                            dbManager.deleteAllTrainData();
-                            dbManager.deleteAllCalposition();
-                            Toast.makeText(activity, "清除数据", Toast.LENGTH_SHORT).show();
-                            isDeleting = false;
-                            Toast.makeText(activity, "数据清除完成", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }).setNegativeButton("否", null).show();
-        }
-    }
-
-    class UploadListener implements View.OnClickListener {
-        @Override
-        public void onClick(View arg0) {
-            if (startScanning == true) {
-                Toast.makeText(mcontext, "请先结束巡检", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!MessageUtil.checkLogin(mcontext)) {
-                return;
-            }
-            Toast.makeText(activity, "正在上传数据", Toast.LENGTH_SHORT).show();
-            btnUpload.setClickable(false);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("upload", "开始上传报告");
-                    boolean status = ModelService.uploadSignalRecord(mcontext);
-                    boolean neighbor = ModelService.uploadNeighbor(mcontext);
-                    boolean inspection = ModelService.uploadInspection(mcontext);
-//                    //calPositionInsertTimes
-//                    boolean isUploadCal = ModelService.uploadCalPosition(mcontext);
-//                    //
-                    Message msg = new Message();
-                    msg.what = Constants.MSG.UPLOAD;
-                    Bundle b = new Bundle();
-                    Log.d("Inspect", status + " " + neighbor + " " + inspection );
-                    b.putBoolean("status", status && neighbor && inspection );
-                    msg.setData(b);
-                    msg.what = Constants.MSG.UPLOAD;
-                    Log.d("上传测试", "" + status);
-                    activity.handler.sendMessage(msg);
-                }
-            }).start();
-
-        }
-    }
-
-
     private int dp2px(int value) {
         float v = getContext().getResources().getDisplayMetrics().density;
         return (int) (v * value + 0.5f);
-    }
-
-
-    // 显示当前定位信息
-    private class MAHandler extends Handler {
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == 0x01) {
-                Bundle b = msg.getData();
-                locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
-                if (!(b.getInt("list4x") == 0 && b.getInt("list4y") == 0))
-                    drawPosition(b.getInt("list4x"), b.getInt("list4y"));
-            }
-        }
     }
 
     public void drawPosition(int x, int y) {
@@ -769,7 +689,6 @@ public class InspectFragment extends Fragment implements
             return;
         isUpdating = true;
         Toast.makeText(mcontext, "正在更新", Toast.LENGTH_SHORT);
-//        changeListItemName(1, "正在更新...");
 
         new Thread(new Runnable() {
             @Override
@@ -778,7 +697,6 @@ public class InspectFragment extends Fragment implements
                 boolean status = ModelService.updateDb(activity, sim);
                 //新增定位模块更新
                 boolean statusForLoacalization = ModelService.updateLocalization(activity);
-                //
 
                 Message msg = new Message();
                 msg.what = Constants.MSG.UPDATE;
@@ -790,6 +708,36 @@ public class InspectFragment extends Fragment implements
                 activity.handler.sendMessage(msg);
             }
         }).start();
+    }
+
+    // ///////////////////////////////
+    // 取出状态数据
+    // ///////////////////////////////
+    private void restoreState() {
+        if (savedState != null) {
+            // 比如
+            isScanning = savedState.getBoolean("startScanning");
+            Log.i("Infragment295", "" + isScanning);
+            //设置开始巡检状态设置
+//            if (startScanning) {
+//
+//                btnStart.setText(R.string.btnStarting);
+//                btnimage.setImageResource(images[0]);
+//            } else {
+//                btnStart.setText(R.string.btnStartContent);
+//                btnimage.setImageResource(images[1]);
+//            }
+        }
+    }
+
+    // ////////////////////////////
+    // 保存状态数据
+    // ////////////////////////////
+    private Bundle saveState() {
+        Bundle state = new Bundle();
+        // 比如
+        state.putBoolean("startScanning", isScanning);
+        return state;
     }
 //    private class StartListener implements View.OnClickListener {
 //        @Override
@@ -858,37 +806,6 @@ public class InspectFragment extends Fragment implements
 //        return false;
 //    }
 
-    // ///////////////////////////////
-    // 取出状态数据
-    // ///////////////////////////////
-    private void restoreState() {
-        if (savedState != null) {
-            // 比如
-            startScanning = savedState.getBoolean("startScanning");
-            Log.i("Infragment295", "" + startScanning);
-            //设置开始巡检状态设置
-//            if (startScanning) {
-//
-//                btnStart.setText(R.string.btnStarting);
-//                btnimage.setImageResource(images[0]);
-//            } else {
-//                btnStart.setText(R.string.btnStartContent);
-//                btnimage.setImageResource(images[1]);
-//            }
-        }
-    }
-
-    // ////////////////////////////
-    // 保存状态数据
-    // ////////////////////////////
-    private Bundle saveState() {
-        Bundle state = new Bundle();
-        // 比如
-        state.putBoolean("startScanning", startScanning);
-        return state;
-    }
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -915,14 +832,13 @@ public class InspectFragment extends Fragment implements
             LocalizationTimer.cancel();
         if (GetBluetoothDeviceTimer != null)
             GetBluetoothDeviceTimer.cancel();
-        if (startScanning) {
-            startScanning = false;
+        if (isScanning) {
+            isScanning = false;
             ((FragmentServiceCallback) activity).startOrStopActivityService(
                     scanServiceintent, false);
         }
         super.onDestroy();
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -940,83 +856,6 @@ public class InspectFragment extends Fragment implements
         super.onDetach();
         mListener = null;
     }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-    //为list展示提供参考
-//    public class BeaconSimpleAdapter extends SimpleAdapter {
-//        private LayoutInflater mInflater;
-//        private final float titleFontSize;
-//        private final float screenWidth; // 屏幕宽
-//        private final float screenHeight; // 屏幕高
-//
-//        public BeaconSimpleAdapter(Context context,
-//                                   List<? extends Map<String, ?>> data, int resource,
-//                                   String[] from, int[] to) {
-//            super(context, data, resource, from, to);
-//
-//            // 获取屏幕的长和宽
-//            DisplayMetrics dm = new DisplayMetrics();
-//            dm = context.getResources().getDisplayMetrics();
-//            screenWidth = dm.widthPixels;
-//            screenHeight = dm.heightPixels;
-//            // 设置标题字体大小
-//            titleFontSize = adjustTextSize();
-//            mInflater = (LayoutInflater) context
-//                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//            if (position == 0) {
-//                // if (convertView == null) {
-//                convertView = mInflater.inflate(R.layout.beacon_list_title,
-//                        null);
-//                // }
-    //            } else {
-//                // if (convertView == null) {
-//                convertView = mInflater
-//                        .inflate(R.layout.beacon_list_item, null);
-//                // }
-//                ImageView im = (ImageView) convertView
-//                        .findViewById(R.id.beacon_list_view);
-//                TextView tv_content = (TextView) convertView
-//                        .findViewById(R.id.beacon_list_tv);
-//                // if (position == 0) {
-//                // // tv_content.setTextSize(20); // 设置字体大小，
-//                // // convertView.setBackgroundColor(Color.WHITE);
-//                // // tv_content.setTextColor(Color.BLACK);
-//                // } else {
-//                // // tv_content.setTextSize(10); // 设置字体大小，
-//                // //
-//                // convertView.setBackgroundColor(Color.parseColor("#EAEAEA"));
-//                // // tv_content.setTextColor(Color.BLACK);
-//                // }
-//            }
-//
-//            return super.getView(position, convertView, parent);
-//        }
-//
-//        float adjustTextSize() {
-//            float textsize = 12;
-//            // 在这实现你自己的字体大小算法，可根据之前计算的屏幕的高和宽来按比例显示
-//            textsize = screenWidth / 320 * 12;
-//
-//            return textsize;
-//        }
-//    }
 
     private void initComponent() {
         beaconSet = new HashSet<Beacon>();
@@ -1105,47 +944,6 @@ public class InspectFragment extends Fragment implements
         bAdapter.startLeScan(mLeScanCallback);
     }
 
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-            // Log.d("callback", device.getAddress() + "\n" + rssi);
-            // int sec = (int) ((System.currentTimeMillis() - timeZero) / 1000);
-            // Log.e("onLeScan", "第" + sec + "s ,发现" + device.getAddress() +
-            // "\n有"
-            // + beaconSet.size() + "个");
-            if (device.getAddress() != null && rssi <= 0) {
-                // if(device.getAddress().equals("98:7B:F3:72:23:C5")){
-                // System.out.println(123456789);
-                // }
-                bleNoReactCount = 0;
-                int txPower = BeaconUtil.getBeaconTxPower(scanRecord);
-                if (device.getAddress().equals("98:7B:F3:72:23:C5")) {
-                    System.out.println(123456789 + " txPower " + txPower);
-                }
-                // 针对某些没有设置txpower的蓝牙芯片，设置默认的参考发射功率
-                if (txPower > 0) {
-                    txPower = -60;
-                }
-                int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
-                if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
-                    // String newMac = device.getAddress();
-                    // DBManager dbManager = new
-                    // DBManager(IndoorLocationActivity.this);
-                    // if (dbManager.isContainLocalization(newMac)) {
-                    // Log.d("genxinshujufordistance",
-                    // "" + dis + " " + device.getAddress() + " " + rssi + " " +
-                    // "txPower:" + txPower);
-//                    Log.d("InsepctInsepct","80:30:DC:0D:F6:0F"+" "+rssi);
-                    bluecount += 1;
-                }
-                ModelService.updateBeaconForLocal(mcontext, beaconSet,
-                        new Beacon(device.getAddress(), rssi, txPower, dis), beaconMap, ScanBlueToothTimesInPeriod);
-
-            }
-        }
-    };
-
     private void setTimerTasks() {
         LocalizationTimer.schedule(new TimerTask() {
 
@@ -1166,7 +964,7 @@ public class InspectFragment extends Fragment implements
                                 b.getX(), b.getY(), b.getDislist()));
                         newbeaconMap3.add(new Beacon(b.getMac(), b.getRssi(), b.getTxPower(), b.getDistance(),
                                 b.getX(), b.getY(), b.getDislist()));
-                        Log.d("InsepctInsepct",b.getMac()+" "+b.getDislist().size());
+                        Log.d("InsepctInsepct", b.getMac() + " " + b.getDislist().size());
                         if (buildingNumber == 0) {
                             buildingNumber = ModelService.updateBuilding(mcontext, b.getMac(), buildingNumber);
                             Log.d("buildingNumber", buildingNumber + "");
@@ -1254,5 +1052,161 @@ public class InspectFragment extends Fragment implements
 
             }
         }, 3000, 5000);
+    }
+    //为list展示提供参考
+//    public class BeaconSimpleAdapter extends SimpleAdapter {
+//        private LayoutInflater mInflater;
+//        private final float titleFontSize;
+//        private final float screenWidth; // 屏幕宽
+//        private final float screenHeight; // 屏幕高
+//
+//        public BeaconSimpleAdapter(Context context,
+//                                   List<? extends Map<String, ?>> data, int resource,
+//                                   String[] from, int[] to) {
+//            super(context, data, resource, from, to);
+//
+//            // 获取屏幕的长和宽
+//            DisplayMetrics dm = new DisplayMetrics();
+//            dm = context.getResources().getDisplayMetrics();
+//            screenWidth = dm.widthPixels;
+//            screenHeight = dm.heightPixels;
+//            // 设置标题字体大小
+//            titleFontSize = adjustTextSize();
+//            mInflater = (LayoutInflater) context
+//                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        }
+//
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//            if (position == 0) {
+//                // if (convertView == null) {
+//                convertView = mInflater.inflate(R.layout.beacon_list_title,
+//                        null);
+//                // }
+    //            } else {
+//                // if (convertView == null) {
+//                convertView = mInflater
+//                        .inflate(R.layout.beacon_list_item, null);
+//                // }
+//                ImageView im = (ImageView) convertView
+//                        .findViewById(R.id.beacon_list_view);
+//                TextView tv_content = (TextView) convertView
+//                        .findViewById(R.id.beacon_list_tv);
+//                // if (position == 0) {
+//                // // tv_content.setTextSize(20); // 设置字体大小，
+//                // // convertView.setBackgroundColor(Color.WHITE);
+//                // // tv_content.setTextColor(Color.BLACK);
+//                // } else {
+//                // // tv_content.setTextSize(10); // 设置字体大小，
+//                // //
+//                // convertView.setBackgroundColor(Color.parseColor("#EAEAEA"));
+//                // // tv_content.setTextColor(Color.BLACK);
+//                // }
+//            }
+//
+//            return super.getView(position, convertView, parent);
+//        }
+//
+//        float adjustTextSize() {
+//            float textsize = 12;
+//            // 在这实现你自己的字体大小算法，可根据之前计算的屏幕的高和宽来按比例显示
+//            textsize = screenWidth / 320 * 12;
+//
+//            return textsize;
+//        }
+//    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p/>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+
+    class ClearListener implements View.OnClickListener {
+        @Override
+        public void onClick(View arg0) {
+            if (isDeleting)
+                return;
+            new AlertDialog.Builder(activity).setTitle("删除确认")
+                    .setMessage("确定清空所有巡检记录吗？")
+                    .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            isDeleting = true;
+                            Toast.makeText(activity, "正在清除", Toast.LENGTH_SHORT).show();
+                            Log.i("fragmentInspect202", "delete");
+                            DBManager dbManager = new DBManager(mcontext);
+                            // dbManager.deleteAllBeaconInfo();
+                            dbManager.deleteAllIndoorRecord();
+                            dbManager.deleteAllIndoorSignalRecord();
+                            dbManager.deleteAllNeighborList();
+                            dbManager.deleteAllSpeedList();
+                            dbManager.deleteInspection();
+                            dbManager.deleteAllBeaconInfo();
+                            dbManager.deleteAllBeaconDebug();
+                            dbManager.deleteAllTrainData();
+                            dbManager.deleteAllCalposition();
+                            isDeleting = false;
+                            Toast.makeText(activity, "数据清除完成", Toast.LENGTH_SHORT).show();
+                        }
+                    }).setNegativeButton("否", null).show();
+        }
+    }
+
+    class UploadListener implements View.OnClickListener {
+        @Override
+        public void onClick(View arg0) {
+            if (isScanning == true) {
+                Toast.makeText(mcontext, "请先结束巡检", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!MessageUtil.checkLogin(mcontext)) {
+                return;
+            }
+            Toast.makeText(activity, "正在上传数据", Toast.LENGTH_SHORT).show();
+            btnUpload.setClickable(false);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean status = ModelService.uploadSignalRecord(mcontext);
+                    boolean neighbor = ModelService.uploadNeighbor(mcontext);
+                    boolean inspection = ModelService.uploadInspection(mcontext);
+                    Message msg = new Message();
+                    msg.what = Constants.MSG.UPLOAD;
+                    Bundle b = new Bundle();
+                    Log.d(LOG_TAG, status + " " + neighbor + " " + inspection);
+                    b.putBoolean("status", status && neighbor && inspection);
+                    msg.setData(b);
+                    msg.what = Constants.MSG.UPLOAD;
+                    Log.d(LOG_TAG, "上传测试" + status);
+                    activity.handler.sendMessage(msg);
+                }
+            }).start();
+
+        }
+    }
+
+    // 显示当前定位信息
+    private class MAHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0x01) {
+                Bundle b = msg.getData();
+                locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
+                if (!(b.getInt("list4x") == 0 && b.getInt("list4y") == 0))
+                    drawPosition(b.getInt("list4x"), b.getInt("list4y"));
+            }
+        }
     }
 }

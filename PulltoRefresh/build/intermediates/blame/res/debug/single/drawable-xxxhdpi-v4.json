@@ -4,6 +4,18 @@
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxxhdpi\\buildings.png"
     },
     {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxxhdpi-v4\\buildings.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxxhdpi\\buildings.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxxhdpi-v4\\sky.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxxhdpi\\sky.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxxhdpi-v4\\sun.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxxhdpi\\sun.png"
+    },
+    {
         "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxxhdpi-v4\\sun.png",
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxxhdpi\\sun.png"
     },

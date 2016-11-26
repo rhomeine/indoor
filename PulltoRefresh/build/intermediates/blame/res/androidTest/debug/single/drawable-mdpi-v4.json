@@ -8,7 +8,19 @@
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\sun.png"
     },
     {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\sky.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\sky.png"
+    },
+    {
         "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\sky.png",
         "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\sky.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\buildings.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\buildings.png"
+    },
+    {
+        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\sun.png",
+        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\sun.png"
     }
 ]
