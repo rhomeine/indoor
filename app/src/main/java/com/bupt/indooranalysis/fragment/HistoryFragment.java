@@ -227,7 +227,7 @@ public class HistoryFragment extends Fragment {
         mSailsMapView.setLocatorMarkerVisible(true);
 
         // load first floor map in package.
-        mSailsMapView.loadFloorMap(Buildings.currentFloor);
+        mSailsMapView.loadFloorMap(mSails.getFloorNameList().get(0));
 
         //设置GeoPoint
 
@@ -333,7 +333,7 @@ public class HistoryFragment extends Fragment {
             // set location mode.
             mSails.setMode(SAILS.BLE_GFP_IMU);
             // set floor number sort rule from descending to ascending.
-            mSails.setReverseFloorList(false);
+            mSails.setReverseFloorList(true);
             // create location change call back.
             mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
                     // 57e381af08920f6b4b0004a0 meetingroom

@@ -161,9 +161,9 @@ public class DataFragment extends Fragment {
                             Message msg = new Message();
                             msg.what = 0x01;
                             datahandler.sendMessage(msg);
-                            for(int i=0;i<listForHeatMap.size();i++){
+                           /* for(int i=0;i<listForHeatMap.size();i++){
                                 Log.d("zhouxiangLog1",listForHeatMap.get(i).toString());
-                            }
+                            }*/
                         } else {
                             Message msg = new Message();
                             msg.what = 0x02;

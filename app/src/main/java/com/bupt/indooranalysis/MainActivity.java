@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         InspectFragment.OnFragmentInteractionListener,
         HistoryFragment.OnFragmentInteractionListener,
         DataFragment.OnFragmentInteractionListener,
-        FragmentServiceCallback, View.OnClickListener{
+        FragmentServiceCallback, View.OnClickListener {
 
     private MyViewPager mPager;
     private ArrayList<Fragment> mFragmentList = new ArrayList<Fragment>();
@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity
     private ImageView userProfile;
     private TextView userCity, userProvince, userCompany, userName;
 
-    private InspectFragment inspectFragment;
-    private HistoryFragment historyFragment;
+    private InspectFragment inspectFragment=null;
+    private HistoryFragment historyFragment=null;
     private DataFragment dataFragment;
     private int currentIndex;
     private HomeActivityReceiver receiver;
@@ -113,13 +113,13 @@ public class MainActivity extends AppCompatActivity
         if (permission) {
             Toast.makeText(MainActivity.this, "有权限",
                     Toast.LENGTH_SHORT).show();
-        }else {
+        } else {
             Toast.makeText(MainActivity.this, "没有权限",
                     Toast.LENGTH_SHORT).show();
         }
     }
 
-    protected void initComponent(){
+    protected void initComponent() {
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         //init tab
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         inspectFragment = new InspectFragment();
-        cbInspect = (InspectUpdateCallback)inspectFragment;
+        cbInspect = (InspectUpdateCallback) inspectFragment;
         historyFragment = new HistoryFragment();
         dataFragment = new DataFragment();
 
@@ -183,12 +183,12 @@ public class MainActivity extends AppCompatActivity
             public void onPageSelected(int position) {
 
 
-                if(inspectFragment == null){
+                if (inspectFragment == null) {
                     //todo
-                }else {
-                    if(position!=0){
+                } else {
+                    if (position != 0) {
                         inspectFragment.setFloorSelectButtonVisible(false);
-                    }else inspectFragment.setFloorSelectButtonVisible(true);
+                    } else inspectFragment.setFloorSelectButtonVisible(true);
                 }
 
                 mTabInspect.setTextColor(Color.GRAY);
@@ -234,10 +234,10 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerOpened(View drawerView) {
-                Log.i(LOG_TAG,"onDrawerOpened");
+                Log.i(LOG_TAG, "onDrawerOpened");
                 initUserProfile();
-                if(inspectFragment!=null){
-                    if((inspectFragment.floatingActionMenu!=null)&&(inspectFragment.actionButton!=null)){
+                if (inspectFragment != null) {
+                    if ((inspectFragment.floatingActionMenu != null) && (inspectFragment.actionButton != null)) {
                         inspectFragment.setFloorSelectButtonVisible(false);
                     }
                 }
@@ -246,9 +246,9 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onDrawerClosed(View drawerView) {
-                Log.i(LOG_TAG,"onDrawerClosed");
-                if((inspectFragment!=null)&&(mPager!=null)){
-                    if(mPager.getCurrentItem() == 0) {
+                Log.i(LOG_TAG, "onDrawerClosed");
+                if ((inspectFragment != null) && (mPager != null)) {
+                    if (mPager.getCurrentItem() == 0) {
                         if ((inspectFragment.floatingActionMenu != null) && (inspectFragment.actionButton != null)) {
                             inspectFragment.setFloorSelectButtonVisible(true);
                         }
@@ -312,29 +312,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id){
+        switch (id) {
             case R.id.txt_tab_inspect:
                 mPager.setCurrentItem(0);
                 break;
             case R.id.txt_tab_history:
-                new Thread(new Runnable() {
+               /* new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        historyFragment.updateMap(Buildings.currentBuilding,Buildings.currentFloor);
+                        historyFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
                     }
-                }).run();
+                }).run();*/
                 mPager.setCurrentItem(1);
                 break;
             case R.id.txt_tab_data:
-                new Thread(new Runnable() {
+               /* new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        dataFragment.updateMap(Buildings.currentBuilding,Buildings.currentFloor);
+                        dataFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
                     }
-                }).run();
+                }).run();*/
                 mPager.setCurrentItem(2);
                 break;
-            default:break;
+            default:
+                break;
         }
     }
 
@@ -369,7 +370,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivityForResult(intent,REQUEST_CODE,null);
+                    startActivityForResult(intent, REQUEST_CODE, null);
                 } else {
                     startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
                 }
@@ -378,7 +379,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void initUserProfile(){
+    public void initUserProfile() {
         if (Global.loginStatus == Global.LoginStatus.NOT_LOGINED) {
             userProfile.setImageResource(R.mipmap.ic_launcher);
             userName.setText("请登录");
@@ -398,7 +399,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE){
+        if (requestCode == REQUEST_CODE) {
             initUserCenter();
         }
         if (requestCode == REQUEST_CODE_PERMISSION && resultCode == PermissionsActivity.PERMISSIONS_DENIED) {
@@ -450,10 +451,10 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_history) {
             // Handle the History request
             //onHistoryItemSelected();
-            Toast.makeText(MainActivity.this,"该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_data) {
             //onDataItemSelected();
-            Toast.makeText(MainActivity.this,"该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "该功能尚未开发!敬请期待!", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_setting) {
             onSettingsItemSelected();
         } else if (id == R.id.nav_info) {
@@ -461,15 +462,15 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-            try{
+            try {
                 Intent mail = new Intent(Intent.ACTION_SENDTO);
                 mail.setData(Uri.parse("mailto:luomingtibo@gmail.com"));
-                mail.putExtra(Intent.EXTRA_SUBJECT,"智能室分系统意见反馈");
-                mail.putExtra(Intent.EXTRA_TEXT,"写下您的意见...\n");
+                mail.putExtra(Intent.EXTRA_SUBJECT, "智能室分系统意见反馈");
+                mail.putExtra(Intent.EXTRA_TEXT, "写下您的意见...\n");
                 startActivity(mail);
-            }catch (ActivityNotFoundException e){
-                Toast.makeText(this,"未找到邮箱应用",Toast.LENGTH_SHORT).show();
-                Log.i(LOG_TAG,"ActivityNotFoundException:mailto");
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, "未找到邮箱应用", Toast.LENGTH_SHORT).show();
+                Log.i(LOG_TAG, "ActivityNotFoundException:mailto");
             }
         }
 
@@ -674,5 +675,13 @@ public class MainActivity extends AppCompatActivity
 
     private void startPermissionsActivity() {
         PermissionsActivity.startActivityForResult(this, REQUEST_CODE_PERMISSION, PermissionsChecker.PERMISSIONS);
+    }
+
+    public void updateBulidingAndFloor() {
+       if(historyFragment!=null)
+                historyFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
+        if(dataFragment!=null)
+                dataFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
+
     }
 }
