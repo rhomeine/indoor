@@ -10,6 +10,8 @@
             android:id="@+id/linear_layout"
             android:weightSum="3">
                 <Spinner
+                    android:textAlignment="center"
+                    android:background="@null"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/spinner_buildings_history"
@@ -17,6 +19,8 @@
                     android:spinnerMode="dialog"
                     android:layout_centerHorizontal="true"></Spinner>
                 <Spinner
+                    android:textAlignment="center"
+                    android:background="@null"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/spinner_floor_history"
