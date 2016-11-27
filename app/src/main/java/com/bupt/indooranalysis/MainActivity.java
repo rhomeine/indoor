@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this, "有权限",
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(MainActivity.this, "没有权限",
+            Toast.makeText(MainActivity.this, "请检查APP权限",
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -169,7 +169,6 @@ public class MainActivity extends AppCompatActivity
         //    mTabInspect.setBackground(null);
         mTabHistory.setBackground(null);
         mTabData.setBackground(null);
-        Log.i("Init Component", "add Fragment");
 
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

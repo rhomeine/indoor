@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +72,7 @@ public class DataFragment extends Fragment {
     Spinner floorSpinner;
     Spinner networkSpinner;
     Spinner dataTypeSpinner;
+    ImageView legend;
 
     ArrayAdapter<String> buildingAdapter;
     ArrayAdapter<String> floorAdapter;
@@ -141,6 +143,7 @@ public class DataFragment extends Fragment {
 //        locationEditX.setVisibility(View.GONE);
 //        locationEditY.setVisibility(View.GONE);
         heatMapButton = (Button) view.findViewById(R.id.btn_ok);
+        legend = (ImageView) view.findViewById(R.id.img_legend);
 //        heatMapButton.setText("网格热力图");
 //        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
 //        heatMapButtonForPoint.setText("点状热力图");
@@ -148,7 +151,7 @@ public class DataFragment extends Fragment {
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                heatMapButton.setText("正在下载热力图数据");
+                Toast.makeText(mcontext,"正在下载热力图数据",Toast.LENGTH_SHORT).show();
                 heatMapButton.setClickable(false);
                 new Thread(new Runnable() {
                     @Override
@@ -175,34 +178,6 @@ public class DataFragment extends Fragment {
                 }).start();
             }
         });
-
-//        heatMapButtonForPoint.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                heatMapButtonForPoint.setText("正在下载热力图数据");
-//                heatMapButtonForPoint.setClickable(false);
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        String buildingName = Buildings.buildingName.get(currentBuilding) + "";
-//                        String Floor = Integer.valueOf(currentFloor) + "";
-//                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
-//                        if (listForHeatMap.size() != 0) {
-//                            Message msg = new Message();
-//                            msg.what = 0x03;
-//                            datahandler.sendMessage(msg);
-//                        } else {
-//                            Message msg = new Message();
-//                            msg.what = 0x04;
-//                            datahandler.sendMessage(msg);
-//
-//                        }
-//
-//                    }
-//                }).start();
-//                heatMap();
-//            }
-//        });
 
         initSpinners(view);
 
@@ -282,6 +257,7 @@ public class DataFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currentNetwork = networkSpinner.getSelectedItem().toString();
+                updateNetworkLegend(currentNetwork);
             }
 
             @Override
@@ -312,6 +288,23 @@ public class DataFragment extends Fragment {
         });
         currentDataType = dataTypeSpinner.getSelectedItem().toString();
 
+    }
+
+    private void updateNetworkLegend(String net){
+        switch (net){
+            case "2G":
+                legend.setImageResource(R.drawable.ic_2g);
+                break;
+            case "3G":
+                legend.setImageResource(R.drawable.ic_3g);
+                break;
+            case "4G":
+                legend.setImageResource(R.drawable.ic_4g);
+                break;
+            default:
+                legend.setImageResource(R.drawable.ic_2g);
+                break;
+        }
     }
 
 
@@ -778,10 +771,9 @@ public class DataFragment extends Fragment {
         public void handleMessage(Message msg) {
             if (msg.what == 0x01) {
                 heatMapForGrid(listForHeatMap);
-                heatMapButton.setText("网格热力图");
                 heatMapButton.setClickable(true);
             } else if (msg.what == 0x02) {
-                heatMapButton.setText("未成功，请再试");
+                Toast.makeText(mcontext,"未成功，请重试",Toast.LENGTH_SHORT).show();
                 heatMapButton.setClickable(true);
             } else if (msg.what == 0x03) {
                 heatMap(listForHeatMap);

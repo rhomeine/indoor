@@ -80,8 +80,9 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="QuKZL6hSb0cO69GkHSEOqmjrijWSoc3V" />
-        <!-- key:开发者申请的key -->
+            android:value="udN9CfRBVexDxIir9WfkIseKDlp5sCFt" />
+<!--LUO MING'S KEY udN9CfRBVexDxIir9WfkIseKDlp5sCFt-->
+
         <service
             android:name=".AccelerometerService"
             android:enabled="true"
