@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.os.Handler;
 
@@ -93,6 +95,9 @@ public class HistoryFragment extends Fragment {
         // Required empty public constructor
     }
 
+    //更新UI的Timer
+    private Timer updateProgressBar;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -130,6 +135,9 @@ public class HistoryFragment extends Fragment {
 
         mcontext = getContext();
         progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+        updateProgressBar=new Timer();
+
+
         text = (TextView) view.findViewById(R.id.inspect_progress_Text);
         hisHandler = new HisHandler();
         //设置进度控件方法，默认max为100
@@ -203,11 +211,11 @@ public class HistoryFragment extends Fragment {
         return view;
     }
 
-    public void updateMap(String building, String floor){
+    public void updateMap(String building, String floor) {
         currentBuilding = building;
         currentFloor = floor;
 
-        Log.i(LOG_TAG,currentBuilding+" "+currentFloor);
+        Log.i(LOG_TAG, currentBuilding + " " + currentFloor);
 
         int indexOfBuilding = locationList.indexOf(currentBuilding);
         buildingSpinner.setSelection(indexOfBuilding);
@@ -416,6 +424,10 @@ public class HistoryFragment extends Fragment {
                     }
                     drawBeaconIsInspect(listForDraw);
                     count = (100 * count) / Buildings.InspectHistory.size();
+                    if(count==100){
+                        updateProgressBar.cancel();
+                        Toast.makeText(getActivity(),"已经巡检完所有Beacon",Toast.LENGTH_SHORT).show();
+                    }
                     progressBar.setProgress(count);
                     text.setText("巡检进度：" + count + "%");
                     progressBar.invalidate();
@@ -425,8 +437,8 @@ public class HistoryFragment extends Fragment {
         }
     }
 
-    public void drawBeaconIsInspect(List<LocalizationBeacon> list){
-        if(list.size() == 0)
+    public void drawBeaconIsInspect(List<LocalizationBeacon> list) {
+        if (list.size() == 0)
             return;
 
         //
@@ -434,22 +446,22 @@ public class HistoryFragment extends Fragment {
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
         for (int i = 0; i < sum; i++) {
-            Log.d("wodeY",list.get(i).getY()+"Y");
-            Log.d("wodeY",list.get(i).getX()+"X");
-            int tmpY=list.get(i).getY();
-            int tmpX=list.get(i).getX();
-            int cha=50;
-            if(list.get(i).getY()==0){
-                tmpY=list.get(i).getY()+cha;
+            Log.d("wodeY", list.get(i).getY() + "Y");
+            Log.d("wodeY", list.get(i).getX() + "X");
+            int tmpY = list.get(i).getY();
+            int tmpX = list.get(i).getX();
+            int cha = 50;
+            if (list.get(i).getY() == 0) {
+                tmpY = list.get(i).getY() + cha;
             }
-            if(list.get(i).getY()==1680) {
-                tmpY=list.get(i).getY()-cha;
+            if (list.get(i).getY() == 1680) {
+                tmpY = list.get(i).getY() - cha;
             }
-            if(list.get(i).getX()==0){
-                tmpX=list.get(i).getX()+cha;
+            if (list.get(i).getX() == 0) {
+                tmpX = list.get(i).getX() + cha;
             }
-            if(list.get(i).getX()==1680){
-                tmpX=list.get(i).getX()-cha;
+            if (list.get(i).getX() == 1680) {
+                tmpX = list.get(i).getX() - cha;
             }
             geoPoint[i] = new GeoPoint(
                     geoPointLocationLB.latitude
@@ -459,7 +471,7 @@ public class HistoryFragment extends Fragment {
             if (list.get(i).getIsInspect() == 0) {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenterBottom(getResources().getDrawable(R.drawable.gray_cir)));
-            }  else {
+            } else {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenterBottom(getResources().getDrawable(R.drawable.yellow_cir)));
             }
@@ -474,6 +486,17 @@ public class HistoryFragment extends Fragment {
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
         mSailsMapView.redraw();
+    }
+
+    public void timerTask() {
+        updateProgressBar.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Message msg = new Message();
+                msg.what = 0x01;
+                hisHandler.sendMessage(msg);
+            }
+        },6000,5000);
     }
 
 }

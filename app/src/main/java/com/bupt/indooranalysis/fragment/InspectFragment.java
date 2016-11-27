@@ -447,7 +447,8 @@ public class InspectFragment extends Fragment implements
                             }
                             inspectButton.setImageResource(R.drawable.ic_inspect_grey);
                             isCalposition = 1;
-
+                            //通知巡检详情开始更新progressBar
+                            activity.updateProgressBarForHistroyFragment();
                             if (!isUpdatedOver) {
                                 //更新数据
                                 updateBeacon();

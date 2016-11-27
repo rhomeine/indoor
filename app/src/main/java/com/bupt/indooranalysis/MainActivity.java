@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity
     private ImageView userProfile;
     private TextView userCity, userProvince, userCompany, userName;
 
-    private InspectFragment inspectFragment=null;
-    private HistoryFragment historyFragment=null;
+    private InspectFragment inspectFragment = null;
+    private HistoryFragment historyFragment = null;
     private DataFragment dataFragment;
     private int currentIndex;
     private HomeActivityReceiver receiver;
@@ -678,10 +678,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateBulidingAndFloor() {
-       if(historyFragment!=null)
-                historyFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
-        if(dataFragment!=null)
-                dataFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
+        if (historyFragment != null)
+            historyFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
+        if (dataFragment != null)
+            dataFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
+    }
 
+    public void updateProgressBarForHistroyFragment() {
+        Log.d("zhouxiangLog", "updateProgressBarForHistroyFragment");
+        historyFragment.timerTask();
     }
 }
