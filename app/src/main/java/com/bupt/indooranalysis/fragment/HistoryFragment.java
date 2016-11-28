@@ -490,5 +490,20 @@ public class HistoryFragment extends Fragment {
             }
         },6000,5000);
     }
+    public void setMapZoom() {
+        switch (Buildings.currentBuilding) {
+            case "北邮科研大楼": {
+                byte zoom = 21;
+                mSailsMapView.setAnimationToZoom(zoom);
+                Toast.makeText(getActivity(), mSailsMapView.getMapViewPosition().getZoomLevel() + " ", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case "郑州中原金融产业园1栋": {
+                byte zoom = 19;
+                mSailsMapView.setAnimationToZoom(zoom);
+                break;
+            }
+        }
 
+    }
 }

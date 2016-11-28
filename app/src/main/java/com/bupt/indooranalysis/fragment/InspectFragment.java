@@ -164,6 +164,8 @@ public class InspectFragment extends Fragment implements
     private ArrayList<String> floor = new ArrayList<>();
     //spinner默认会click一下，该变量用来区别自动还是手动click
     private boolean bulidingSpinnerClickFirstly = false;
+    //是否需要动态调整地图缩放等级
+    private boolean zoomFlag = true;
     Runnable updateBuildingMaps = new Runnable() {
         @Override
         public void run() {
@@ -344,9 +346,11 @@ public class InspectFragment extends Fragment implements
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                         activity.updateBulidingAndFloor();
                     } else {
-                    //    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+                        //    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
                     }
                     floatingActionMenu.close(true);
+                    setMapZoom();
+                    activity.updateZoomForFragment();
                 }
             });
         }
@@ -485,7 +489,7 @@ public class InspectFragment extends Fragment implements
 
                     }
                 } else {
-                    Toast.makeText(activity, "请切换到" + LocationProvider.getProvince() + LocationProvider.getCity() + "地区的地图!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, "请切换到" + LocationProvider.getProvince() + LocationProvider.getCity() + "地区的地图!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -551,7 +555,10 @@ public class InspectFragment extends Fragment implements
         Log.i(LOG_TAG, "mapViewInitial: current floor " + Buildings.currentFloor);
         // Auto Adjust suitable map zoom level and position to best view
         // position.
-        mSailsMapView.autoSetMapZoomAndView();
+        // mSailsMapView.autoSetMapZoomAndView();
+        setMapZoom();
+        activity.updateZoomForFragment();
+
         // design some action in floor change call back.
         mSailsMapView.setOnFloorChangedListener(new SAILSMapView.OnFloorChangedListener() {
             @Override
@@ -689,7 +696,6 @@ public class InspectFragment extends Fragment implements
     }
 
     public void drawPosition(int x, int y) {
-
         GeoPoint geoPointNow = new GeoPoint(geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) /
                 1680 * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
         Marker marker = new Marker(geoPointNow,
@@ -699,6 +705,7 @@ public class InspectFragment extends Fragment implements
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
         mSailsMapView.redraw();
+
 
     }
 
@@ -1263,5 +1270,22 @@ public class InspectFragment extends Fragment implements
         mSailsMapView.getOverlays().clear();
         mSailsMapView.getOverlays().add(listOverlay);
         mSailsMapView.redraw();
+    }
+
+    public void setMapZoom() {
+        switch (Buildings.currentBuilding) {
+            case "北邮科研大楼": {
+                byte zoom = 21;
+                mSailsMapView.setAnimationToZoom(zoom);
+                Toast.makeText(getActivity(), mSailsMapView.getMapViewPosition().getZoomLevel() + " ", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case "郑州中原金融产业园1栋": {
+                byte zoom = 19;
+                mSailsMapView.setAnimationToZoom(zoom);
+                break;
+            }
+        }
+
     }
 }

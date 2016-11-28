@@ -687,6 +687,12 @@ public class MainActivity extends AppCompatActivity
         if (dataFragment != null)
             dataFragment.updateMap(Buildings.currentBuilding, Buildings.currentFloor);
     }
+    public void updateZoomForFragment(){
+        if (historyFragment != null)
+            historyFragment.setMapZoom();
+        if (dataFragment != null)
+            dataFragment.setMapZoom();
+    }
 
     public void updateProgressBarForHistroyFragment() {
         historyFragment.timerTask();
