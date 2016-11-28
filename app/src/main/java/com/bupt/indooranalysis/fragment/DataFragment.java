@@ -55,6 +55,7 @@ import java.util.Map;
 
 //LUO Ming
 //luo ming2
+//luo ming2
 public class DataFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
