@@ -388,10 +388,15 @@ public class MainActivity extends AppCompatActivity
         } else {
             userProfile.setImageResource(R.drawable.ic_user_profile);
             //TODO
-            userName.setText("罗明");
+            Inspector inspector = UserService.selectAllInspector(this);
+            userName.setText(inspector.getUsername());
             userCity.setVisibility(View.VISIBLE);
             userProvince.setVisibility(View.VISIBLE);
             userCompany.setVisibility(View.VISIBLE);
+            userCity.setText("区域："+inspector.getCity());
+            userProvince.setText("省份："+inspector.getProvince());
+            userCompany.setText("公司："+inspector.getCompanyName());
+
         }
     }
 
@@ -684,7 +689,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateProgressBarForHistroyFragment() {
-        Log.d("zhouxiangLog", "updateProgressBarForHistroyFragment");
         historyFragment.timerTask();
     }
 }

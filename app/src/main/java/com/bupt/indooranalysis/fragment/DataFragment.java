@@ -168,7 +168,7 @@ public class DataFragment extends Fragment {
                     public void run() {
                         String buildingName = Buildings.buildingName.get(currentBuilding) + "";
                         String Floor = Integer.valueOf(currentFloor) + "";
-                        Log.d("zhouxiangLog1",buildingName+" "+Floor);
+                        Log.d(LOG_TAG,"buildingName: " + buildingName+" Floor:"+Floor);
                        listForHeatMap = ModelService.uploadForSignalHeatMap(mcontext, buildingName, Floor);
                         if (listForHeatMap.size() != 0) {
                             Message msg = new Message();
@@ -293,9 +293,9 @@ public class DataFragment extends Fragment {
 
         dataTypeSpinner = (Spinner) view.findViewById(R.id.spinner_data_type);
         ArrayList<String> dataType = new ArrayList<>();
-        dataType.add("RSSI");
-        dataType.add("Rate");
-        dataType.add("Latency");
+        dataType.add("信号强度");
+        dataType.add("速率");
+        dataType.add("时延");
         ArrayAdapter dataTypeAdapter = new ArrayAdapter(mcontext,android.R.layout.simple_spinner_item,dataType);
         dataTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dataTypeSpinner.setAdapter(dataTypeAdapter);
@@ -799,18 +799,16 @@ public class DataFragment extends Fragment {
                 endRotateAnimation(true);
                 Toast.makeText(mcontext,"更新完成",Toast.LENGTH_SHORT).show();
             } else if (msg.what == 0x02) {
-                Toast.makeText(mcontext,"未成功，请重试",Toast.LENGTH_SHORT).show();
+                Toast.makeText(mcontext,"未获取数据",Toast.LENGTH_SHORT).show();
                 heatMapButton.setClickable(true);
                 endRotateAnimation(false);
             } else if (msg.what == 0x03) {
                 heatMap(listForHeatMap);
-
             } else if (msg.what == 0x04) {
 
             }
             super.handleMessage(msg);
         }
     }
-//周向很饿
-// luoming
+
 }

@@ -66,6 +66,8 @@ import android.widget.Toast;
 
 public class ModelService {
 
+    public static String LOG_TAG = "ModelService";
+
     public static Sim getPhoneInfo(TelephonyManager telephonyManager) {
 
         CellLocation location = telephonyManager.getCellLocation();
@@ -407,10 +409,11 @@ public class ModelService {
         Map<String, Object> result = HttpUtil.post(url, params);
         List<IndoorSignalRecord> list = new ArrayList<>();
 
-        Log.d("currentBuilding",currentBuilding+" "+currentFloor);
+        Log.i("currentBuilding",currentBuilding+" "+currentFloor);
 
         if (result == null || ((Integer) (result.get("status"))) == null || ((Integer) (result.get("status"))) < 0) {
             // context.sendBroadcast(MessageUtil.getServerResponseBundle(result));
+            //Log.i(LOG_TAG,"return list =>"+list.toString());
             return list;
         }
         if (result != null && ((Integer) (result.get("status"))) == 1) {

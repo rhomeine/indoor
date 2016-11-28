@@ -16,7 +16,6 @@ import com.bupt.indoorPosition.model.UserService;
 
 public class UserCenterActivity extends BaseAppCompatActivity {
 
-
     private TextView name;
     private TextView company;
     private TextView province;
@@ -40,15 +39,15 @@ public class UserCenterActivity extends BaseAppCompatActivity {
         inspector = UserService.selectAllInspector(UserCenterActivity.this);
 
         if (inspector != null) {
-//            name.setText(inspector.getUsername());
-//            company.setText(inspector.getCompanyName());
-//            province.setText(inspector.getProvince());
-//            city.setText(inspector.getCity());
+            name.setText(inspector.getUsername());
+            company.setText(inspector.getCompanyName());
+            province.setText(inspector.getProvince());
+            city.setText(inspector.getCity());
 
-            name.setText("罗明");
-            company.setText("中国联通");
-            province.setText("北京");
-            city.setText("北京市");
+//            name.setText("罗明");
+//            company.setText("中国联通");
+//            province.setText("北京");
+//            city.setText("北京市");
         }
 
         logout.setOnClickListener(new View.OnClickListener() {
