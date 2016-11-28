@@ -52,14 +52,14 @@ public class Buildings {
 
         HashMap<String, GeoPoint> LBGeoPointList2 = new HashMap<String, GeoPoint>();
         HashMap<String, GeoPoint> RTGeoPointList2 = new HashMap<String, GeoPoint>();
-        LBGeoPointList2.put("5层", new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList2.put("5层", new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("5层", new GeoPoint(39.9629040, 116.3529303));
+        RTGeoPointList2.put("5层", new GeoPoint(39.9630485, 116.3531201));
 
-        LBGeoPointList2.put("6层", new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList2.put("6层", new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("6层", new GeoPoint(39.9629040, 116.3529303));
+        RTGeoPointList2.put("6层", new GeoPoint(39.9630485, 116.3531201));
 
-        LBGeoPointList2.put("7层", new GeoPoint(39.96289894781549, 116.35293035811996));
-        RTGeoPointList2.put("7层", new GeoPoint(39.96304388207584, 116.35312012440777));
+        LBGeoPointList2.put("7层", new GeoPoint(39.9629040, 116.3529303));
+        RTGeoPointList2.put("7层", new GeoPoint(39.9630485, 116.3531201));
 
         BuildingsList.put("北邮科研大楼", new Buildings("北邮科研大楼", "57eb81cf08920f6b4b00053a", LBGeoPointList2, RTGeoPointList2));
         BuildingsList.put("郑州中原金融产业园1栋", new Buildings("郑州中原金融产业园1栋", "582581a608920f6b4b00132a", LBGeoPointList, RTGeoPointList));

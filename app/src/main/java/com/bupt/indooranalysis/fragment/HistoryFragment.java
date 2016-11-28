@@ -5,10 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,19 +17,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bupt.indoorPosition.adapter.CardViewAdapter;
 import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.InspectedBeacon;
 import com.bupt.indoorPosition.bean.LocalizationBeacon;
-import com.bupt.indooranalysis.MainActivity;
 import com.bupt.indooranalysis.R;
-import com.bupt.indooranalysis.Util.ArcProgress;
 import com.sails.engine.SAILS;
 import com.sails.engine.SAILSMapView;
 import com.sails.engine.core.model.GeoPoint;
 import com.sails.engine.overlay.ListOverlay;
 import com.sails.engine.overlay.Marker;
-import com.yalantis.phoenix.PullToRefreshView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -470,10 +462,10 @@ public class HistoryFragment extends Fragment {
                             - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (tmpX / 1680.0));
             if (list.get(i).getIsInspect() == 0) {
                 marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.gray_cir)));
+                        Marker.boundCenter(getResources().getDrawable(R.drawable.gray_cir)));
             } else {
                 marker[i] = new Marker(geoPoint[i],
-                        Marker.boundCenterBottom(getResources().getDrawable(R.drawable.yellow_cir)));
+                        Marker.boundCenter(getResources().getDrawable(R.drawable.green_cir)));
             }
 
         }

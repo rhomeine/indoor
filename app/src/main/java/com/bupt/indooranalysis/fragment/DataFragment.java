@@ -16,8 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -82,7 +80,6 @@ public class DataFragment extends Fragment {
     private EditText locationEditY;
 
     private Button heatMapButton;
-    private Animation rotateAnimation;
 
     private OnFragmentInteractionListener mListener;
     private Context mcontext = null;
@@ -147,9 +144,6 @@ public class DataFragment extends Fragment {
 //        locationEditY.setVisibility(View.GONE);
         heatMapButton = (Button) view.findViewById(R.id.btn_ok);
         legend = (ImageView) view.findViewById(R.id.img_legend);
-        rotateAnimation = new RotateAnimation(0f,360f,Animation.RELATIVE_TO_SELF,0.5f,
-                Animation.RELATIVE_TO_SELF,0.5f);
-
 //        heatMapButton.setText("网格热力图");
 //        heatMapButtonForPoint = (Button) view.findViewById(R.id.btn_updatedata);
 //        heatMapButtonForPoint.setText("点状热力图");
@@ -159,7 +153,6 @@ public class DataFragment extends Fragment {
             public void onClick(View v) {
                 Toast.makeText(mcontext,"正在下载热力图数据",Toast.LENGTH_SHORT).show();
                 heatMapButton.setClickable(false);
-                startRotateAnimation();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -196,20 +189,6 @@ public class DataFragment extends Fragment {
         // configure SAILS map after map preparation finish.
 
         return view;
-    }
-
-    private void startRotateAnimation(){
-
-        heatMapButton.setBackground(mcontext.getDrawable(R.drawable.ic_rotate));
-        rotateAnimation.setDuration(1000*3);
-        heatMapButton.setAnimation(rotateAnimation);
-        rotateAnimation.startNow();
-
-    }
-
-    private void endRotateAnimation(boolean isUpgradeSucc){
-        heatMapButton.setBackground(mcontext.getDrawable(R.drawable.button_ok));
-        rotateAnimation.cancel();
     }
 
     public void updateMap(String building, String floor){
@@ -793,12 +772,9 @@ public class DataFragment extends Fragment {
             if (msg.what == 0x01) {
                 heatMapForGrid(listForHeatMap);
                 heatMapButton.setClickable(true);
-                endRotateAnimation(true);
-                Toast.makeText(mcontext,"更新完成",Toast.LENGTH_SHORT).show();
             } else if (msg.what == 0x02) {
                 Toast.makeText(mcontext,"未成功，请重试",Toast.LENGTH_SHORT).show();
                 heatMapButton.setClickable(true);
-                endRotateAnimation(false);
             } else if (msg.what == 0x03) {
                 heatMap(listForHeatMap);
 

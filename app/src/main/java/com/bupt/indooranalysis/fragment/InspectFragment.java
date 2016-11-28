@@ -693,7 +693,7 @@ public class InspectFragment extends Fragment implements
         GeoPoint geoPointNow = new GeoPoint(geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) /
                 1680 * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
         Marker marker = new Marker(geoPointNow,
-                Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_cir)));
+                Marker.boundCenter(getResources().getDrawable(R.drawable.red_cir)));
         listOverlay.getOverlayItems().clear();
         listOverlay.getOverlayItems().add(marker);
         mSailsMapView.getOverlays().clear();
@@ -1182,6 +1182,7 @@ public class InspectFragment extends Fragment implements
                             Toast.makeText(activity, "数据清除完成", Toast.LENGTH_SHORT).show();
                         }
                     }).setNegativeButton("否", null).show();
+            // testForMarker();
         }
     }
 
@@ -1247,5 +1248,20 @@ public class InspectFragment extends Fragment implements
             Toast.makeText(mcontext, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
             calPositionInsertTimes = 0;
         }
+    }
+
+    public void testForMarker() {
+        GeoPoint geoPointNow1 = new GeoPoint(34.7482914, 113.7926622);
+        GeoPoint geoPointNow2 = new GeoPoint(34.7500764, 113.7941206);
+        Marker marker = new Marker(geoPointNow1,
+                Marker.boundCenter(getResources().getDrawable(R.drawable.red_cir)));
+        Marker marker2 = new Marker(geoPointNow2,
+                Marker.boundCenter(getResources().getDrawable(R.drawable.red_cir)));
+        listOverlay.getOverlayItems().clear();
+        listOverlay.getOverlayItems().add(marker);
+        listOverlay.getOverlayItems().add(marker2);
+        mSailsMapView.getOverlays().clear();
+        mSailsMapView.getOverlays().add(listOverlay);
+        mSailsMapView.redraw();
     }
 }
