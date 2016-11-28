@@ -344,7 +344,7 @@ public class InspectFragment extends Fragment implements
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                         activity.updateBulidingAndFloor();
                     } else {
-                        Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
+                    //    Toast.makeText(getActivity(), "已显示该楼层", Toast.LENGTH_SHORT).show();
                     }
                     floatingActionMenu.close(true);
                 }
