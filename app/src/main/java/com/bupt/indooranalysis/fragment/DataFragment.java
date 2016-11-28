@@ -52,6 +52,8 @@ import java.util.Map;
  * Use the {@link DataFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+
+//LUO Ming
 public class DataFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
