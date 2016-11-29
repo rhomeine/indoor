@@ -815,7 +815,6 @@ public class DataFragment extends Fragment {
             case "北邮科研大楼": {
                 byte zoom = 21;
                 mSailsMapView.setAnimationToZoom(zoom);
-                Toast.makeText(getActivity(), mSailsMapView.getMapViewPosition().getZoomLevel() + " ", Toast.LENGTH_SHORT).show();
                 break;
             }
             case "郑州中原金融产业园1栋": {
