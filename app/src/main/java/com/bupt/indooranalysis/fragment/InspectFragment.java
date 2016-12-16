@@ -252,6 +252,9 @@ public class InspectFragment extends Fragment implements
                     txPower = -60;
                 }
                 int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
+                if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+                    dis = BeaconUtil.calculateAccuracyForZz(txPower, rssi);
+                }
                 if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
                     // String newMac = device.getAddress();
                     // DBManager dbManager = new
@@ -696,8 +699,17 @@ public class InspectFragment extends Fragment implements
     }
 
     public void drawPosition(int x, int y) {
+
+        //结合当前楼层更改楼层长宽
+
+        Double buildingX = 1680.0;
+        Double buildingY = 1680.0;
+        if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+            buildingX = 3300.0;
+            buildingY = 5000.0;
+        }
         GeoPoint geoPointNow = new GeoPoint(geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) /
-                1680 * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / 1680 * x);
+                buildingY * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / buildingX * x);
         Marker marker = new Marker(geoPointNow,
                 Marker.boundCenter(getResources().getDrawable(R.drawable.red_cir)));
         listOverlay.getOverlayItems().clear();
@@ -1055,11 +1067,11 @@ public class InspectFragment extends Fragment implements
                 msg.setData(b);
                 handler.sendMessage(msg);
                 //测试使用计数器
-                Iterator<Map.Entry<String, Integer>> it = ScanBlueToothTimesInPeriod.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, Integer> entry = it.next();
-                    Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
-                }
+//                Iterator<Map.Entry<String, Integer>> it = ScanBlueToothTimesInPeriod.entrySet().iterator();
+//                while (it.hasNext()) {
+//                    Map.Entry<String, Integer> entry = it.next();
+//                    Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
+//                }
                 ScanBlueToothTimesInPeriod.clear();
                 synchronized (beaconSet) {
                     beaconSet.clear();

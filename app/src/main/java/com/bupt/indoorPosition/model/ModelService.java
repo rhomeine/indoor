@@ -249,11 +249,15 @@ public class ModelService {
                 List<Integer> list = dbManager.LocalizationXY(newMac);
                 ArrayList<Integer> newlist = new ArrayList<Integer>();
                 newlist.add(newBeacon.getDistance());
-                beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
-                        list.get(0).intValue(), list.get(1).intValue(), newlist));
+                synchronized (beaconSet) {
+                    beaconSet.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
+                            list.get(0).intValue(), list.get(1).intValue(), newlist));
+                }
 
-                beaconMap.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
-                        list.get(0).intValue(), list.get(1).intValue(), newlist));
+                synchronized (beaconMap) {
+                    beaconMap.add(new Beacon(newMac, newBeacon.getRssi(), newBeacon.getTxPower(), newBeacon.getDistance(),
+                            list.get(0).intValue(), list.get(1).intValue(), newlist));
+                }
             }
         }
     }
@@ -330,7 +334,7 @@ public class ModelService {
         // record.setDistance(position.getDistance());
         // Log.d("recordIndoorData", record.getUuid());
         record.setBuildingNum(InspectFragment.buildingNumber);
-        record.setBuildingNum(InspectFragment.buildingfloor);
+        record.setFloor(InspectFragment.buildingfloor);
         DBManager dbManager = new DBManager(context);
         dbManager.insertIndoorSignalRecord(record);
         if (neighbors != null)

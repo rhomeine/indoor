@@ -80,8 +80,9 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="udN9CfRBVexDxIir9WfkIseKDlp5sCFt" />
+            android:value="NsNbaMTwnx3dux4vcb5YXrQ1f4i9jNpc" />
 <!--LUO MING'S KEY udN9CfRBVexDxIir9WfkIseKDlp5sCFt-->
+        <!--LUO MING'S MAC OS NsNbaMTwnx3dux4vcb5YXrQ1f4i9jNpc-->
 
         <service
             android:name=".AccelerometerService"

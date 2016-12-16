@@ -558,10 +558,19 @@ public class DataFragment extends Fragment {
         ListOverlay listOverlay = new ListOverlay();
         mapForHeatMap = new HashMap<>();
         mapForHeatMapLevel = new HashMap<>();
+        //结合当前楼层更改楼层长宽
+        int buildX = 1680;
+        int buildY = 1680;
+
+        if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+            buildX = 3300;
+            buildY = 5000;
+        }
+
         for (int i = 0; i < list.size(); i++) {
             IndoorSignalRecord signal = list.get(i);
-            int tempX = signal.getPositionX() / (1680 / 64);
-            int tempY = signal.getPositionY() / (1680 / 64);
+            int tempX = signal.getPositionX() / (buildX / 64);
+            int tempY = signal.getPositionY() / (buildY / 64);
             int temp = tempX + tempY * 64;
             if (!mapForHeatMap.containsKey(temp)) {
                 List<Integer> signalStrength = new ArrayList<>();
@@ -714,6 +723,16 @@ public class DataFragment extends Fragment {
     //
     public void heatMap(List<IndoorSignalRecord> list) {
 
+        //结合当前楼层更改楼层长宽
+
+        Double buildingX = 1680.0;
+        Double buildingY = 1680.0;
+        if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+            buildingX = 3300.0;
+            buildingY = 5000.0;
+        }
+
+
         ListOverlay listOverlay = new ListOverlay();
         int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
@@ -721,9 +740,9 @@ public class DataFragment extends Fragment {
         for (int i = 0; i < sum; i++) {
             geoPoint[i] = new GeoPoint(
                     geoPointLocationLB.latitude
-                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (list.get(i).getPositionY() / 1680.0),
+                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (list.get(i).getPositionY() / buildingY),
                     geoPointLocationLB.longitude
-                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (list.get(i).getPositionX() / 1680.0));
+                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (list.get(i).getPositionX() / buildingX));
             if (list.get(i).getSignalStrength() < -100) {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenterBottom(getResources().getDrawable(R.drawable.red_c)));

@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity
                         mTabInspect.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;
                     case 1:
+                        updateProgressBarForHistroyFragment();
                         mTabHistory.setTextColor(Color.WHITE);
                         mTabHistory.setBackground(getResources().getDrawable(R.drawable.shape_rect_button));
                         break;

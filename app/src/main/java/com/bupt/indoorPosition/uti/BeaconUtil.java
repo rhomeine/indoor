@@ -91,6 +91,19 @@ public class BeaconUtil {
 		return (int) (100 * accurancy);
 	}
 
+	public static int calculateAccuracyForZz(int txPower, double rssi) {
+		if (rssi == 0) {
+			return -100; // if we cannot determine accuracy, return -1.
+		}
+		double accurancy = Math.pow(10, (rssi + 65) / (-28));
+//		double accurancy = Math.pow(10, (rssi + 71) / (-15.5));
+		double dis = (100 * accurancy);
+		if(dis>210){
+		dis = Math.sqrt(dis*dis - 210*210);
+		}
+		return (int)dis;
+	}
+
 	public static Beacon get(Set<Beacon> beaconSet, String key) {
 		Beacon beacon = null;
 		for (Beacon b : beaconSet) {

@@ -414,15 +414,18 @@ public class HistoryFragment extends Fragment {
                             listForDraw.add(entry.getValue());
                         }
                     }
-                    drawBeaconIsInspect(listForDraw);
+                    Log.d("Activityzhishang", getActivity() + "");
+                    if (getActivity() != null) {
+                        drawBeaconIsInspect(listForDraw);
                     count = (100 * count) / Buildings.InspectHistory.size();
-                    if(count==100){
+                    if (count == 100) {
                         updateProgressBar.cancel();
-                        Toast.makeText(getActivity(),"已经巡检完所有Beacon",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "已经巡检完所有Beacon", Toast.LENGTH_SHORT).show();
                     }
                     progressBar.setProgress(count);
                     text.setText("巡检进度：" + count + "%");
                     progressBar.invalidate();
+                }
                 }
             }
             super.handleMessage(msg);
@@ -434,6 +437,18 @@ public class HistoryFragment extends Fragment {
             return;
 
         //
+        //结合当前楼层更改楼层长宽
+        int buildX = 1680;
+        int buildY = 1680;
+        Double buildingX = 1680.0;
+        Double buildingY = 1680.0;
+        if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+            buildX = 3300;
+            buildY = 5000;
+            buildingX = 3300.0;
+            buildingY = 5000.0;
+        }
+
         int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
@@ -446,20 +461,20 @@ public class HistoryFragment extends Fragment {
             if (list.get(i).getY() == 0) {
                 tmpY = list.get(i).getY() + cha;
             }
-            if (list.get(i).getY() == 1680) {
+            if (list.get(i).getY() == buildY) {
                 tmpY = list.get(i).getY() - cha;
             }
             if (list.get(i).getX() == 0) {
                 tmpX = list.get(i).getX() + cha;
             }
-            if (list.get(i).getX() == 1680) {
+            if (list.get(i).getX() == buildX) {
                 tmpX = list.get(i).getX() - cha;
             }
             geoPoint[i] = new GeoPoint(
                     geoPointLocationLB.latitude
-                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (tmpY / 1680.0),
+                            - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) * (tmpY / buildingY),
                     geoPointLocationLB.longitude
-                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (tmpX / 1680.0));
+                            - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) * (tmpX / buildingX));
             if (list.get(i).getIsInspect() == 0) {
                 marker[i] = new Marker(geoPoint[i],
                         Marker.boundCenter(getResources().getDrawable(R.drawable.gray_cir)));
@@ -481,14 +496,14 @@ public class HistoryFragment extends Fragment {
     }
 
     public void timerTask() {
-        updateProgressBar.schedule(new TimerTask() {
-            @Override
-            public void run() {
+//        updateProgressBar.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
                 Message msg = new Message();
                 msg.what = 0x01;
                 hisHandler.sendMessage(msg);
-            }
-        },6000,5000);
+//            }
+//        },6000,5000);
     }
     public void setMapZoom() {
         switch (Buildings.currentBuilding) {

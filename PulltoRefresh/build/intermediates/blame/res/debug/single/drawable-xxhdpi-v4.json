@@ -1,26 +1,14 @@
 [
     {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\sky.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\sky.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/buildings.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xxhdpi/buildings.png"
     },
     {
-        "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\sky.png",
-        "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\sky.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/sky.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xxhdpi/sky.png"
     },
     {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\sun.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\sun.png"
-    },
-    {
-        "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\buildings.png",
-        "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\buildings.png"
-    },
-    {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\buildings.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\buildings.png"
-    },
-    {
-        "merged": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xxhdpi-v4\\sun.png",
-        "source": "D:\\app\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xxhdpi\\sun.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/sun.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xxhdpi/sun.png"
     }
 ]
