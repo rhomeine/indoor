@@ -455,6 +455,7 @@ public class HistoryFragment extends Fragment {
                 buildingY = 5000.0;
             }
         }
+
         int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
