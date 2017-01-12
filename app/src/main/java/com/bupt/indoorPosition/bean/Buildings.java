@@ -50,6 +50,9 @@ public class Buildings {
         LBGeoPointList.put("5层", new GeoPoint(34.7482912, 113.7926698));
         RTGeoPointList.put("5层", new GeoPoint(34.7500686, 113.7941235));
 
+        LBGeoPointList.put("6层", new GeoPoint(34.7482881, 113.7926672));
+        RTGeoPointList.put("6层", new GeoPoint(34.7488313, 113.7931514));
+
         HashMap<String, GeoPoint> LBGeoPointList2 = new HashMap<String, GeoPoint>();
         HashMap<String, GeoPoint> RTGeoPointList2 = new HashMap<String, GeoPoint>();
         LBGeoPointList2.put("5层", new GeoPoint(39.9629040, 116.3529303));

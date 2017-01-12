@@ -443,10 +443,17 @@ public class HistoryFragment extends Fragment {
         Double buildingX = 1680.0;
         Double buildingY = 1680.0;
         if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
-            buildX = 3300;
-            buildY = 5000;
-            buildingX = 3300.0;
-            buildingY = 5000.0;
+            if(Integer.valueOf(Buildings.currentFloor) == 6){
+                buildX = 1100;
+                buildY = 1500;
+                buildingX = 1100.0;
+                buildingY = 1500.0;
+            }else {
+                buildX = 3300;
+                buildY = 5000;
+                buildingX = 3300.0;
+                buildingY = 5000.0;
+            }
         }
 
         int sum = list.size();
@@ -513,7 +520,7 @@ public class HistoryFragment extends Fragment {
                 break;
             }
             case "郑州中原金融产业园1栋": {
-                byte zoom = 19;
+                byte zoom = 20;
                 mSailsMapView.setAnimationToZoom(zoom);
                 break;
             }

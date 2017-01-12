@@ -1292,7 +1292,7 @@ public class InspectFragment extends Fragment implements
                 break;
             }
             case "郑州中原金融产业园1栋": {
-                byte zoom = 19;
+                byte zoom = 20;
                 mSailsMapView.setAnimationToZoom(zoom);
                 break;
             }
