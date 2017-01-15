@@ -1,13 +1,5 @@
 [
     {
-        "merged": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4\\sky.png",
-        "source": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\sky.png"
-    },
-    {
-        "merged": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4\\buildings.png",
-        "source": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\buildings.png"
-    },
-    {
         "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4\\buildings.png",
         "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\buildings.png"
     },
@@ -18,9 +10,5 @@
     {
         "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4\\sun.png",
         "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\sun.png"
-    },
-    {
-        "merged": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4\\sun.png",
-        "source": "D:\\Users\\rhomeine\\AndroidStudioProjects\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\sun.png"
     }
 ]

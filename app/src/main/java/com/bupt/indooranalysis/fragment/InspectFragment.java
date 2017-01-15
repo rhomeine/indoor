@@ -72,6 +72,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.bupt.indoorPosition.bean.Buildings.currentBuilding;
+import static com.bupt.indoorPosition.bean.Buildings.currentFloor;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -170,7 +173,7 @@ public class InspectFragment extends Fragment implements
         @Override
         public void run() {
 
-            String buidingCode = Buildings.BuildingsList.get(Buildings.currentBuilding).getCode();
+            String buidingCode = Buildings.BuildingsList.get(currentBuilding).getCode();
             mSails.loadCloudBuilding("ef608be1ea294e3ebcf6583948884a2a", buidingCode, // keyanlou
                     new SAILS.OnFinishCallback() {
                         @Override
@@ -252,7 +255,7 @@ public class InspectFragment extends Fragment implements
                     txPower = -60;
                 }
                 int dis = BeaconUtil.calculateAccuracyForLocalization(txPower, rssi);
-                if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
+                if(currentBuilding.equals("郑州中原金融产业园1栋")){
                     dis = BeaconUtil.calculateAccuracyForZz(txPower, rssi);
                 }
                 if (device.getAddress().equals("80:30:DC:0D:F6:0F")) {
@@ -344,8 +347,8 @@ public class InspectFragment extends Fragment implements
                 public void onClick(View v) {
                     Log.i(LOG_TAG, mSailsMapView.getCurrentBrowseFloorName() + "::" + mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
-                        Buildings.currentFloor = mSails.getFloorNameList().get(finalI);
-                        mSailsMapView.loadFloorMap(Buildings.currentFloor);
+                        currentFloor = mSails.getFloorNameList().get(finalI);
+                        mSailsMapView.loadFloorMap(currentFloor);
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                         activity.updateBulidingAndFloor();
                     } else {
@@ -418,7 +421,7 @@ public class InspectFragment extends Fragment implements
                 if (isCalposition == 2) {
                     stopScan();
                 }
-                Buildings.currentBuilding = spinner.getSelectedItem().toString();
+                currentBuilding = spinner.getSelectedItem().toString();
                 if (bulidingSpinnerClickFirstly) {
                     // Log.d("zhouxiangLog",Buildings.currentBuilding+" "+Buildings.currentFloor);
                     activity.updateBulidingAndFloor();
@@ -427,7 +430,7 @@ public class InspectFragment extends Fragment implements
                 if (isFABinit) actionButton.setVisibility(View.INVISIBLE);
                 mSailsMapView.post(updateBuildingMaps);
                 if (mSailsMapView != null)
-                    Log.i(LOG_TAG, "Current building is changed to " + Buildings.currentBuilding + " " + mSailsMapView.getCurrentBrowseFloorName());
+                    Log.i(LOG_TAG, "Current building is changed to " + currentBuilding + " " + mSailsMapView.getCurrentBrowseFloorName());
             }
 
             @Override
@@ -446,7 +449,7 @@ public class InspectFragment extends Fragment implements
               /* Log.d("zhouxiangLog", Buildings.buildingCity.get(Buildings.currentBuilding)+ ""+
                         LocationProvider.getCity());*/
 
-                if (Buildings.buildingCity.get(Buildings.currentBuilding).equals(LocationProvider.getCity())) {
+                if (Buildings.buildingCity.get(currentBuilding).equals(LocationProvider.getCity())) {
                     switch (isCalposition) {
                         case 0:
                             if (!MessageUtil.checkLogin(mcontext)) {
@@ -517,8 +520,8 @@ public class InspectFragment extends Fragment implements
         mSailsMapView.enableRotate(false);
         ((FrameLayout) view.findViewById(R.id.SAILSMap)).addView(mSailsMapView);
 //        currentBuilding = spinner.getSelectedItem().toString();
-        Buildings.currentBuilding = spinner.getSelectedItem().toString();
-        Log.i(LOG_TAG, "Current building is " + Buildings.currentBuilding);
+        currentBuilding = spinner.getSelectedItem().toString();
+        Log.i(LOG_TAG, "Current building is " + currentBuilding);
 
         final ImageView fabIconNew = new ImageView(mcontext);
         fabIconNew.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_send_now_light));
@@ -551,11 +554,11 @@ public class InspectFragment extends Fragment implements
 
         //设置GeoPoint
 
-        geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(0));
-        geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(0));
-        Buildings.currentFloor = mSails.getFloorNameList().get(0);
+        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding, mSails.getFloorDescList().get(0));
+        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding, mSails.getFloorDescList().get(0));
+        currentFloor = mSails.getFloorNameList().get(0);
 
-        Log.i(LOG_TAG, "mapViewInitial: current floor " + Buildings.currentFloor);
+        Log.i(LOG_TAG, "mapViewInitial: current floor " + currentFloor);
         // Auto Adjust suitable map zoom level and position to best view
         // position.
         // mSailsMapView.autoSetMapZoomAndView();
@@ -594,8 +597,8 @@ public class InspectFragment extends Fragment implements
                 //设置GeoPoint
 
 
-                geoPointLocationLB = Buildings.getLBGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(position));
-                geoPointLocationRT = Buildings.getRTGeoPoint(Buildings.currentBuilding, mSails.getFloorDescList().get(position));
+                geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding, mSails.getFloorDescList().get(position));
+                geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding, mSails.getFloorDescList().get(position));
                 //  floorList.setSelection(position);
                 floorNumTV.setText(mSails.getFloorDescList().get(position));
             }
@@ -704,10 +707,17 @@ public class InspectFragment extends Fragment implements
 
         Double buildingX = 1680.0;
         Double buildingY = 1680.0;
-        if(Buildings.currentBuilding.equals("郑州中原金融产业园1栋")){
-            buildingX = 3300.0;
-            buildingY = 5000.0;
+        if(currentBuilding.equals("郑州中原金融产业园1栋")){
+            if(Integer.valueOf(currentFloor) == 6){
+                buildingX = 1100.0;
+                buildingY = 1500.0;
+            }else{
+                buildingX = 3300.0;
+                buildingY = 5000.0;
+            }
         }
+        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,currentFloor+"层");
+        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,currentFloor+"层");
         GeoPoint geoPointNow = new GeoPoint(geoPointLocationLB.latitude - (geoPointLocationLB.latitude - geoPointLocationRT.latitude) /
                 buildingY * y, geoPointLocationLB.longitude - (geoPointLocationLB.longitude - geoPointLocationRT.longitude) / buildingX * x);
         Marker marker = new Marker(geoPointNow,
@@ -1285,7 +1295,7 @@ public class InspectFragment extends Fragment implements
     }
 
     public void setMapZoom() {
-        switch (Buildings.currentBuilding) {
+        switch (currentBuilding) {
             case "北邮科研大楼": {
                 byte zoom = 21;
                 mSailsMapView.setAnimationToZoom(zoom);

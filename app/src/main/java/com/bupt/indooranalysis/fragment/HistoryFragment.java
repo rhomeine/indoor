@@ -456,6 +456,8 @@ public class HistoryFragment extends Fragment {
             }
         }
 
+        geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding,currentFloor+"层");
+        geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding,currentFloor+"层");
         int sum = list.size();
         GeoPoint geoPoint[] = new GeoPoint[sum];
         Marker marker[] = new Marker[sum];
