@@ -5,6 +5,7 @@ import com.sails.engine.core.model.GeoPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,11 +19,18 @@ public class Buildings {
     public static Map<String, LocalizationBeacon> InspectHistory = new HashMap<>();
     public static String currentBuilding = "郑州中原金融产业园1栋";
     public static String currentFloor = "1";
+    public static Map<String, int[]> buildingPara = new HashMap<>();
 
 
     public static HashMap<String, Buildings> BuildingsList = new HashMap<String, Buildings>();
 
     static {
+        buildingPara.put("1", new int[]{5, 5, 0, 0});
+        buildingPara.put("2", new int[]{5, 5, 0, 0});
+        buildingPara.put("3", new int[]{5, 5, 0, 0});
+        buildingPara.put("4", new int[]{5, 5, 0, 0});
+        buildingPara.put("5", new int[]{5, 5, 0, 0});
+        buildingPara.put("6", new int[]{5, 5, 0, 0});
 //        BuildingsList.add("北邮科研大楼");
 //        BuildingsList.add("郑州中原金融产业园1栋");
 //        BuildingsMap.put("北邮科研大楼","57eb81cf08920f6b4b00053a");

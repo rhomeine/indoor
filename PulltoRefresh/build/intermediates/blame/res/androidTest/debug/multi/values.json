@@ -1,6 +1,10 @@
 [
     {
-        "outputFile": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values/values.xml",
+        "map": []
+    },
+    {
+        "outputFile": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": []
     }
 ]

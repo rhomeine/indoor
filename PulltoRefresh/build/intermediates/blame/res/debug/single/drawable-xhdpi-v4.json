@@ -1,14 +1,26 @@
 [
     {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\sun.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\sun.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\sun.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\sun.png"
     },
     {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\buildings.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\buildings.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xhdpi-v4/sky.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xhdpi/sky.png"
     },
     {
-        "merged": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\sky.png",
-        "source": "D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\sky.png"
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\buildings.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\buildings.png"
+    },
+    {
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xhdpi-v4/buildings.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xhdpi/buildings.png"
+    },
+    {
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/build/intermediates/res/merged/debug/drawable-xhdpi-v4/sun.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/PulltoRefresh/src/main/res/drawable-xhdpi/sun.png"
+    },
+    {
+        "merged": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\build\\intermediates\\res\\merged\\debug\\drawable-xhdpi-v4\\sky.png",
+        "source": "/Users/rhomeine/AndroidStudioProjects/IndoorAnalysis/D:\\javaworkspace\\IndoorAnalysis\\PulltoRefresh\\src\\main\\res\\drawable-xhdpi\\sky.png"
     }
 ]

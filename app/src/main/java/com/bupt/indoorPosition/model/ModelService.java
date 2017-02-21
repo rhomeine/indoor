@@ -24,6 +24,7 @@ import java.util.Set;
 
 import com.bupt.indoorPosition.bean.Beacon;
 import com.bupt.indoorPosition.bean.BeaconInfo;
+import com.bupt.indoorPosition.bean.BuildingPara;
 import com.bupt.indoorPosition.bean.Buildings;
 import com.bupt.indoorPosition.bean.CalculatePosition;
 import com.bupt.indoorPosition.bean.IndoorRecord;
@@ -163,6 +164,34 @@ public class ModelService {
         return true;
     }
 
+    public static boolean updateBuilidingPara(Context context) {
+        String url = context.getString(R.string.updateBuildingParaUrl);
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("city", LocationProvider.getCity());
+        params.put("province", LocationProvider.getProvince());
+        Map<String, Object> response = HttpUtil.post(url, params);
+        if (response == null || ((Integer) (response.get("status"))) == null
+                || ((Integer) (response.get("status"))) < 0) {
+            context.sendBroadcast(MessageUtil.getServerResponseBundle(response,
+                    Constants.ACTIONURL.MAIN_ACTIVITY_ACTION, Constants.INTENT_TYPE.NONE));
+            return false;
+        }
+        List<BuildingPara> list = JsonUtil.convertListFromMap(response, "list", BuildingPara.class);
+
+        if(list == null){
+            Log.d("Maple","Maple is null");
+            return false;
+        }
+        for(int i = 0; i<list.size(); i++){
+            Log.d("Maple","Maple");
+            BuildingPara para = list.get(i);
+            Buildings.buildingPara.put(para.getBuildingFloor()+"",new int[]{para.getBuildingCollectNum(),para.getBuildingCollectTime(),para.getBuildingCollectSleep(),para.getBuildingDisThreshold()});
+        }
+
+        return true;
+    }
+
     /**
      * @param beaconSet
      * @param newBeacon newBeacon.getMac()保证不是Null
@@ -234,6 +263,7 @@ public class ModelService {
                     ArrayList<Integer> list = listBeacon.getDislist();
                     list.add(newBeacon.getDistance());
                     listBeacon.setDislist(list);
+                    Log.d("Model.Check",newBeacon.getMac()+":  "+listBeacon.getDislist().size());
                 }
             }
 
@@ -1289,9 +1319,9 @@ public class ModelService {
         Set<Beacon> newBeaconMap = new HashSet<Beacon>();
         while (it.hasNext()) {
             Beacon b = it.next();
-            Log.d("ModelService", b.getMac() + ": " + b.getDislist().size());
+            Log.d("ModelService", b.getMac() + ": " + b.getDislist().size() + " Nums:" + beaconMap.size());
             // 对每个点采集的时序数据进行高斯滤波
-            if (b.getDislist().size() < 5) {
+            if (b.getDislist().size() < InspectFragment.buildingCollectNum) {
 //                Iterator<Integer> iterasmall = b.getDislist().iterator();
 //
 //                while (iterasmall.hasNext()) {

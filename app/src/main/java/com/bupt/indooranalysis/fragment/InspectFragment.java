@@ -72,6 +72,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.bupt.indoorPosition.bean.Buildings.buildingPara;
 import static com.bupt.indoorPosition.bean.Buildings.currentBuilding;
 import static com.bupt.indoorPosition.bean.Buildings.currentFloor;
 
@@ -90,6 +91,14 @@ public class InspectFragment extends Fragment implements
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static boolean isInArea = false;
+    //buiding localization parameters
+    public static int buildingCollectNum = 5;
+    public static int buildingCollectTime = 5;
+    public static int buildingCollectSleep = 0;
+    //存储上次定位结果
+    private boolean isFirstLocal = true;
+    private int[] lastLocal = new int[]{0,0};
+    public static int buildingDisThreshold = 0;
     public static int buildingNumber = 0;
     public static int buildingfloor = 0;
     static SAILS mSails;
@@ -348,6 +357,32 @@ public class InspectFragment extends Fragment implements
                     Log.i(LOG_TAG, mSailsMapView.getCurrentBrowseFloorName() + "::" + mSails.getFloorNameList().get(finalI));
                     if (!mSailsMapView.getCurrentBrowseFloorName().equals(mSails.getFloorNameList().get(finalI))) {
                         currentFloor = mSails.getFloorNameList().get(finalI);
+                        //设置楼宇定位参数
+                        if(currentBuilding.equals("郑州中原金融产业园1栋")){
+                            buildingCollectNum = Buildings.buildingPara.get(currentFloor)[0];
+                            buildingCollectTime = Buildings.buildingPara.get(currentFloor)[1];
+                            buildingCollectSleep = Buildings.buildingPara.get(currentFloor)[2];
+                            buildingDisThreshold = Buildings.buildingPara.get(currentFloor)[3];
+                        }else{
+                            buildingCollectNum = 5;
+                            buildingCollectTime = 5;
+                            buildingCollectSleep = 0;
+                            buildingDisThreshold = 0;
+                        }
+                        if(LocalizationTimer!=null){
+                        LocalizationTimer.cancel();
+                        LocalizationTimer = new Timer();
+                        }
+                        inspectButton.setImageResource(R.drawable.ic_inspect_user);
+                        isCalposition = 0;
+                        if (isScanning) {
+                            isScanning = false;
+                            ((FragmentServiceCallback) activity).startOrStopActivityService(
+                                    scanServiceintent, false);
+                            Toast.makeText(mcontext, calPositionInsertTimes + "组定位数据", Toast.LENGTH_SHORT).show();
+                            calPositionInsertTimes = 0;
+                        }
+                        Log.d("BuildingPara1",currentBuilding+ " "+ buildingCollectNum+" "+buildingCollectTime+"   "+buildingCollectSleep);
                         mSailsMapView.loadFloorMap(currentFloor);
                         Toast.makeText(getActivity(), floor.get(finalI), Toast.LENGTH_SHORT).show();
                         activity.updateBulidingAndFloor();
@@ -557,6 +592,19 @@ public class InspectFragment extends Fragment implements
         geoPointLocationLB = Buildings.getLBGeoPoint(currentBuilding, mSails.getFloorDescList().get(0));
         geoPointLocationRT = Buildings.getRTGeoPoint(currentBuilding, mSails.getFloorDescList().get(0));
         currentFloor = mSails.getFloorNameList().get(0);
+        //设置楼宇定位参数
+        if(currentBuilding.equals("郑州中原金融产业园1栋")){
+            buildingCollectNum = Buildings.buildingPara.get(currentFloor)[0];
+            buildingCollectTime = Buildings.buildingPara.get(currentFloor)[1];
+            buildingCollectSleep = Buildings.buildingPara.get(currentFloor)[2];
+            buildingDisThreshold = Buildings.buildingPara.get(currentFloor)[3];
+        }else{
+            buildingCollectNum = 5;
+            buildingCollectTime = 5;
+            buildingCollectSleep = 0;
+            buildingDisThreshold = 0;
+        }
+        Log.d("BuildingPara2",buildingCollectNum+" "+buildingCollectTime+"   "+buildingCollectSleep);
 
         Log.i(LOG_TAG, "mapViewInitial: current floor " + currentFloor);
         // Auto Adjust suitable map zoom level and position to best view
@@ -677,6 +725,19 @@ public class InspectFragment extends Fragment implements
                 setTimerTasks();
                 isCalposition = 2;
                 Toast.makeText(activity, "更新成功", Toast.LENGTH_SHORT).show();
+                //设置楼宇参数初始化
+                if(currentBuilding.equals("郑州中原金融产业园1栋")){
+                    buildingCollectNum = Buildings.buildingPara.get(currentFloor)[0];
+                    buildingCollectTime = Buildings.buildingPara.get(currentFloor)[1];
+                    buildingCollectSleep = Buildings.buildingPara.get(currentFloor)[2];
+                    buildingDisThreshold = Buildings.buildingPara.get(currentFloor)[3];
+                }else{
+                    buildingCollectNum = 5;
+                    buildingCollectTime = 5;
+                    buildingCollectSleep = 0;
+                    buildingDisThreshold = 0;
+                }
+                Log.d("BuildingPara3",currentBuilding+ " "+ buildingCollectNum+" "+buildingCollectTime+"   "+buildingCollectSleep);
                 isUpdatedOver = true;
                 if (isScanning == false) {
                     isScanning = true;
@@ -749,6 +810,8 @@ public class InspectFragment extends Fragment implements
                 boolean status = ModelService.updateDb(activity, sim);
                 //新增定位模块更新
                 boolean statusForLoacalization = ModelService.updateLocalization(activity);
+                //设置楼宇定位参数
+                boolean statusForBuildingPara = ModelService.updateBuilidingPara(activity);
 
                 Message msg = new Message();
                 msg.what = Constants.MSG.UPDATE;
@@ -1003,6 +1066,8 @@ public class InspectFragment extends Fragment implements
             public void run() {
                 // TODO Auto-generated method stub
 
+                Log.d("InspectCheck","Before is time.");
+
                 Set<Beacon> newbeaconMap1 = new HashSet<Beacon>();
                 Set<Beacon> newbeaconMap2 = new HashSet<Beacon>();
                 Set<Beacon> newbeaconMap3 = new HashSet<Beacon>();
@@ -1082,6 +1147,15 @@ public class InspectFragment extends Fragment implements
 //                    Map.Entry<String, Integer> entry = it.next();
 //                    Log.d("IndoorActivity207", "" + entry.getKey() + " " + entry.getValue());
 //                }
+
+
+                try {
+                    Thread.sleep(buildingCollectSleep*1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("InspectCheck","Now is time.");
+
                 ScanBlueToothTimesInPeriod.clear();
                 synchronized (beaconSet) {
                     beaconSet.clear();
@@ -1102,8 +1176,10 @@ public class InspectFragment extends Fragment implements
                         list4, ScanSignalService.speed);
                 Log.d("InsepctInsepct", isInArea + "");
 
+
+
             }
-        }, 3000, 5000);
+        }, 3000, (buildingCollectSleep+buildingCollectTime)*1000);//此处定位周期为采集周期与休眠时间之和
     }
     //为list展示提供参考
 //    public class BeaconSimpleAdapter extends SimpleAdapter {
@@ -1257,8 +1333,22 @@ public class InspectFragment extends Fragment implements
             if (msg.what == 0x01) {
                 Bundle b = msg.getData();
                 locationTextView.setText(b.getInt("list4x") + " " + b.getInt("list4y"));
-                if (!(b.getInt("list4x") == 0 && b.getInt("list4y") == 0))
-                    drawPosition(b.getInt("list4x"), b.getInt("list4y"));
+                if (!(b.getInt("list4x") == 0 && b.getInt("list4y") == 0)){
+                    if(isFirstLocal){
+                        isFirstLocal = false;
+                        lastLocal[0] = b.getInt("list4x");
+                        lastLocal[1] = b.getInt("list4y");
+                        drawPosition(b.getInt("list4x"), b.getInt("list4y"));
+                    }else{
+                        double dis = Math.sqrt( Math.pow(Math.abs(lastLocal[0]-b.getInt("list4x")),2) + Math.pow(Math.abs(lastLocal[1]-b.getInt("list4y")),2) );
+                        if(dis > buildingDisThreshold * 100){
+                            lastLocal[0] = b.getInt("list4x");
+                            lastLocal[1] = b.getInt("list4y");
+                            drawPosition(b.getInt("list4x"), b.getInt("list4y"));
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -1278,6 +1368,7 @@ public class InspectFragment extends Fragment implements
             calPositionInsertTimes = 0;
         }
     }
+
 
     public void testForMarker() {
         GeoPoint geoPointNow1 = new GeoPoint(34.7482914, 113.7926622);
